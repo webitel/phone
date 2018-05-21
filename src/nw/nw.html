@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script>
+    const gui = window.require('nw.gui');
+    const fs = window.require('fs');
+    const path = window.require('path');
+    const FILE_NAME = 'config.json';
+    let lockCloseWindow = false;
+
+    class FileStorage {
+
+      constructor () {
+        this._data = {
+          callAlwaysOnTop: true,
+          alwaysOnTop: true
+        };
+
+        this._path = path.join(global.__dirname, FILE_NAME);
+        this.load();
+      }
+
+      save (callback) {
+        fs.writeFile(this._path, JSON.stringify(this._data), function (err) {
+          if (err) {
+            console.info("There was an error attempting to save your data.");
+            console.warn(err.message);
+          } else if (callback) {
+            callback();
+          }
+        });
+      }
+
+      set (name, val, cb) {
+        this._data[name] = val;
+        this.save(cb);
+      }
+
+      get (name) {
+        return this._data[name]
+      }
+
+      load () {
+        try {
+          const data = fs.readFileSync(this._path);
+          this._data = JSON.parse(data.toString('utf8'));
+        } catch (e) {
+          this.save()
+        }
+      }
+    }
+
+    const phoneSettings = new FileStorage();
+
+    const GUI_MIN_WIDTH = 325;
+    const GUI_MIN_HEIGHT = 560;
+
+    const GUI_TRAY_SEPARATOR = () => new gui.MenuItem({ type: 'separator' });
+    const GUI_TRAY_EXIT = () => new gui.MenuItem({ type: 'normal', label: 'Exit', click: function() {
+      if (lockCloseWindow) {
+        return;
+      }
+      gui.App.quit();
+    }});
+
+    var trayGUI = new gui.Tray({
+      title: '',
+      icon: process.platform === 'darwin' ? './static/img/icons/call16.png' : './static/img/icons/call48.png',
+      alticon: process.platform === 'darwin' ? './static/img/icons/call16.png' : './static/img/icons/call48.png',
+      iconsAreTemplates: false
+    });
+
+    var menu = new nw.Menu();
+    menu.append(GUI_TRAY_EXIT());
+    menu.append(GUI_TRAY_SEPARATOR());
+    trayGUI.menu = menu;
+
+    function createWindow() {
+      gui.Window.open('./index.html', {
+        focus: true,
+        show: false,
+        id: "webitelPhone",
+        width: GUI_MIN_WIDTH,
+        height: GUI_MIN_HEIGHT
+      }, function (win) {
+        win.setShowInTaskbar(true);
+        win.setMinimumSize(GUI_MIN_WIDTH, GUI_MIN_HEIGHT);
+
+        win.on('close', () => {
+          if (lockCloseWindow) {
+            return;
+          }
+          win.minimize();
+        });
+
+        win.on('minimize', () => {
+          if (lockCloseWindow) {
+            win.unmaximize();
+            return;
+          }
+          win.minimize();
+        });
+
+        win.on('loaded', () => {
+          var alwaysOnTopMenu = new gui.MenuItem({
+            type: 'checkbox',
+            label: 'Always On Top',
+            checked: phoneSettings.get('alwaysOnTop') || false,
+            click: function() {
+              win.setAlwaysOnTop(this.checked);
+              phoneSettings.set('alwaysOnTop', this.checked)
+            }
+          });
+          var showMenu = new gui.MenuItem({
+            label: 'Open phone',
+            click: function() {
+              win.focus();
+            }
+          });
+          win.setAlwaysOnTop(phoneSettings.get('alwaysOnTop') || false);
+
+          if (phoneSettings.get('callAlwaysOnTop')) {
+            listenerCallCount(win, alwaysOnTopMenu)
+          }
+
+          menu.append(alwaysOnTopMenu);
+          menu.append(showMenu);
+          trayGUI.menu = menu;
+          win.show();
+        });
+
+      });
+    }
+
+    function listenerCallCount(win) {
+      win.window.phoneStore.watch(win.window.phoneStore.getters.countInboundNoAnswerCall, count => {
+        if (count > 0) {
+          setFocusWindow(win);
+        } else {
+          cleanAlwaysOnTopWindow(win);
+        }
+      });
+    }
+
+    function setFocusWindow(win) {
+      lockCloseWindow = true;
+      if (!win.isAlwaysOnTop) {
+        win.setAlwaysOnTop(true)
+      }
+      win.focus()
+    }
+
+    function cleanAlwaysOnTopWindow(win) {
+      lockCloseWindow = false;
+      win.setAlwaysOnTop(phoneSettings.get('alwaysOnTop') || false)
+    }
+
+    createWindow()
+
+  </script>
+</head>
+</html>

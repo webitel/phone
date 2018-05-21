@@ -1,0 +1,27 @@
+{
+  "name": "Webitel",
+  "version": "1.0.0",
+  "description": "Webitel Phone",
+  "author": "Navrotskyj Igor",
+  "private": true,
+  "main": "nw.html",
+  "chromium-args": "--remember-cert-error-decisions --ignore-certificate-errors --ignore-urlfetcher-cert-requests",
+  "window": {
+    "icon": "./static/img/icons/call48.png",
+    "show_in_taskbar": false,
+    "show": false,
+    "toolbar": false,
+    "as_desktop": false,
+    "width": 325,
+    "height": 560,
+    "min_width": 325,
+    "min_height": 560
+  },
+  "platformOverrides": {
+    "win": {
+      "window": {
+        "zip": false
+      }
+    }
+  }
+}

@@ -1,0 +1,95 @@
+<template>
+  <v-layout row>
+    <v-flex xs12 sm6 offset-sm3>
+      <v-list two-line>
+        <template v-for="(item, index) in listInternalUsers">
+          <v-list-tile avatar @click="">
+            <v-list-tile-avatar>
+              <v-icon :color="getStateColor(item)">fiber_manual_record</v-icon>
+            </v-list-tile-avatar>
+            <v-list-tile-content>
+              <v-list-tile-title >
+                {{item.name}}
+              </v-list-tile-title>
+              <v-list-tile-sub-title>
+                {{item.id}} {{getStateDescription(item)}}
+              </v-list-tile-sub-title>
+            </v-list-tile-content>
+
+            <v-list-tile-action>
+              <v-btn :disabled="item.state === 'NONREG'" @click="makeCall(item.id)" icon>
+                <v-icon color="success">call</v-icon>
+              </v-btn>
+            </v-list-tile-action>
+
+          </v-list-tile>
+        </template>
+      </v-list>
+    </v-flex>
+  </v-layout>
+</template>
+
+<script>
+  import {getStateColor} from '../services/helper'
+
+    export default {
+      name: "Users",
+      data () {
+        return {
+          items: []
+        }
+      },
+      methods: {
+        getStateColor(user) {
+          return getStateColor(user.state, user.status)
+        },
+
+        makeCall(number) {
+          this.user.makeCall(number);
+        },
+
+        getStateDescription(user) {
+          if (user.state === 'NONREG') {
+            return 'Not register'
+          } else if (user.state === 'ISBUSY') {
+            switch (user.status) {
+              case "NONE":
+                return 'Talking';
+              case "AGENT":
+                return `Agent ${user.description ? user.description : 'In queue call'}`;
+              case "CALLFORWARD":
+                return `Call forwarding ${user.description}`;
+              case "ONBREAK":
+                return `On break${user.description ? ": " + user.description : ''}`;
+              case "DND":
+                return `DND${user.description ? ": " + user.description : ''}`
+            }
+          } else {
+            return 'Available'
+          }
+        }
+      },
+      computed: {
+        listInternalUsers () {
+          if (this.search) {
+            return this.$store.state.internalUsers.filter(item => {
+              return item.id.indexOf(this.search) >= 0 || item.name.indexOf(this.search) >= 0|| item.description.indexOf(this.search) >= 0
+            })
+          }
+          return this.$store.state.internalUsers
+        },
+
+        search() {
+          return this.$store.getters.getSearch();
+        },
+
+        user() {
+          return this.$store.state.user
+        },
+      }
+    }
+</script>
+
+<style scoped>
+
+</style>
