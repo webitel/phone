@@ -5,12 +5,13 @@
         <v-card >
           <v-card-title class="display-2 ">Webitel</v-card-title>
           <v-card-text>
-            <v-form v-model="valid" ref="form">
-              <v-text-field :rules="loginRules" v-model="login" required prepend-icon="person" name="login" label="Login" type="text"></v-text-field>
+            <v-form @keyup.native.enter="submit" v-model="valid" ref="form" >
+              <v-text-field v-show="!useDomainAuth" :rules="[loginRules]" v-model="login" required prepend-icon="person" name="login" label="Login" type="text"></v-text-field>
+              <v-text-field v-show="oauthName && useDomainAuth" :disabled="true" v-model="oauthName"  prepend-icon="person" label="Login" type="text"></v-text-field>
               <v-text-field v-show="!useDomainAuth" v-model="password" prepend-icon="lock" name="password" label="Password" id="password" type="password"></v-text-field>
 
               <v-layout row fluid>
-                <!--<v-switch v-model="useDomainAuth" label="Use domain auth" ></v-switch>-->
+                <v-switch v-model="useDomainAuth" v-show="oauthName" label="Use domain auth" ></v-switch>
                 <v-spacer></v-spacer>
                 <a @click="advancedSettings = !advancedSettings" depressed small color="transparent" right>
                   <v-icon v-show="advancedSettings">expand_more</v-icon>
@@ -20,10 +21,10 @@
 
               <v-layout v-show="advancedSettings" column>
                 <v-text-field v-model="server" :rules="serverRules" name="server" label="Server" id="server" type="text"></v-text-field>
-                <v-text-field v-show="useDomainAuth" v-model="domainOAuthServer" name="domainOAuthServer" label="OAuth server" type="text"></v-text-field>
-                <v-text-field v-show="useDomainAuth" v-model="domainOAuthDomainName" name="domainOAuthDomainName" label="Webitel domain" type="text"></v-text-field>
-                <v-text-field v-show="useDomainAuth" v-model="domainOAuthResource" name="domainOAuthResource" label="Resource" type="text"></v-text-field>
-                <v-text-field v-show="useDomainAuth" v-model="domainOAuthClientId" name="domainOAuthClientId" label="Client ID" type="text"></v-text-field>
+                <v-text-field :rules="[domainServerRules]" v-show="useDomainAuth" v-model="domainOAuthServer" name="domainOAuthServer" label="OAuth server" type="text"></v-text-field>
+                <v-text-field :rules="[domainNameRules]" v-show="useDomainAuth" v-model="domainOAuthDomainName" name="domainOAuthDomainName" label="Webitel domain" type="text"></v-text-field>
+                <v-text-field :rules="[domainResourceRules]" v-show="useDomainAuth" v-model="domainOAuthResource" name="domainOAuthResource" label="Resource" type="text"></v-text-field>
+                <v-text-field :rules="[domainClientIdRules]" v-show="useDomainAuth" v-model="domainOAuthClientId" name="domainOAuthClientId" label="Client ID" type="text"></v-text-field>
 
               </v-layout>
 
@@ -64,9 +65,10 @@
     name: "Login",
     data() {
       return {
-        login: null || '100@10.10.10.144',
-        password: null || '100',
+        login: null,
+        password: null,
         server: null,
+        oauthName: null,
         useDomainAuth: null,
         domainOAuthServer: null,
         domainOAuthResource: null,
@@ -78,30 +80,54 @@
         errorMsg: null,
         valid: true,
         advancedSettings: false,
-        loginRules: [
-          v => !!v || 'Login is required'
-        ],
         serverRules: [
           v => !!v || 'Server url is required'
         ]
       }
     },
-    created() {
+    mounted() {
       if (this.$store.state.user) {
          return this.$router.push("/")
       }
-      this.useDomainAuth = settings.get('useDomainAuth') === 'true';
+
+      this.oauthName = this.$localStorage.get('oauthName');
+
+      this.useDomainAuth = settings.get('useDomainAuth') === 'true' && this.oauthName;
       this.server = settings.get('server') || null;
       this.domainOAuthServer = settings.get('domainOAuthServer') || null;
       this.domainOAuthResource = settings.get('domainOAuthResource') || null;
       this.domainOAuthClientId = settings.get('domainOAuthClientId') || null;
       this.domainOAuthDomainName = settings.get('domainOAuthDomainName') || null;
 
-      if (!this.server) {
-        this.advancedSettings = true;
-      }
+      this.advancedSettings = !this.$refs.form.validate()
     },
     methods: {
+      loginRules() {
+        if (this.useDomainAuth)
+          return true;
+        return !!this.login || 'Login is required'
+      },
+      domainServerRules() {
+        if (!this.useDomainAuth)
+          return true;
+        return !!this.domainOAuthServer || 'OAuth url is required'
+      },
+      domainNameRules() {
+        if (!this.useDomainAuth)
+          return true;
+        return !!this.domainOAuthDomainName || 'Domain is required'
+      },
+      domainResourceRules() {
+        if (!this.useDomainAuth)
+          return true;
+        return !!this.domainOAuthResource || 'Resource is required'
+      },
+      domainClientIdRules() {
+        if (!this.useDomainAuth)
+          return true;
+        return !!this.domainOAuthClientId || 'Client ID is required'
+      },
+
       setError(msg) {
         this.errorDialog = true;
         this.errorMsg = msg;
@@ -124,17 +150,17 @@
         const url = `${this.domainOAuthServer}?response_type=code&resource=${this.domainOAuthResource}&client_id=${this.domainOAuthClientId}&redirect_uri=${serverUri}/login/${this.domainOAuthDomainName}`;
 
         this.$http.get(url).then(response => {
-          debugger
+          if (!response.body.token) {
+            return cb(new Error(`Server bad response!`))
+          }
           return cb(null, response)
         }, (r) => {
-          debugger
           if (r.status > 0) {
             return cb(new Error(`Server response: ${r.statusText} ${(r.body && r.body.info || '').trim()}`))
           } else {
             return cb(new Error(`Bad server parameters or server shutdown!`))
           }
         });
-        return cb(new Error(`Not implement`))
       },
 
       loginDefault(serverUri, cb) {
@@ -181,6 +207,11 @@
             this.loginDefault(serverUri, callback);
           }
         }
+      }
+    },
+    watch: {
+      useDomainAuth() {
+        this.advancedSettings = !this.$refs.form.validate()
       }
     },
     computed: {
