@@ -1829,8 +1829,8 @@ var Webitel = function(parameters) {
       if (webrtcPhone) {
         webrtcPhone.newCall({
           destination_number: extension,
-          caller_id_name: account,
-          caller_id_number: account,
+          caller_id_name: this.account().name,
+          caller_id_number: this.account().id,
           useVideo: useVideo,
           useStereo: false
         });
