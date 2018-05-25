@@ -1245,7 +1245,7 @@ var Webitel = function(parameters) {
     };
 
     var webCall = WebrtcCalls.get(channelId);
-    if (webCall && e[WebitelCallChanelVariables.WJsXTransfer]) {
+    if (webCall && e[WebitelCallChanelVariables.WJsOriginate]) {
       try {
         webCall['session'].answer();
       } catch(e) {
@@ -1538,7 +1538,7 @@ var Webitel = function(parameters) {
 
             WebrtcCalls.add(newWebCall);
             var channel = ChanelCalls.get(d.callID);
-            if (channel && channel[WebitelCallChanelVariables.WJsXTransfer]) {
+            if (channel && channel[WebitelCallChanelVariables.WJsOriginate]) {
               try {
                 d.answer();
               } catch (e) {}
