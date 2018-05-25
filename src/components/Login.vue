@@ -209,13 +209,21 @@
         }
       }
     },
+    computed: {
+      user() {
+        return this.$store.getters.user()
+      }
+    },
     watch: {
+      user(val) {
+        if (val) {
+          this.$router.push("/")
+        }
+      },
       useDomainAuth() {
         this.advancedSettings = !this.$refs.form.validate()
       }
-    },
-    computed: {
-    },
+    }
   }
 </script>
 

@@ -144,7 +144,10 @@ class User extends InternalUser {
     });
 
     this.webitel.onDisconnect(() => {
-      store.commit(`LOGOUT`);
+      //TODO bug
+      setTimeout(() => {
+        store.commit(`LOGOUT`);
+      }, 1000)
     });
 
     this.webitel.connect();

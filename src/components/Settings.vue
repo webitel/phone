@@ -3,7 +3,7 @@
     <v-flex xs12 sm6 offset-sm3 >
       <v-card>
         <v-card-text>
-          <v-form >
+          <v-form>
 
             <v-select
               v-model="theme"

@@ -4192,7 +4192,7 @@ const jQuery = {
 
       navigator.mediaDevices.enumerateDevices()
         .then(function(devices) {
-          devices.forEach(function(device) {
+          devices.forEach(function(device, i) {
             console.log(device);
 
             console.log(device.kind + ": " + device.label +
@@ -4207,10 +4207,19 @@ const jQuery = {
             }
           });
 
+          function setLabels(devices, def) {
+            let i = 0;
+            return devices.map((device) => {
+              if (!device.label)
+                device.label = `${def} ${++i}`;
+              return device
+            })
+          }
 
-          $.verto.videoDevices = vid;
-          $.verto.audioInDevices = aud_in;
-          $.verto.audioOutDevices = aud_out;
+
+          $.verto.videoDevices = setLabels(vid, `Camera`);
+          $.verto.audioInDevices = setLabels(aud_in, `Microphone`);
+          $.verto.audioOutDevices = setLabels(aud_out, `Headset`);
 
           console.info("Audio IN Devices", $.verto.audioInDevices);
           console.info("Audio Out Devices", $.verto.audioOutDevices);
