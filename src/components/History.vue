@@ -23,10 +23,6 @@
 
       <v-list two-line subheader expand>
         <v-subheader> Total: {{totalCount}} (last 7 days)
-          <v-spacer></v-spacer>
-          <v-btn fab small @click="refreshData(true)">
-            <v-icon>refresh</v-icon>
-          </v-btn>
         </v-subheader>
         <div v-for="item in cdrData">
           <v-subheader inset>{{item.name}}</v-subheader>
@@ -64,8 +60,26 @@
 
           <v-divider inset></v-divider>
         </div>
+
+
       </v-list>
+      <v-layout justify-end>
+        <v-fab-transition>
+        <v-btn
+          small
+          dark
+          fixed
+          bottom
+          fab
+          @click="refreshData(true)"
+          style="margin-bottom: 60px; margin-right: 28px"
+        >
+          <v-icon>refresh</v-icon>
+        </v-btn>
+      </v-fab-transition>
+      </v-layout>
     </v-flex>
+
 
     <v-footer color="transparent" app fixed v-show="!cdr || cdr.loading">
       <v-progress-linear :indeterminate="true"></v-progress-linear>
