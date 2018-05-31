@@ -26,7 +26,7 @@
       }
 
       save(callback) {
-        fs.writeFile(this._path, JSON.stringify(this._data), function (err) {
+        fs.writeFile(this._path, JSON.stringify(this._data, null, '\t'), function (err) {
           if (err) {
             console.info("There was an error attempting to save your data.");
             console.warn(err.message);

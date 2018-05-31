@@ -1,6 +1,6 @@
 var NwBuilder = require('nw-builder');
 var nw = new NwBuilder({
-    appName: 'Webitel Phone',
+    appName: 'webitel-phone',
     zip: false,
     appVersion: '2.0.0',
     macIcns: './static/img/icons/icon.icns',
