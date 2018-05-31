@@ -1,7 +1,6 @@
 class Settings {
-  constructor(type, config = {}) {
-    this.type = type;
-    this.storage = new LocalStorage();
+  constructor(storage) {
+    this.storage = storage;
   }
 
   get(name) {
@@ -11,10 +10,6 @@ class Settings {
   set(name, val) {
     this.storage.set(name, val)
   }
-}
-
-class FileStorage {
-  
 }
 
 class LocalStorage {
@@ -27,6 +22,7 @@ class LocalStorage {
   }
 }
 
-const settings = new Settings();
+// TODO
+const settings = (typeof window.WEBITEL_CONFIG === 'object') ? window.WEBITEL_CONFIG : new Settings(new LocalStorage());
 
 export default settings

@@ -5,18 +5,23 @@
     const gui = window.require('nw.gui');
     const fs = window.require('fs');
     const path = window.require('path');
-    const FILE_NAME = 'config.json';
+    const systemConfigFileName = 'config.json';
+    const userConfigFileName = 'user_config.json';
+
+    const defaultSystemSettings = {
+      callAlwaysOnTop: true,
+      alwaysOnTop: true
+    };
+
     let lockCloseWindow = false;
 
     class FileStorage {
 
-      constructor () {
-        this._data = {
-          callAlwaysOnTop: true,
-          alwaysOnTop: true
-        };
+      constructor (defaultData = {}, pathFile) {
+        this._data = {};
+        Object.assign(this._data, defaultData);
 
-        this._path = path.join(global.__dirname, FILE_NAME);
+        this._path = pathFile;
         this.load();
       }
 
@@ -50,7 +55,7 @@
       }
     }
 
-    const phoneSettings = new FileStorage();
+    const phoneSettings = new FileStorage(defaultSystemSettings, path.join(global.__dirname, systemConfigFileName));
 
     if (~["win32", "win64"].indexOf(process.platform) && phoneSettings.get('disableOAuth') !== true) {
       localStorage.setItem("oauthName", phoneSettings.get('oauthName') || process.env.COMPUTERNAME )
@@ -89,6 +94,7 @@
       }, function (win) {
         win.setShowInTaskbar(true);
         win.setMinimumSize(GUI_MIN_WIDTH, GUI_MIN_HEIGHT);
+        win.window.WEBITEL_CONFIG = new FileStorage({}, findUserConfigFilePath(userConfigFileName));
 
         win.on('close', () => {
           if (lockCloseWindow) {
@@ -159,7 +165,15 @@
       win.setAlwaysOnTop(phoneSettings.get('alwaysOnTop') || false)
     }
 
-    createWindow()
+    createWindow();
+
+    function findUserConfigFilePath(fileName) {
+      if (fs.existsSync(path.join(global.__dirname, fileName))) {
+        return path.join(global.__dirname, fileName);
+      }
+
+      return path.join(nw.App.dataPath, fileName);
+    }
 
   </script>
 </head>

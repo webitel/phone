@@ -173,7 +173,7 @@
   }
 
   function init(app, cb) {
-    const server = app.$localStorage.get('server');
+    const server = settings.get("server");
     const token = app.$localStorage.get('token');
     const xkey = app.$localStorage.get('xkey');
     if (!server || !token || !xkey) {
