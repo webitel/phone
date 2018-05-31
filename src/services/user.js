@@ -6,6 +6,8 @@ import Call from './call'
 import Vue from 'vue'
 
 import VertoLib from './verto'
+import CONST from "./const";
+import notification from "./notification";
 
 const WebitelVerto = VertoLib.verto;
 
@@ -54,6 +56,11 @@ class User extends InternalUser {
     var mustLoginCC = settings.get('autoLoginCallCenter') === 'true';
 
     this.webitel.onReady( (user) => {
+
+      if (`${settings.get('useHotdesk')}` === 'true' && settings.get('hotdeskId')) {
+        this.signHotdesk(settings.get('hotdeskId'));
+      }
+
       this.webitel.getAgentsList( list => {
         const internalList = [];
 
@@ -281,6 +288,14 @@ class User extends InternalUser {
 
   setOnBreak() {
     this.webitel.busy("ONBREAK", "");
+  }
+
+  signHotdesk(name) {
+    this.webitel.hotdeskSignIn(name, (res) => {
+      if (res.status === 1) {
+        notification(`Hot desk ${name} error:`, res.response.trim(), CONST.HOT_DESK_ERROR);
+      }
+    })
   }
 }
 

@@ -17,7 +17,7 @@
 
     class FileStorage {
 
-      constructor (defaultData = {}, pathFile) {
+      constructor(defaultData = {}, pathFile) {
         this._data = {};
         Object.assign(this._data, defaultData);
 
@@ -25,7 +25,7 @@
         this.load();
       }
 
-      save (callback) {
+      save(callback) {
         fs.writeFile(this._path, JSON.stringify(this._data), function (err) {
           if (err) {
             console.info("There was an error attempting to save your data.");
@@ -36,16 +36,16 @@
         });
       }
 
-      set (name, val, cb) {
+      set(name, val, cb) {
         this._data[name] = val;
         this.save(cb);
       }
 
-      get (name) {
+      get(name) {
         return this._data[name]
       }
 
-      load () {
+      load() {
         try {
           const data = fs.readFileSync(this._path);
           this._data = JSON.parse(data.toString('utf8'));
@@ -58,19 +58,21 @@
     const phoneSettings = new FileStorage(defaultSystemSettings, path.join(global.__dirname, systemConfigFileName));
 
     if (~["win32", "win64"].indexOf(process.platform) && phoneSettings.get('disableOAuth') !== true) {
-      localStorage.setItem("oauthName", phoneSettings.get('oauthName') || process.env.COMPUTERNAME )
+      localStorage.setItem("oauthName", phoneSettings.get('oauthName') || process.env.COMPUTERNAME)
     }
 
     const GUI_MIN_WIDTH = 325;
     const GUI_MIN_HEIGHT = 560;
 
-    const GUI_TRAY_SEPARATOR = () => new gui.MenuItem({ type: 'separator' });
-    const GUI_TRAY_EXIT = () => new gui.MenuItem({ type: 'normal', label: 'Exit', click: function() {
-      if (lockCloseWindow) {
-        return;
+    const GUI_TRAY_SEPARATOR = () => new gui.MenuItem({type: 'separator'});
+    const GUI_TRAY_EXIT = () => new gui.MenuItem({
+      type: 'normal', label: 'Exit', click: function () {
+        if (lockCloseWindow) {
+          return;
+        }
+        gui.App.quit();
       }
-      gui.App.quit();
-    }});
+    });
 
     var trayGUI = new gui.Tray({
       title: '',
@@ -94,7 +96,12 @@
       }, function (win) {
         win.setShowInTaskbar(true);
         win.setMinimumSize(GUI_MIN_WIDTH, GUI_MIN_HEIGHT);
-        win.window.WEBITEL_CONFIG = new FileStorage({}, findUserConfigFilePath(userConfigFileName));
+
+        const userConfig = new FileStorage({}, findUserConfigFilePath(userConfigFileName));
+        if (userConfig.get("useHotdesk") && !userConfig.get("hotdeskId")) {
+          userConfig.set("hotdeskId", process.env.COMPUTERNAME);
+        }
+        win.window.WEBITEL_CONFIG = userConfig;
 
         win.on('close', () => {
           if (lockCloseWindow) {
@@ -116,14 +123,14 @@
             type: 'checkbox',
             label: 'Always On Top',
             checked: phoneSettings.get('alwaysOnTop') || false,
-            click: function() {
+            click: function () {
               win.setAlwaysOnTop(this.checked);
               phoneSettings.set('alwaysOnTop', this.checked)
             }
           });
           var showMenu = new gui.MenuItem({
             label: 'Open phone',
-            click: function() {
+            click: function () {
               win.focus();
             }
           });

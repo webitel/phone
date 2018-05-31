@@ -8,7 +8,7 @@ var nw = new NwBuilder({
     files: './dist/**', // use the glob format',
     flavor: 'normal',
     buildDir: './desktop',
-    cacheDir: '/tmp',
+    cacheDir: './desktop/.cache',
     platforms: ['win64', 'osx64', 'linux64'],
     version: '0.30.5'
 });
