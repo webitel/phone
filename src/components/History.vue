@@ -72,7 +72,7 @@
           bottom
           fab
           @click="refreshData(true)"
-          style="margin-bottom: 60px; margin-right: 28px"
+          style="margin-bottom: 50px; margin-left: -10px;"
         >
           <v-icon>refresh</v-icon>
         </v-btn>
