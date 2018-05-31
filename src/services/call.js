@@ -91,7 +91,7 @@ class Call {
 
     this.dtmfDigits = [];
 
-    if (this.direction === 'inbound' && `${settings.get('notifyNewCall')}` === 'true') {
+    if (this.direction === 'inbound' && settings.get('notifyNewCall')) {
       this.notificationNewCall = notification(`Inbound call`, `Call from ${this.getName()}`, CONST.ICON_CALL)
     }
 
@@ -137,7 +137,7 @@ class Call {
 
     this.closeNotificationNewCall();
 
-    if (cause !== 'CALL_REJECTED' && !this.answeredAt && `${settings.get('notifyMissedCall')}` === 'true' && !this.isOutbound()) {
+    if (cause !== 'CALL_REJECTED' && !this.answeredAt && settings.get('notifyMissedCall') && !this.isOutbound()) {
       notification('Missed call', `From ${this.getName()} ${new Date().toLocaleTimeString()}`, CONST.ICON_MISSED_CALL)
     }
   }

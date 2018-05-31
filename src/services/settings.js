@@ -14,7 +14,14 @@ class Settings {
 
 class LocalStorage {
   get(name) {
-    return localStorage.getItem(name)
+    const val = localStorage.getItem(name);
+    if (val === 'true') {
+      return true
+    } else if (val === 'false') {
+      return false
+    } else {
+      return val
+    }
   }
 
   set(name, val) {

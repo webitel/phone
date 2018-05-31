@@ -351,7 +351,7 @@
       },
 
       countInboundNoAnswerCall(count) {
-        if (`${settings.get('ringInboundCall')}` !== 'true') {
+        if (!settings.get('ringInboundCall')) {
           return;
         }
         if (settings.get(`ringInboundSinkId`)) {

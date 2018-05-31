@@ -92,7 +92,7 @@
 
       this.oauthName = this.$localStorage.get('oauthName');
 
-      this.useDomainAuth = settings.get('useDomainAuth') === 'true' && this.oauthName;
+      this.useDomainAuth = settings.get('useDomainAuth') === true && this.oauthName;
       this.server = settings.get('server') || null;
       this.domainOAuthServer = settings.get('domainOAuthServer') || null;
       this.domainOAuthResource = settings.get('domainOAuthResource') || null;

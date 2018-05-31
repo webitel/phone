@@ -53,7 +53,7 @@ class User extends InternalUser {
       console.error(e)
     });
 
-    var mustLoginCC = settings.get('autoLoginCallCenter') === 'true';
+    var mustLoginCC = settings.get('autoLoginCallCenter');
 
     this.webitel.onReady( (user) => {
 
@@ -143,7 +143,7 @@ class User extends InternalUser {
       const call = store.getters.getCallByUuid(e.uuid);
       if (call) {
         call.setHangupTime(e.hangup_cause);
-        if ((!call.postProcessing || settings.get('usePostProcess') !== 'true') ||
+        if ((!call.postProcessing || !settings.get('usePostProcess')) ||
           (call.direction === 'inbound' && !call.answeredAt)) {
           call.destroy();
         }
@@ -159,7 +159,7 @@ class User extends InternalUser {
 
     this.webitel.connect();
 
-    if (`${settings.get('useWebPhone')}` === 'true' && settings.get('webrtcPassword')) {
+    if (settings.get('useWebPhone') && settings.get('webrtcPassword')) {
       this.registerWebPhone();
     }
   }
@@ -191,7 +191,7 @@ class User extends InternalUser {
     this.webitel.webrtcPhoneStart({
       login: this.id,
       password: settings.get('webrtcPassword'),
-      iceServers: `${settings.get('iceServers')}` === 'true',
+      iceServers: settings.get('iceServers'),
       deviceParams: {
         useMic: settings.get('audioInDevice') || "any",
         useSpeak: settings.get('audioOutDevice') || "any"
@@ -255,7 +255,7 @@ class User extends InternalUser {
   }
 
   makeCall(number) {
-    this.webitel.call(number, null, settings.get('sipAutoAnswer') === 'true')
+    this.webitel.call(number, null, settings.get('sipAutoAnswer'))
   }
 
   loginCC(reset) {
@@ -265,7 +265,7 @@ class User extends InternalUser {
     // }
 
     let param = null;
-    if (settings.get('agentOnDemand') === 'true') {
+    if (settings.get('agentOnDemand')) {
       param = {'status': "Available (On Demand)"};
     }
     this.webitel.loginCallCenter(param, () => {
