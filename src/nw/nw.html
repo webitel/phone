@@ -74,6 +74,11 @@
       }
     });
 
+    const WEBITEL_LINK = (a, event) => {
+      gui.Shell.openExternal(a.href);
+      return event.preventDefault();
+    };
+
     var trayGUI = new gui.Tray({
       title: '',
       icon: process.platform === 'darwin' ? './static/img/icons/call16.png' : './static/img/icons/call48.png',
@@ -102,6 +107,7 @@
           userConfig.set("hotdeskId", process.env.COMPUTERNAME);
         }
         win.window.WEBITEL_CONFIG = userConfig;
+        win.window.WEBITEL_LINK = WEBITEL_LINK;
 
         win.on('close', () => {
           if (lockCloseWindow) {

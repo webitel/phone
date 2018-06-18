@@ -162,7 +162,7 @@
                           </v-flex>
                           <v-flex xs8>
                             <v-card-media contain>
-                              <vue-markdown>{{item.content}}</vue-markdown>
+                              <vue-markdown :anchor-attributes="anchorAttrs">{{item.content}}</vue-markdown>
                             </v-card-media>
                           </v-flex>
                         </v-layout>
@@ -457,7 +457,13 @@
           blindTransferNumber: '',
           transferPanel: false,
           errorDialog: false,
-          errorDialogText: ''
+          errorDialogText: '',
+          anchorAttrs: {
+            target: '_blank',
+            onclick: `typeof WEBITEL_LINK === 'function' ? WEBITEL_LINK(this, event): null`,
+            // onclick: "debugger;",
+            rel: 'noopener noreferrer nofollow'
+          }
         }
       },
       methods: {
