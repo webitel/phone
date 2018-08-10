@@ -74,9 +74,13 @@
       }
     });
 
-    const WEBITEL_LINK = (a, event) => {
+    const WEBITEL_LINK = (a, event, next) => {
       gui.Shell.openExternal(a.href);
-      return event.preventDefault();
+      if (!next) {
+        return event.preventDefault();
+      } else {
+        return null
+      }
     };
 
     var trayGUI = new gui.Tray({

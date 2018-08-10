@@ -29,9 +29,28 @@
       </span>
 
       <v-spacer></v-spacer>
-      <!--<v-icon style="margin-left: 5px">dialer_sip</v-icon>-->
+
+      <!--<v-icon style="margin-left: 5px">link</v-icon>-->
+      <div v-show="hotLinks.length > 0">
+        <v-menu bottom left>
+          <v-btn small icon slot="activator" >
+            <v-tooltip bottom>
+              <!--<span>TODO</span>-->
+              <v-icon style="margin-bottom: 2px" slot="activator">link</v-icon>
+            </v-tooltip>
+
+          </v-btn>
+          <v-list>
+            <v-list-tile v-for="link in hotLinks">
+              <v-list-tile-title><a @click="openHotLink(link.src)" target="_blank">{{link.name}}</a></v-list-tile-title>
+            </v-list-tile>
+          </v-list>
+        </v-menu>
+      </div>
+
       <v-icon v-show="user && user.loggedCC">contact_mail</v-icon>
-      <span v-show="user && user.webPhoneRegister" class="icon-web-rtc"></span>
+      <v-icon v-show="user && user.webPhoneRegister" class="icon-web-rtc"></v-icon>
+
     </v-system-bar>
 
     <v-toolbar app tabs v-if="showMenu" :ripple ="false" >
@@ -292,6 +311,13 @@
     },
 
     computed: {
+      hotLinks() {
+        const links = settings.get('hot_links');
+        if (links && links.length > 0) {
+          return links
+        }
+        return []
+      },
       showMenu () {
         return !!this.$store.state.user
       },
@@ -373,6 +399,23 @@
     },
 
     methods: {
+
+      openHotLink(href = '') {
+        href = href.replace(/\${KEY}|\${TOKEN}/g, (str) => {
+          switch (str) {
+            case '${KEY}':
+              return this.user._key;
+            case '${TOKEN}':
+              return this.user._token;
+          }
+        });
+
+        if (typeof WEBITEL_LINK === 'function') {
+          WEBITEL_LINK({href}, null, true)
+        } else {
+          window.open(href, '_blank')
+        }
+      },
 
       showSpinner(val) {
         this.viewSpinner = !!val;
@@ -529,7 +572,7 @@
     width: 16px;
     height: 16px;
     background-size: contain;
-    margin-left: 3px;
+    margin-left: 9px;
     background-image: url("./assets/webrtc.svg");
   }
 
