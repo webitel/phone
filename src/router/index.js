@@ -7,6 +7,7 @@ import Settings from '@/components/Settings'
 import NotFound from '@/components/404'
 import Login from '@/components/Login'
 import Call from '@/components/Call'
+import Reconnect from '@/components/Reconnect'
 
 Vue.use(Router);
 
@@ -37,6 +38,11 @@ const router = new Router({
       path: '/login',
       name: 'Login',
       component: Login
+    },
+    {
+      path: '/reconnect',
+      name: 'Reconnect',
+      component: Reconnect
     },
     {
       path: '*',

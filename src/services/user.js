@@ -50,6 +50,11 @@ class User extends InternalUser {
     this.webPhone = null;
 
     this.webitel.onError((e) => {
+      switch (e.errorType) {
+        case "AUTH-ERROR":
+          store.commit('LOGOUT');
+          break;
+      }
       console.error(e)
     });
 
@@ -79,7 +84,8 @@ class User extends InternalUser {
           internalList.push(new InternalUser(user));
         }
         store.commit("INIT_INTERNAL_USERS", internalList);
-      })
+      });
+      store.commit("LOGIN");
     });
 
     this.webitel.onRegisterWebRTC( vertoSession => {
@@ -151,10 +157,9 @@ class User extends InternalUser {
     });
 
     this.webitel.onDisconnect(() => {
-      //TODO bug
-      setTimeout(() => {
-        store.commit(`LOGOUT`);
-      }, 1000)
+      if (store.getters.isLogged()) {
+        store.commit("SET_RECONNECT", true);
+      }
     });
 
     this.webitel.connect();

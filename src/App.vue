@@ -226,6 +226,7 @@
         initialize: false,
         showBadgeCall: false,
         showChangeCallDialog: false,
+        viewMenu: false,
         viewSpinner: false,
         viewStatusDialog: false,
         currentLinkIdx: 0,
@@ -235,6 +236,8 @@
         dialogState: null,
         dialogTag: null,
         ringer: null,
+
+        beforeReconnectingLink: null,
 
         listUserStatus: [
           {
@@ -319,7 +322,7 @@
         return []
       },
       showMenu () {
-        return !!this.$store.state.user
+        return !!this.$store.state.user && !this.reconnecting
       },
       user() {
         return this.$store.state.user
@@ -354,10 +357,22 @@
           return "non-reg"
         }
         return ""
+      },
+
+      reconnecting() {
+        return this.$store.getters.reconnecting()
       }
     },
 
     watch: {
+      reconnecting(reconnecting) {
+        if (reconnecting) {
+          this.beforeReconnectingLink = this.$router.currentRoute.fullPath;
+          this.$router.push('/reconnect')
+        } else {
+          this.$router.push(this.beforeReconnectingLink)
+        }
+      },
       calls(calls, old) {
         if (calls.length > 0) {
           this.showBadgeCall = true;

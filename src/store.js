@@ -10,12 +10,14 @@ Vue.use(Vuex);
 const store = new Vuex.Store({
   debug: true,
   state: {
+    logged: false,
     user: null,
     search: "",
     theme: settings.get('theme'),
     internalUsers: [],
     calls: [],
-    cdr: null
+    cdr: null,
+    reconnecting: false
   },
   getters: {
     countCalls: state => () => {
@@ -63,6 +65,10 @@ const store = new Vuex.Store({
     },
 
     getSearch: state => () => state.search,
+
+    reconnecting: state => () => state.reconnecting === true,
+
+    isLogged: state => () => state.logged === true
   },
 
   mutations: {
@@ -73,7 +79,18 @@ const store = new Vuex.Store({
       Vue.http.headers.common['x-access-token'] = credentials.token;
     },
 
+    SET_RECONNECT (state = {}, value) {
+      state.reconnecting = value;
+      state.logged = state.reconnecting === false
+    },
+
+    LOGIN (state = {}) {
+      state.logged = true;
+    },
+
     LOGOUT (state = {}) {
+      state.logged = false;
+      state.reconnecting = false;
       if (state.user) {
         state.user.logout();
         state.user = null;
