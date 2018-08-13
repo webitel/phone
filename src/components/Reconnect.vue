@@ -10,6 +10,12 @@
             </v-progress-circular>
           </v-layout>
         </v-container>
+        <v-container fluid fill-height>
+          <v-layout align-center justify-center>
+            <v-btn flat @click="cancelReconnect" >Cancel</v-btn>
+          </v-layout>
+        </v-container>
+
       </v-flex>
     </v-layout>
   </v-container>
@@ -34,7 +40,7 @@
         }
         this.count = 1;
         this.timerId = setInterval(()=> {
-          this.tryReconnect()
+         this.tryReconnect()
         }, 5000)
       },
       computed: {
@@ -61,6 +67,9 @@
         tryReconnect() {
           this.webitel.connect();
           this.count++;
+        },
+        cancelReconnect() {
+          this.$store.commit('LOGOUT')
         }
       }
 
