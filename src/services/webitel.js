@@ -1616,6 +1616,9 @@ var Webitel = function(parameters) {
       ringFile: vertoRecordFile,
       videoParams: jssipConfiguration['videoParams'],
       deviceParams: option.deviceParams || {},
+      userVariables: {
+        "verto_user_agent": "Webitel-Phone/1.0.0"
+      },
       //audioParams: {
       //    googAutoGainControl: false,
       //    googNoiseSuppression: false,
