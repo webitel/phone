@@ -11,7 +11,7 @@
                 <h5>{{call.state}}</h5>
               </v-flex>
               <v-flex xs6 class="text-xs-center">
-                <h2 style="width: 100%" class="text-xs-center">{{call.name}}</h2>
+                <h2 @click="copyClipboard(call.number)" class="copy-to-clipboard text-xs-center">{{call.name}}</h2>
               </v-flex>
               <v-flex xs3 class="text-xs-right">
                 <h5>
@@ -20,7 +20,7 @@
                 </h5>
               </v-flex>
             </v-layout>
-            <p style="width: 100%" class=".display-1 text-xs-center">{{call.number}}</p>
+            <p @click="copyClipboard(call.number)" class="copy-to-clipboard .display-1 text-xs-center">{{call.number}}</p>
 
             <p style="width: 100%" class=".display-1 text-xs-center">
               <Countdown :start="call.answeredAt" :end="call.hangupAt"></Countdown>
@@ -322,6 +322,7 @@
 <script>
     import Countdown from './Countdown'
     import VueMarkdown from 'vue-markdown'
+    import copyToClipboard from '../services/clipboard'
 
     export default {
       name: "Call",
@@ -467,6 +468,9 @@
         }
       },
       methods: {
+        copyClipboard: (data) => {
+          copyToClipboard(data);
+        },
         allowedDates: val => new Date(val).getTime() >= new Date(new  Date().toLocaleDateString()).getTime(),
         sendPostProcess() {
           this.call.sendPostProcess((err, result) => {
@@ -496,6 +500,11 @@
   .media {
     height: 100%;
     margin: 0;
+  }
+
+  .copy-to-clipboard {
+    width: 100%;
+    cursor:pointer;
   }
 
   .custom-loader {

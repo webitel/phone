@@ -112,6 +112,9 @@
         }
         win.window.WEBITEL_CONFIG = userConfig;
         win.window.WEBITEL_LINK = WEBITEL_LINK;
+        win.window.WEBITEL_COPY_TO_CLIPBOARD = (text) => {
+          gui.Clipboard.get().set(text, 'text')
+        };
 
         win.on('close', () => {
           if (lockCloseWindow) {
