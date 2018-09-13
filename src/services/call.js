@@ -67,7 +67,7 @@ class Call {
             } else {
               this.infoProtectedVariables[key] = info[key];
             }
-          } else {
+          } else if (info[key]) {
             this.info.push({
               title: key,
               content: info[key]

@@ -53,9 +53,9 @@
 
                 <player :file="i._uri"></player>
 
-                <p class="text--accent-1" v-show="i.webitelData.length > 0" v-for="data in i.webitelData">
-                  <span class="var-name">{{data.name}}</span> : {{data.value}}
-                </p>
+                <div class="text--accent-1" v-show="i.webitelData.length > 0" v-for="data in i.webitelData">
+                  <vue-markdown :breaks="false" :anchor-attributes="anchorAttrs">{{data.name}}: {{data.value}}</vue-markdown>
+                </div>
               </v-container>
             </v-layout>
           </div>
@@ -90,10 +90,13 @@
 
 <script>
     import Player from "./Player"
+    import VueMarkdown from 'vue-markdown'
+
     export default {
       name: "History",
       components: {
-        Player
+        Player,
+        VueMarkdown
       },
       created() {
         this.refreshData();
@@ -101,7 +104,13 @@
       data() {
         return {
           cdrData: [],
-          totalCount: 0
+          totalCount: 0,
+          anchorAttrs: {
+          target: '_blank',
+            onclick: `typeof WEBITEL_LINK === 'function' ? WEBITEL_LINK(this, event): null`,
+            // onclick: "debugger;",
+            rel: 'noopener noreferrer nofollow'
+        }
         }
       },
 

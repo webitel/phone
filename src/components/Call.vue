@@ -152,22 +152,9 @@
                 <v-expansion-panel expand>
                   <v-expansion-panel-content :value="true" v-show="call.info.length > 0">
                     <div slot="header">Info</div>
-                    <v-card flat color="transparent" v-for="(item, index) in call.info">
-                      <v-container fluid grid-list-lg>
-                        <v-layout row>
-                          <v-flex xs4>
-                            <div>
-                              <div>{{item.title}}</div>
-                            </div>
-                          </v-flex>
-                          <v-flex xs8>
-                            <v-card-media contain>
-                              <vue-markdown :anchor-attributes="anchorAttrs">{{item.content}}</vue-markdown>
-                            </v-card-media>
-                          </v-flex>
-                        </v-layout>
-                      </v-container>
-                    </v-card>
+                    <div style="padding: 3px;" class="text--accent-1" v-for="(item, index) in call.info">
+                      <vue-markdown :breaks="false" :anchor-attributes="anchorAttrs">{{item.title}}: {{item.content}}</vue-markdown>
+                    </div>
                   </v-expansion-panel-content>
 
                   <v-expansion-panel-content @keyup.native.enter="call.state === 'DOWN' && sendPostProcess()" :value="true" v-show="call.postProcessing && call.dbUuid">

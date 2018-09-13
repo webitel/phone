@@ -117,7 +117,8 @@ class CDR {
       if (item['variables.webitel_data']) {
         const data = JSON.parse(item['variables.webitel_data']);
         for (let name in data) {
-          item.webitelData.push({name, value: data[name]})
+          if (data[name])
+            item.webitelData.push({name, value: data[name]})
         }
       }
 
