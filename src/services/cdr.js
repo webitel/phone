@@ -46,6 +46,7 @@ class CDR {
         "billsec",
         "duration",
         "variables.webitel_record_file_name",
+        "variables.webitel_data",
         "created_time",
         "hangup_cause"
       ],
@@ -112,6 +113,13 @@ class CDR {
       item.startTime = by.toTimeString().split(' ')[0];
       item.durationString = intToTimeString(item['duration']);
       item.imgClassName = getImgCall(item['direction'], item['hangup_cause'], !!item['queue.name']);
+      item.webitelData = [];
+      if (item['variables.webitel_data']) {
+        const data = JSON.parse(item['variables.webitel_data']);
+        for (let name in data) {
+          item.webitelData.push({name, value: data[name]})
+        }
+      }
 
       lastGroup.items.push(item)
     });

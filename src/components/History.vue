@@ -38,29 +38,30 @@
                   {{ i.startTime }} duration {{ i.durationString }}
                 </v-list-tile-sub-title>
 
-
               </v-list-tile-content>
 
               <v-list-tile-action>
-                <v-list-tile-action-text v-show="i['variables.webitel_record_file_name'] && i.billsec >= 2">
-                  <span @click="i.activeDetail = !i.activeDetail" class="green--text lighten-1">MP3</span>
+                <v-list-tile-action-text v-show="showDetailActions(i)" @click="i.activeDetail = !i.activeDetail">
+                  <v-icon class="title lighten-1" v-show="showCallData(i)">info</v-icon>
+                  <v-icon class="title green--text lighten-1" v-show="showRecordFile(i)">audiotrack</v-icon>
                 </v-list-tile-action-text>
               </v-list-tile-action>
             </v-list-tile>
 
-            <v-layout row wrap v-if="i.activeDetail && i['variables.webitel_record_file_name'] && i.billsec >= 2">
+            <v-layout row wrap v-if="i.activeDetail && showDetailActions(i)">
               <v-container fluid grid-list-md>
-                <audio controls preload="none" class="audio-player">
-                  <source :src="i._uri" type="audio/mpeg">
-                </audio>
+
+                <player :file="i._uri"></player>
+
+                <v-list v-show="i.webitelData.length > 0" class="webitel-data-list">
+                  <v-list-tile class="webitel-data-list-item" v-for="data in i.webitelData">{{data.name}} : {{data.value}}</v-list-tile>
+                </v-list>
               </v-container>
             </v-layout>
           </div>
 
-
           <v-divider inset></v-divider>
         </div>
-
 
       </v-list>
       <v-layout justify-end>
@@ -88,8 +89,12 @@
 </template>
 
 <script>
+    import Player from "./Player"
     export default {
       name: "History",
+      components: {
+        Player
+      },
       created() {
         this.refreshData();
       },
@@ -103,6 +108,15 @@
       methods: {
         makeCall(number) {
           this.user.makeCall(number)
+        },
+        showDetailActions (cdrItem) {
+          return this.showCallData(cdrItem) || this.showRecordFile(cdrItem)
+        },
+        showRecordFile: (cdrItem) => {
+          return cdrItem['variables.webitel_record_file_name'] && cdrItem.billsec >= 1
+        },
+        showCallData: (cdrItem) => {
+          return cdrItem.webitelData.length > 0
         },
         refreshData(reset) {
           if (!this.cdr) {
@@ -160,5 +174,13 @@
 <style scoped>
   .audio-player {
     width: 100%;
+  }
+
+
+  .webitel-data-list {
+
+  }
+  .webitel-data-list .webitel-data-list-item {
+    height: 40px;
   }
 </style>
