@@ -30,11 +30,7 @@
       <div v-show="hotLinks.length > 0">
         <v-menu bottom left>
           <v-btn small icon slot="activator" >
-            <v-tooltip bottom>
-              <!--<span>TODO</span>-->
-              <v-icon style="margin-bottom: 2px" slot="activator">link</v-icon>
-            </v-tooltip>
-
+            <v-icon>link</v-icon>
           </v-btn>
           <v-list>
             <v-list-tile v-for="link in hotLinks">
