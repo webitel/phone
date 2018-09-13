@@ -4,11 +4,7 @@
       <div>
         <v-menu bottom left>
           <v-btn small icon slot="activator" >
-            <v-tooltip bottom>
-              <!--<span>TODO</span>-->
-              <v-icon style="margin-bottom: 2px" :color="getStateColor(user)" slot="activator">account_circle</v-icon>
-            </v-tooltip>
-
+            <v-icon :color="getStateColor(user)" >account_circle</v-icon>
           </v-btn>
           <v-list>
             <v-list-tile >
