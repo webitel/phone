@@ -53,9 +53,9 @@
 
                 <player :file="i._uri"></player>
 
-                <v-list v-show="i.webitelData.length > 0" class="webitel-data-list">
-                  <v-list-tile class="webitel-data-list-item" v-for="data in i.webitelData">{{data.name}} : {{data.value}}</v-list-tile>
-                </v-list>
+                <p class="text--accent-1" v-show="i.webitelData.length > 0" v-for="data in i.webitelData">
+                  <span class="var-name">{{data.name}}</span> : {{data.value}}
+                </p>
               </v-container>
             </v-layout>
           </div>
@@ -172,10 +172,9 @@
 </script>
 
 <style scoped>
-  .audio-player {
-    width: 100%;
+  .var-name {
+    text-decoration: underline;
   }
-
 
   .webitel-data-list {
 
