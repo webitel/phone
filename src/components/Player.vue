@@ -21,7 +21,6 @@
       return {
         id: `player-${this._uid}`,
         options: {
-          debug: true,
           speed: { selected: 1, options: [0.5, 1, 1.5, 2] }
         }
       }
