@@ -535,6 +535,10 @@
     overflow-y: auto;
   }
 
+  .toolbar.toolbar--fixed {
+    z-index: 3;
+  }
+
   ::-webkit-scrollbar {
     width: 5px;
   }
