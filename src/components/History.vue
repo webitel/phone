@@ -2,13 +2,12 @@
   <v-layout row v-scroll="onScroll" v-show="cdr">
     <v-flex xs12 sm6 offset-sm3>
 
-
       <v-flex xs12 v-show="!cdrData.length && search">
         <v-card >
           <v-container fluid grid-list-lg>
             <v-layout row>
               <v-flex xs4 class="text-md-center">
-                <v-icon size="100">error_outline</v-icon>
+                <v-icon size="64px">error_outline</v-icon>
               </v-flex>
               <v-flex xs8>
                 <div>
