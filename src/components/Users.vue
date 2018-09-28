@@ -1,6 +1,25 @@
 <template>
   <v-layout row>
     <v-flex xs12 sm6 offset-sm3>
+
+
+
+      <v-flex xs12 v-show="!listInternalUsers.length && search">
+        <v-card flat>
+          <v-card-title>
+            <v-flex xs4 class="text-md-center">
+              <v-icon size="64px">error_outline</v-icon>
+            </v-flex>
+            <v-flex xs8>
+              <div>
+                <div class="headline">No results found:</div>
+                <div>{{search}}</div>
+              </div>
+            </v-flex>
+          </v-card-title>
+        </v-card>
+      </v-flex>
+
       <v-list two-line>
         <template v-for="(item, index) in listInternalUsers">
           <v-list-tile avatar @click="">

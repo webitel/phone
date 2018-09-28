@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import User from './services/user'
 import CDR from './services/cdr'
+import Callback from './services/callback'
 import settings from './services/settings'
 import {findUserById} from "./services/helper";
 
@@ -10,13 +11,16 @@ Vue.use(Vuex);
 const store = new Vuex.Store({
   debug: true,
   state: {
+    viewSpinner: false,
     logged: false,
+    lastLogged: null,
     user: null,
     search: "",
     theme: settings.get('theme'),
     internalUsers: [],
     calls: [],
     cdr: null,
+    callback: null,
     reconnecting: false
   },
   getters: {
@@ -64,17 +68,31 @@ const store = new Vuex.Store({
       return state.cdr;
     },
 
+    callback: (state) => () => {
+      return state.callback;
+    },
+
     getSearch: state => () => state.search,
 
     reconnecting: state => () => state.reconnecting === true,
 
-    isLogged: state => () => state.logged === true
+    isLogged: state => () => state.logged === true,
+
+    lastLogged: state => () => state.lastLogged,
+
+    viewSpinner: state => () => state.viewSpinner
+
   },
 
   mutations: {
+    VIEW_SPINNER (state = {}, value) {
+      state.viewSpinner = value
+    },
     AUTH (state = {}, credentials) {
       state.user = new User(credentials);
       state.cdr = new CDR(state.user);
+      state.callback = new Callback(state.user);
+
       Vue.http.headers.common['x-key'] = credentials.key;
       Vue.http.headers.common['x-access-token'] = credentials.token;
     },
@@ -86,6 +104,7 @@ const store = new Vuex.Store({
 
     LOGIN (state = {}) {
       state.logged = true;
+      state.lastLogged = Date.now();
     },
 
     LOGOUT (state = {}) {
@@ -99,6 +118,8 @@ const store = new Vuex.Store({
       state.internalUsers = [];
       state.calls = [];
       state.cdr = null;
+      state.callback = null;
+
       Vue.http.headers.common['x-key'] = '';
       Vue.http.headers.common['x-access-token'] = '';
       settings.set('webrtcPassword', '');
@@ -140,7 +161,9 @@ const store = new Vuex.Store({
     }
   },
   actions: {
-
+    viewSpinner({ commit, state }, view) {
+      commit("VIEW_SPINNER", view)
+    }
   }
 });
 

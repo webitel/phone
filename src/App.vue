@@ -7,14 +7,14 @@
             <v-icon :color="getStateColor(user)" >account_circle</v-icon>
           </v-btn>
           <v-list>
-            <v-list-tile >
-              <v-list-tile-title @click="setReady">Ready</v-list-tile-title>
+            <v-list-tile @click="setReady">
+              <v-list-tile-title >Ready</v-list-tile-title>
             </v-list-tile>
-            <v-list-tile >
-              <v-list-tile-title  @click="setBreak">On Break</v-list-tile-title>
+            <v-list-tile @click="setBreak">
+              <v-list-tile-title>On Break</v-list-tile-title>
             </v-list-tile>
-            <v-list-tile >
-              <v-list-tile-title @click="showChangeStatusDialog()">...</v-list-tile-title>
+            <v-list-tile @click="showChangeStatusDialog()">
+              <v-list-tile-title>...</v-list-tile-title>
             </v-list-tile>
           </v-list>
         </v-menu>
@@ -33,8 +33,8 @@
             <v-icon>link</v-icon>
           </v-btn>
           <v-list>
-            <v-list-tile v-for="link in hotLinks">
-              <v-list-tile-title><a @click="openHotLink(link.src)" target="_blank">{{link.name}}</a></v-list-tile-title>
+            <v-list-tile v-for="link in hotLinks" @click="openHotLink(link.src)" target="_blank">
+              <v-list-tile-title>{{link.name}}</v-list-tile-title>
             </v-list-tile>
           </v-list>
         </v-menu>
@@ -78,13 +78,15 @@
 
     </v-toolbar>
 
-    <v-content>
-      <router-view ></router-view>
+    <v-content class="app-content">
+      <div class="app-view">
+        <router-view></router-view>
+      </div>
     </v-content>
 
     <v-container fluid class="app-spinner" fill-height v-show="!initialize || viewSpinner">
       <v-layout align-center justify-center>
-        <v-progress-circular indeterminate :size="120" :width="7" color="warning">Loading</v-progress-circular>
+        <v-progress-circular indeterminate :size="120" :width="2" color="warning">Loading</v-progress-circular>
       </v-layout>
     </v-container>
 
@@ -135,17 +137,22 @@
       :value="showMenu"
       :active.sync="currentLinkIdx"
     >
-      <v-btn :ripple="false" router-link to="/">
+      <v-btn flat :ripple="false" to="/">
         <span>History</span>
         <v-icon>contact_phone</v-icon>
       </v-btn>
 
-      <v-btn :ripple="false" router-link to="/users">
+      <v-btn flat :ripple="false" router-link to="/callback" v-show="showCallbackTab">
+        <span>Callback</span>
+        <v-icon>update</v-icon>
+      </v-btn>
+
+      <v-btn flat :ripple="false" router-link to="/users">
         <span>Users</span>
         <v-icon>people</v-icon>
       </v-btn>
 
-      <v-btn :ripple="false" router-link to="/settings">
+      <v-btn flat :ripple="false" router-link to="/settings">
         <span>Settings</span>
         <v-icon>settings</v-icon>
       </v-btn>
@@ -159,6 +166,7 @@
   import throttle from './services/throttle'
   import settings from './services/settings'
   import {getStateColor, parseServerUri} from './services/helper'
+  import Spinner from './components/Spinner'
 
   const TABS = [
     {
@@ -168,10 +176,15 @@
     {
       name: "Users",
       path: "#/users"
-    }, {
+    },
+    {
+      name: "Callback",
+      path: "#/callback"
+    },
+    {
       name: "Settings",
       path: "#/settings"
-    },
+    }
   ];
 
   function getTabByName(name) {
@@ -211,6 +224,9 @@
 
   export default {
     name: 'App',
+    components: {
+      Spinner
+    },
     data() {
       return {
         tabs: null,
@@ -222,6 +238,8 @@
         viewSpinner: false,
         viewStatusDialog: false,
         currentLinkIdx: 0,
+
+        showCallbackTab: false,
 
         dialogStatusValid: true,
         dialogStatus: null,
@@ -401,6 +419,8 @@
       user(user) {
         if (!user) {
           this.logout();
+        } else {
+          this.showCallbackTab = user.accessToResource('callback/members', 'r');
         }
       }
     },
@@ -535,12 +555,18 @@
     overflow-y: auto;
   }
 
-  .toolbar.toolbar--fixed {
-    z-index: 3;
+  .app-content {
+    max-height: 100vh;
+  }
+
+  .app-view {
+    height: 100%;
+    overflow-y: auto;
+    backface-visibility: hidden;
   }
 
   ::-webkit-scrollbar {
-    width: 5px;
+    width: 8px;
   }
 
   ::-webkit-scrollbar-thumb:vertical {
@@ -575,7 +601,7 @@
     top: 0;
     width: 100%;
     height: 100%;
-    z-index: 5;
+    z-index: 10;
     background-color: #1c1c1c;
   }
 
@@ -585,45 +611,5 @@
     background-size: contain;
     margin-left: 9px;
     background-image: url("./assets/webrtc.svg");
-  }
-
-  .in-call-center-img {
-    content:url("./assets/in_call_center.svg");
-  }
-
-  .inbound-error-call-img {
-    content:url("./assets/inbound_error.svg")
-  }
-
-  .inbound-ok-call-img {
-    content:url("./assets/inbound_ok.svg")
-  }
-
-  .inbound-queue-call-img {
-    content:url("./assets/inbound_queue.svg")
-  }
-
-  .missed-call-img {
-    content:url("./assets/missed.svg")
-  }
-
-  .outbound-error-call-img {
-    content:url("./assets/outbound_error.svg")
-  }
-
-  .outbound-ok-call-img {
-    content:url("./assets/outbound_ok.svg")
-  }
-
-  .unknown-call-img {
-    content:url("./assets/unknown.svg")
-  }
-
-  .internal-call-img {
-    content:url("./assets/internal.svg")
-  }
-
-  .conference-call-img {
-    content:url("./assets/conference.svg")
   }
 </style>

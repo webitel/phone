@@ -92,16 +92,24 @@
 
       this.oauthName = this.$localStorage.get('oauthName');
 
-      this.useDomainAuth = settings.get('useDomainAuth') === true && this.oauthName;
+      this.useDomainAuth = settings.get('useDomainAuth') === true && !!this.oauthName;
       this.server = settings.get('server') || null;
       this.domainOAuthServer = settings.get('domainOAuthServer') || null;
       this.domainOAuthResource = settings.get('domainOAuthResource') || null;
       this.domainOAuthClientId = settings.get('domainOAuthClientId') || null;
       this.domainOAuthDomainName = settings.get('domainOAuthDomainName') || null;
 
-      this.advancedSettings = !this.$refs.form.validate()
+      if (this.maybeAutoLogin()) {
+        return this.doLogin()
+      }
+
+      this.advancedSettings = !this.$refs.form.validate();
     },
     methods: {
+      maybeAutoLogin() {
+        return !this.$store.getters.lastLogged() && this.useDomainAuth && !!this.domainOAuthServer && !!this.server
+          && !!this.domainOAuthResource &&  !!this.domainOAuthClientId && !!this.domainOAuthDomainName;
+      },
       loginRules() {
         if (this.useDomainAuth)
           return true;
@@ -179,33 +187,38 @@
         });
       },
 
+      doLogin() {
+        this.loading = true;
+        const serverUri = parseServerUri(this.server);
+
+        this.saveSettings();
+
+        const callback = (err, response) => {
+          this.loading = false;
+          if (err)
+            return this.setError(err.message);
+
+          this.$localStorage.set('token', response.body.token);
+          this.$localStorage.set('xkey', response.body.key);
+
+          response.body.server = serverUri;
+          //TODO check oauth
+          response.body.id = response.body.username || this.login;
+
+          this.$store.commit("AUTH", response.body);
+          this.$router.push('/');
+        };
+
+        if (this.useDomainAuth) {
+          this.loginOAuth(serverUri, callback);
+        } else {
+          this.loginDefault(serverUri, callback);
+        }
+      },
+
       submit() {
         if (this.$refs.form.validate()) {
-          this.loading = true;
-          const serverUri = parseServerUri(this.server);
-
-          this.saveSettings();
-
-          const callback = (err, response) => {
-            this.loading = false;
-            if (err)
-              return this.setError(err.message);
-
-              this.$localStorage.set('token', response.body.token);
-              this.$localStorage.set('xkey', response.body.key);
-
-              response.body.server = serverUri;
-              response.body.id = this.login;
-
-              this.$store.commit("AUTH", response.body);
-              this.$router.push('/');
-          };
-
-          if (this.useDomainAuth) {
-            this.loginOAuth(serverUri, callback);
-          } else {
-            this.loginDefault(serverUri, callback);
-          }
+          this.doLogin();
         }
       }
     },

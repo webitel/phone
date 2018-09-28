@@ -4,7 +4,7 @@
       <v-flex xs12 sm8 md4>
         <v-container fluid fill-height>
           <v-layout align-center justify-center>
-            <v-progress-circular style="text-align: center;" indeterminate :size="140" :width="7" color="warning">
+            <v-progress-circular style="text-align: center;" indeterminate :size="140" :width="2" color="warning">
               Connecting...
               {{count}}
             </v-progress-circular>

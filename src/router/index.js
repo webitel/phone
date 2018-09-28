@@ -8,6 +8,7 @@ import NotFound from '@/components/404'
 import Login from '@/components/Login'
 import Call from '@/components/Call'
 import Reconnect from '@/components/Reconnect'
+import Callback from '@/components/Callback'
 
 Vue.use(Router);
 
@@ -23,6 +24,11 @@ const router = new Router({
       path: '/users',
       name: 'Users',
       component: Users
+    },
+    {
+      path: '/callback',
+      name: 'Callback',
+      component: Callback
     },
     {
       path: '/settings',

@@ -17,6 +17,7 @@
     "nw-builder": "^3.5.1",
     "plyr": "^3.4.3",
     "vue": "^2.5.2",
+    "vue-infinite-scroll": "^2.0.2",
     "vue-localstorage": "^0.6.2",
     "vue-markdown": "^2.2.4",
     "vue-plyr": "^4.0.0",

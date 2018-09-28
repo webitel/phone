@@ -1,3 +1,8 @@
+
+import {getLastElem, makeGroup, intToTimeString, PROTECTED_WEBITEL_DATA} from './helper'
+
+const FETCH_LIMIT = 40;
+
 class CDR {
   constructor(session) {
     this.session = session;
@@ -7,6 +12,7 @@ class CDR {
     this.count = 0;
     this.groups = [];
     this.loading = false;
+    this.nextData = true;
   }
 
   next(cb) {
@@ -28,6 +34,7 @@ class CDR {
     this.filter = qs;
     this.groups = [];
     this.count = 0;
+    this.nextData = true;
     return this.list(this.page, this.filter, cb);
   }
 
@@ -53,7 +60,7 @@ class CDR {
       // "includes": ["recordings"],
       "columnsDate": [],
       "pageNumber": page,
-      "limit": 40,
+      "limit": FETCH_LIMIT,
       "query": qs,
       // "domain": "10.10.10.144", //TODO DODO
       "filter": {
@@ -92,9 +99,15 @@ class CDR {
     );
   }
 
+  availableMoreData() {
+    return this.nextData;
+  }
+
   _setCacheData(items, total, cb) {
+    this.nextData = items.length === FETCH_LIMIT;
+
     if (items.length === 0)
-      return cb(null, this.groups, total, false);
+      return cb(null, this.groups, total, this.nextData);
 
     let lastGroup = getLastElem(this.groups);
     let by;
@@ -117,7 +130,7 @@ class CDR {
       if (item['variables.webitel_data']) {
         const data = JSON.parse(item['variables.webitel_data']);
         for (let name in data) {
-          if (data[name])
+          if (data[name] && !~PROTECTED_WEBITEL_DATA.indexOf(name))
             item.webitelData.push({name, value: data[name]})
         }
       }
@@ -125,40 +138,11 @@ class CDR {
       lastGroup.items.push(item)
     });
     this.totCall = total;
-    return cb(null, this.groups, total, this.count)
+    return cb(null, this.groups, total, this.nextData)
   }
 }
 
 export default CDR
-
-function makeGroup(by) {
-  return {
-    by,
-    name: getGroupName(by),
-    show: true,
-    items: []
-  }
-}
-
-function intToTimeString(seconds) {
-  let h, m, s, str = '';
-  s = Math.floor(seconds);
-  m = Math.floor(s / 60);
-  s = s % 60;
-  h = Math.floor(m / 60);
-  m = m % 60;
-
-  if (h > 0) {
-    str += `${h} hours `
-  }
-
-  if (m > 0) {
-    str += `${m} min `
-  }
-
-  str += `${s} sec`;
-  return str;
-}
 
 function getImgCall(direction, hangupCause, isQueue) {
 
@@ -171,17 +155,6 @@ function getImgCall(direction, hangupCause, isQueue) {
   }
 }
 
-function getGroupName(by) {
-  if (by === new Date().toLocaleDateString()) {
-    return 'Today'
-  } else {
-    return by
-  }
-}
-
-function getLastElem(arr) {
-  return arr[arr.length - 1];
-}
 
 function parseElasticResponse(session, res) {
   const data = [];

@@ -8,6 +8,8 @@ import 'vuetify/dist/vuetify.min.css'
 import store from './store'
 import Resource from 'vue-resource'
 import VueLocalStorage from 'vue-localstorage'
+import infiniteScroll from 'vue-infinite-scroll'
+Vue.use(infiniteScroll);
 
 Vue.use(VueLocalStorage);
 

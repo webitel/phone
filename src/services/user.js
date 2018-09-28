@@ -23,6 +23,8 @@ class User extends InternalUser {
     this._token = credentials.token;
     this._key = credentials.key;
 
+    this._acl = credentials.acl;
+
     this.devices = null;
 
     this.webPhoneRegister = false;
@@ -167,6 +169,13 @@ class User extends InternalUser {
     if (settings.get('useWebPhone') && settings.get('webrtcPassword')) {
       this.registerWebPhone();
     }
+  }
+
+  accessToResource(resource, permit) {
+    if (!this._acl[resource])
+      return false;
+
+    return !!~this._acl[resource].indexOf(permit) || !!~this._acl[resource].indexOf('*');
   }
 
   setWebPhoneMicrophone(id) {

@@ -34,3 +34,55 @@ export function parseServerUri(serverStr) {
     return 'http://' + serverStr;
   }
 }
+
+export function getGroupName(by) {
+  if (by === new Date().toLocaleDateString()) {
+    return 'Today'
+  } else {
+    return by
+  }
+}
+
+export function getLastElem(arr) {
+  return arr[arr.length - 1];
+}
+
+
+export function makeGroup(by) {
+  return {
+    by,
+    name: getGroupName(by),
+    show: true,
+    items: []
+  }
+}
+
+export function intToTimeString(seconds) {
+  let h, m, s, str = '';
+  s = Math.floor(seconds);
+  m = Math.floor(s / 60);
+  s = s % 60;
+  h = Math.floor(m / 60);
+  m = m % 60;
+
+  if (h > 0) {
+    str += `${h} hours `
+  }
+
+  if (m > 0) {
+    str += `${m} min `
+  }
+
+  str += `${s} sec`;
+  return str;
+}
+
+export function deleteDomain(str = "") {
+  const idx = str.indexOf('@');
+  if (~idx) {
+    return str.substring(0, idx);
+  }
+  return str;
+}
+
+export const PROTECTED_WEBITEL_DATA = ["dlr_member_id", "dlr_id", "domain_name", "dlr_dsc_s", "dlr_wrap"];

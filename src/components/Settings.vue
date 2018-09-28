@@ -12,44 +12,50 @@
               prepend-icon="settings_brightness"
             ></v-select>
 
-            <v-switch
+            <v-checkbox
               label="Use Web phone"
               v-model="useWebPhone"
-            ></v-switch>
+            ></v-checkbox>
 
-            <v-switch
+            <v-checkbox
               label="Use STUN"
               v-model="iceServers"
-            ></v-switch>
+            ></v-checkbox>
 
-            <v-switch
+            <v-checkbox
               label="SIP auto answer"
               v-model="sipAutoAnswer"
-            ></v-switch>
-            <v-switch
+            ></v-checkbox>
+
+            <v-checkbox
               label="Agent auto login"
               v-model="autoLoginCallCenter"
-            ></v-switch>
-            <v-switch
+            ></v-checkbox>
+
+            <v-checkbox
               label="Agent on demand"
               v-model="agentOnDemand"
-            ></v-switch>
-            <v-switch
+            ></v-checkbox>
+
+            <v-checkbox
               label="Use post process"
               v-model="usePostProcess"
-            ></v-switch>
-            <v-switch
+            ></v-checkbox>
+
+            <v-checkbox
               label="Ring inbound call"
               v-model="ringInboundCall"
-            ></v-switch>
-            <v-switch
+            ></v-checkbox>
+
+            <v-checkbox
               label="Notify new call"
               v-model="notifyNewCall"
-            ></v-switch>
-            <v-switch
+            ></v-checkbox>
+
+            <v-checkbox
               label="Notify missed call"
               v-model="notifyMissedCall"
-            ></v-switch>
+            ></v-checkbox>
 
             <v-select
               :items="audioInDevices"

@@ -1,0 +1,345 @@
+<template>
+
+  <div >
+    <Spinner :value="busy"></Spinner>
+
+    <v-layout row  v-show="callback" >
+      <v-flex xs12 sm6 offset-sm3>
+        <v-card wrap flat>
+          <v-card-title>
+            <v-select
+              :items="items"
+              v-model="select"
+              label="View"
+            ></v-select>
+          </v-card-title>
+        </v-card>
+
+        <v-flex xs12 v-show="!data.length && search">
+          <v-card flat>
+            <v-card-title>
+              <v-flex xs4 class="text-md-center">
+                <v-icon size="64px">error_outline</v-icon>
+              </v-flex>
+              <v-flex xs8>
+                <div>
+                  <div class="headline">No results found:</div>
+                  <div>{{search}}</div>
+                </div>
+              </v-flex>
+            </v-card-title>
+          </v-card>
+        </v-flex>
+
+        <v-flex xs12 v-show="!data.length && !search">
+          <v-card flat>
+            <v-card-title>
+              <v-flex xs4 class="text-md-center">
+                <v-icon size="64px">error_outline</v-icon>
+              </v-flex>
+              <v-flex xs8>
+                <div>
+                  <div class="headline">The callback queue is empty</div>
+                </div>
+              </v-flex>
+            </v-card-title>
+          </v-card>
+        </v-flex>
+
+        <!--Grid data-->
+        <v-list style="margin-bottom: 30px" two-line subheader expand v-infinite-scroll="loadMore" infinite-scroll-disabled="busy">
+          <div v-for="item in data">
+            <v-subheader inset>{{item.name}}</v-subheader>
+            <div v-for="i in item.items" :key="item.title" >
+              <v-list-tile avatar @click="">
+
+                <v-list-tile-action class="callback-done-btn">
+                  <v-dialog v-model="i._dialog" persistent max-width="290">
+                    <v-checkbox slot="activator" @click.stop.prevent="!i.done && confirmDone(i)" :input-value="i.done === true"></v-checkbox>
+                    <v-card >
+                      <v-card-title class="headline">Mark as done</v-card-title>
+                      <v-card-text>You can't undo this action.</v-card-text>
+                      <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn color="green darken-1" flat @click.native="i._dialog = false">Cancel</v-btn>
+                        <v-btn color="green darken-1" flat @click.native="setDone(i)">OK</v-btn>
+                      </v-card-actions>
+                    </v-card>
+                  </v-dialog>
+                </v-list-tile-action>
+
+                <v-list-tile-content  class="body-1">
+                  <v-list-tile-title>
+                    <a @click="makeCall(i.number)">{{i.number}}</a> from {{i.queue_name}}
+                  </v-list-tile-title>
+                  <v-list-tile-sub-title>
+                    {{i._time}}
+                  </v-list-tile-sub-title>
+
+
+                </v-list-tile-content>
+
+                <v-list-tile-action>
+                  <v-list-tile-action-text >
+                    <div  class="text-xs-center">
+                      <v-btn class="text--secondary" :class="{'btn--active': i.activeDetail === 'comments'}" small flat icon @click="openItem(i, 'comments')">
+                        <v-icon>comment</v-icon>
+                      </v-btn>
+
+                      <v-btn class="text--secondary" :class="{'btn--active': i.activeDetail === 'info'}" style="margin-left: 5px" flat icon @click="openItem(i, 'info')">
+                        <v-icon>info</v-icon>
+                      </v-btn>
+                    </div>
+                  </v-list-tile-action-text>
+                </v-list-tile-action>
+
+              </v-list-tile>
+
+              <v-container  grid-list-xl style="padding: 0 13px;" v-if="i._record" v-show="i.activeDetail === 'info'">
+                <v-flex class="callback-detail-field" xs12 v-show="i._record.done_at">
+                  Done at: {{dateToTimeString(+i._record.done_at)}}
+                </v-flex>
+                <v-flex class="callback-detail-field" xs12 v-if="i._record.done_by">
+                  Done by: {{deleteDomain(i._record.done_by)}}
+                </v-flex>
+                <v-flex class="callback-detail-field" xs12 v-show="i._record.href">
+                  Href: <a @click="openLink(i._record.href)" target="_blank">{{i._record.href}}</a>
+                </v-flex>
+                <v-flex class="callback-detail-field" xs12 v-show="i._record.widget_name">
+                  Widget: {{i._record.widget_name}}
+                </v-flex>
+                <v-flex class="callback-detail-field" xs12 v-show="i._record.request_ip">
+                  Request IP: {{i._record.request_ip}}
+                </v-flex>
+                <v-flex class="callback-detail-field" xs12 v-show="i._record.user_agent">
+                  User Agent: {{i._record.user_agent}}
+                </v-flex>
+                <div v-if="i._record.location">
+                  <v-flex class="callback-detail-field" xs12 v-show="i._record.location.country_name">
+                    Country: {{i._record.location.country_name}}
+                  </v-flex>
+                  <v-flex class="callback-detail-field" xs12 v-show="i._record.location.region_name">
+                    Region Name: {{i._record.location.region_name}}
+                  </v-flex>
+                  <v-flex class="callback-detail-field" xs12 v-show="i._record.location.time_zone">
+                    Time Zone: {{i._record.location.time_zone}}
+                  </v-flex>
+                </div>
+              </v-container>
+
+              <v-layout row wrap v-show="i.activeDetail === 'comments'" v-if="i._record" style="padding: 0 13px;">
+                <v-flex  style="padding: 18px 0 0;">
+                  <div class="callback-comment-row" v-for="comment in i._record.comments" >
+                    <div>{{comment.text}}</div>
+                    <div class="text--secondary">{{deleteDomain(comment.created_by)}} added e comment - {{dateToTimeString(comment.created_on)}}</div>
+                    <v-divider></v-divider>
+                  </div>
+                </v-flex>
+                <v-flex xs12>
+                  <v-text-field
+                    append-icon="send"
+                    v-model="i._newComment"
+                    :append-icon-cb="sendComment(i)"
+                    @keyup.enter="sendComment(i)()"
+                    type="text"
+                    placeholder="New comment"
+                  ></v-text-field>
+                </v-flex>
+              </v-layout>
+
+            </div>
+
+          </div>
+        </v-list>
+
+
+        <!--Refresh btn-->
+        <v-layout justify-end>
+          <v-fab-transition>
+            <v-btn
+              small
+              dark
+              fixed
+              bottom
+              fab
+              @click="refreshData(true)"
+              style="margin-bottom: 50px; margin-left: -10px;"
+            >
+              <v-icon>refresh</v-icon>
+            </v-btn>
+          </v-fab-transition>
+        </v-layout>
+
+      </v-flex>
+    </v-layout>
+  </div>
+</template>
+
+<script>
+  import {deleteDomain} from '../services/helper'
+  import Spinner from './Spinner'
+
+  export default {
+    name: "Callback",
+    components: {
+      Spinner
+    },
+    data() {
+      return {
+        busy: true,
+        select: localStorage.getItem('callback_view') || "Overdue",
+        items: [
+          'Overdue',
+          'Scheduled',
+          'Callback list',
+          'Completed'
+        ],
+        data: []
+      }
+    },
+    created() {
+      this.refreshData();
+    },
+    methods: {
+      loadMore() {
+        if (this.busy || !this.callback.availableMoreData(this.select)) {
+          return;
+        }
+
+        this.busy = true;
+        this.callback.next(this.select, this.onViewData);
+      },
+      refreshData(reset = false) {
+        if (!this.callback) {
+          this.data = [];
+          return
+        }
+
+        this.find(this.select,  this.search, reset);
+      },
+
+      find(view, query, reset) {
+        this.busy = true;
+        this.callback.find(view,  query, reset, this.onViewData)
+      },
+
+      openLink(href) {
+        if (typeof WEBITEL_LINK === 'function') {
+          WEBITEL_LINK({href}, null, true)
+        } else {
+          window.open(href, '_blank')
+        }
+      },
+
+      onViewData(err, view) {
+        this.busy = false;
+        if (err)
+          throw err; //TODO
+
+        this.data = view.getData();
+      },
+
+      dateToTimeString: v => {
+        return new Date(v).toLocaleString()
+      },
+
+      openItem(item, menu) {
+        item.activeDetail = item.activeDetail !== menu ? menu: null;
+        if (item._record) {
+          return;
+        }
+        this.busy = true;
+        this.callback.openItem(item, (err, res) => {
+          this.busy = false;
+          if (err)
+            throw err;
+
+          item._record = res;
+        })
+      },
+      sendComment(item) {
+        return () => {
+          if (!item._newComment) {
+            return
+          }
+
+          if (!item._record.comments) {
+            item._record.comments = [];
+          }
+
+          this.busy = true;
+          this.callback.addComment(item.queue_id, item.id, item._newComment, (err, result) => {
+            this.busy = false;
+            if (err)
+              throw err;
+
+            item._record.comments.push({
+              created_by: result.created_by,
+              created_on: +result.created_on,
+              id: result.id,
+              member_id: result.member_id,
+              text: result.text
+            });
+            item._newComment = "";
+
+          });
+        }
+      },
+      makeCall(number) {
+        this.user.makeCall(number);
+      },
+      confirmDone(item) {
+        item._dialog = true;
+      },
+      setDone(item) {
+        this.busy = true;
+        this.callback.setDone(item.queue_id, item.id, (err, res) => {
+          this.busy = false;
+          item._dialog = false;
+          if (err)
+            throw err;
+
+          this.refreshData(true)
+        });
+      },
+      deleteDomain
+    },
+    computed: {
+      search() {
+        return this.$store.getters.getSearch();
+      },
+      user() {
+        return this.$store.state.user
+      },
+      callback() {
+        return this.$store.getters.callback();
+      }
+    },
+    watch:{
+      callback(val) {
+        if (val) {
+          this.refreshData()
+        }
+      },
+      select(val) {
+        localStorage.setItem('callback_view', val);
+        this.find(val, this.search, false);
+      },
+      search() {
+        this.refreshData(true)
+      }
+    }
+  }
+</script>
+
+<style scoped>
+  .callback-detail-field {
+    padding: 18px 0 0;
+  }
+  .callback-done-btn {
+    min-width: 35px;
+  }
+  .callback-comment-row {
+    margin-bottom: 7px;
+  }
+</style>

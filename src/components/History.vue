@@ -1,27 +1,43 @@
 <template>
-  <v-layout row v-scroll="onScroll" v-show="cdr">
+  <v-layout row v-show="cdr">
+    <Spinner :value="busy"></Spinner>
     <v-flex xs12 sm6 offset-sm3>
 
       <v-flex xs12 v-show="!cdrData.length && search">
-        <v-card >
-          <v-container fluid grid-list-lg>
-            <v-layout row>
-              <v-flex xs4 class="text-md-center">
-                <v-icon size="64px">error_outline</v-icon>
-              </v-flex>
-              <v-flex xs8>
-                <div>
-                  <div class="headline">No results found:</div>
-                  <div>{{search}}</div>
-                </div>
-              </v-flex>
-            </v-layout>
-          </v-container>
+        <v-card flat>
+          <v-card-title>
+            <v-flex xs4 class="text-md-center">
+              <v-icon size="64px">error_outline</v-icon>
+            </v-flex>
+            <v-flex xs8>
+              <div>
+                <div class="headline">No results found:</div>
+                <div>{{search}}</div>
+              </div>
+            </v-flex>
+          </v-card-title>
         </v-card>
       </v-flex>
 
-      <v-list two-line subheader expand>
-        <v-subheader> Total: {{totalCount}} (last 7 days)
+
+      <v-flex xs12 v-show="!cdrData.length && !search">
+        <v-card flat>
+          <v-card-title>
+            <v-flex xs4 class="text-md-center">
+              <v-icon size="64px">error_outline</v-icon>
+            </v-flex>
+            <v-flex xs8>
+              <div>
+                <div class="headline">The history is empty</div>
+              </div>
+            </v-flex>
+          </v-card-title>
+        </v-card>
+      </v-flex>
+
+
+      <v-list  v-show="cdrData.length" style="margin-bottom: 30px" two-line subheader expand v-infinite-scroll="loadMore" infinite-scroll-disabled11="busy">
+        <v-subheader> Total: {{totalCount}} records (last 7 days)
         </v-subheader>
         <div v-for="item in cdrData">
           <v-subheader inset>{{item.name}}</v-subheader>
@@ -59,10 +75,10 @@
             </v-layout>
           </div>
 
-          <v-divider inset></v-divider>
+          <!--<v-divider inset></v-divider>-->
         </div>
-
       </v-list>
+
       <v-layout justify-end>
         <v-fab-transition>
         <v-btn
@@ -79,29 +95,27 @@
       </v-fab-transition>
       </v-layout>
     </v-flex>
-
-
-    <v-footer color="transparent" app fixed v-show="!cdr || cdr.loading">
-      <v-progress-linear :indeterminate="true"></v-progress-linear>
-    </v-footer>
   </v-layout>
 </template>
 
 <script>
     import Player from "./Player"
     import VueMarkdown from 'vue-markdown'
+    import Spinner from './Spinner'
 
     export default {
       name: "History",
       components: {
         Player,
-        VueMarkdown
+        VueMarkdown,
+        Spinner
       },
       created() {
         this.refreshData();
       },
       data() {
         return {
+          busy: true,
           cdrData: [],
           totalCount: 0,
           anchorAttrs: {
@@ -135,7 +149,9 @@
           if (reset) {
             this.cdrData = [];
           }
-          this.cdr.find(this.search, (err, res, totalCount, count) => {
+          this.busy = true;
+          this.cdr.find(this.search, (err, res, totalCount, nextData) => {
+            this.busy = false;
             if (err) {
               // TODO
               return
@@ -145,13 +161,17 @@
           }, reset)
         },
 
-        onScroll (e) {
-          if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
-            this.cdr.next((err, data, totalCount, count) => {
-              this.totalCount = totalCount;
-              this.cdrData = data;
-            })
+        loadMore() {
+          if (this.busy || !this.cdr.availableMoreData()) {
+            return;
           }
+
+          this.busy = true;
+          this.cdr.next((err, data, totalCount, nextData) => {
+            this.busy = false;
+            this.totalCount = totalCount;
+            this.cdrData = data;
+          })
         }
       },
 
