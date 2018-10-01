@@ -5,6 +5,10 @@
         <v-card-text>
           <v-form>
 
+            <v-btn small block @click="logout()">
+              Logout
+            </v-btn>
+
             <v-select
               v-model="theme"
               :items="themes"
@@ -154,6 +158,12 @@
       },
 
       methods: {
+        logout() {
+          this.$store.commit("LOGOUT");
+          this.$router.push("/login");
+          this.$localStorage.set('token', '');
+          this.$localStorage.set('xkey', '');
+        },
         refreshDevices(reset) {
           if (this.user) {
             this.loading = true;

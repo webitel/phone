@@ -105,8 +105,8 @@
             ></v-select>
 
             <v-select
-              v-show="dialogStatus !== 'Ready' && dialogStatus !== 'Logout'"
-              :required="dialogStatus !== 'Ready' && dialogStatus !== 'Logout'"
+              v-show="dialogStatus !== 'Ready'"
+              :required="dialogStatus !== 'Ready'"
               :items="listUserState(dialogStatus)"
               v-model="dialogState"
               item-value="code"
@@ -282,9 +282,6 @@
                 code: "CALLFORWARD"
               }
             ]
-          },
-          {
-            text: "Logout"
           }
         ]
       }
@@ -517,9 +514,6 @@
             } else {
               this.user.setBusy("ONBREAK", tag);
             }
-            break;
-          case "Logout":
-            this.logout();
             break;
         }
         this.viewStatusDialog = false;
