@@ -1,9 +1,6 @@
 <template>
   <v-layout row>
     <v-flex xs12 sm6 offset-sm3>
-
-
-
       <v-flex xs12 v-show="!listInternalUsers.length && search">
         <v-card flat>
           <v-card-title>
@@ -69,22 +66,22 @@
 
         getStateDescription(user) {
           if (user.state === 'NONREG') {
-            return 'Not register'
+            return this.$t('users.statusNotRegister')
           } else if (user.state === 'ISBUSY') {
             switch (user.status) {
               case "NONE":
-                return 'Talking';
+                return this.$t('users.statusTalking');
               case "AGENT":
-                return `Agent ${user.description ? user.description : 'In queue call'}`;
+                return this.$t('users.statusAgent', {description: user.description ? user.description : 'In queue call'});
               case "CALLFORWARD":
-                return `Call forwarding ${user.description}`;
+                return this.$t('users.statusCallForward', {number: user.description});
               case "ONBREAK":
-                return `On break${user.description ? ": " + user.description : ''}`;
+                return this.$t('users.statusOnBreak', {description: user.description});
               case "DND":
-                return `DND${user.description ? ": " + user.description : ''}`
+                return this.$t('users.statusDND', {description: user.description});
             }
           } else {
-            return 'Available'
+            return this.$t('users.statusAvailable');
           }
         }
       },

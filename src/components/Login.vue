@@ -6,12 +6,12 @@
           <v-card-title class="display-2 ">Webitel</v-card-title>
           <v-card-text>
             <v-form @keyup.native.enter="submit" v-model="valid" ref="form" >
-              <v-text-field v-show="!useDomainAuth" :rules="[loginRules]" v-model="login" required prepend-icon="person" name="login" label="Login" type="text"></v-text-field>
-              <v-text-field v-show="oauthName && useDomainAuth" :disabled="true" v-model="oauthName"  prepend-icon="person" label="Login" type="text"></v-text-field>
-              <v-text-field v-show="!useDomainAuth" v-model="password" prepend-icon="lock" name="password" label="Password" id="password" type="password"></v-text-field>
+              <v-text-field v-show="!useDomainAuth" :rules="[loginRules]" v-model="login" required prepend-icon="person" name="login" :label="$t('login.account')" type="text"></v-text-field>
+              <v-text-field v-show="oauthName && useDomainAuth" :disabled="true" v-model="oauthName"  prepend-icon="person" :label="$t('login.oauthName')" type="text"></v-text-field>
+              <v-text-field v-show="!useDomainAuth" v-model="password" prepend-icon="lock" name="password" :label="$t('login.password')" id="password" type="password"></v-text-field>
 
               <v-layout row fluid>
-                <v-switch v-model="useDomainAuth" v-show="oauthName" label="Use domain auth" ></v-switch>
+                <v-switch v-model="useDomainAuth" v-show="oauthName" :label="$t('login.useOauth')" ></v-switch>
                 <v-spacer></v-spacer>
                 <a @click="advancedSettings = !advancedSettings" depressed small color="transparent" right>
                   <v-icon v-show="advancedSettings">expand_more</v-icon>
@@ -20,11 +20,22 @@
               </v-layout>
 
               <v-layout v-show="advancedSettings" column>
-                <v-text-field v-model="server" :rules="serverRules" name="server" label="Server" id="server" type="text"></v-text-field>
-                <v-text-field :rules="[domainServerRules]" v-show="useDomainAuth" v-model="domainOAuthServer" name="domainOAuthServer" label="OAuth server" type="text"></v-text-field>
-                <v-text-field :rules="[domainNameRules]" v-show="useDomainAuth" v-model="domainOAuthDomainName" name="domainOAuthDomainName" label="Webitel domain" type="text"></v-text-field>
-                <v-text-field :rules="[domainResourceRules]" v-show="useDomainAuth" v-model="domainOAuthResource" name="domainOAuthResource" label="Resource" type="text"></v-text-field>
-                <v-text-field :rules="[domainClientIdRules]" v-show="useDomainAuth" v-model="domainOAuthClientId" name="domainOAuthClientId" label="Client ID" type="text"></v-text-field>
+
+                <v-select
+                  :items="languages"
+                  :label="$t('login.language')"
+                  item-value="id"
+                  item-text="name"
+                  v-model="$i18n.locale"
+                  v-on:change="changeLanguage($i18n.locale)"
+                  cache-items
+                ></v-select>
+
+                <v-text-field v-model="server" :rules="serverRules" name="server" :label="$t('login.server')" id="server" type="text"></v-text-field>
+                <v-text-field :rules="[domainServerRules]" v-show="useDomainAuth" v-model="domainOAuthServer" name="domainOAuthServer" :label="$t('login.oauthServer')" type="text"></v-text-field>
+                <v-text-field :rules="[domainNameRules]" v-show="useDomainAuth" v-model="domainOAuthDomainName" name="domainOAuthDomainName" :label="$t('login.oauthDomain')" type="text"></v-text-field>
+                <v-text-field :rules="[domainResourceRules]" v-show="useDomainAuth" v-model="domainOAuthResource" name="domainOAuthResource" :label="$t('login.oauthResource')" type="text"></v-text-field>
+                <v-text-field :rules="[domainClientIdRules]" v-show="useDomainAuth" v-model="domainOAuthClientId" name="domainOAuthClientId" :label="$t('login.oauthClientId')" type="text"></v-text-field>
 
               </v-layout>
 
@@ -37,7 +48,7 @@
               @click="submit"
               :disabled="loading || !valid"
             >
-              Login
+              {{$t('login.authBtn')}}
             </v-btn>
           </v-card-actions>
         </v-card>
@@ -61,6 +72,17 @@
   import settings from '../services/settings'
   import {parseServerUri} from '../services/helper'
 
+  function getLanguages(obj) {
+    const result = [];
+    for (let id in obj) {
+      result.push({
+        name: obj[id].name || id,
+        id
+      })
+    }
+    return result;
+  }
+
   export default {
     name: "Login",
     data() {
@@ -74,7 +96,7 @@
         domainOAuthResource: null,
         domainOAuthClientId: null,
         domainOAuthDomainName: null,
-
+        languages: getLanguages(this.$i18n.messages),
         loading: false,
         errorDialog: null,
         errorMsg: null,
@@ -106,6 +128,9 @@
       this.advancedSettings = !this.$refs.form.validate();
     },
     methods: {
+      changeLanguage(val) {
+        localStorage.setItem("language", val);
+      },
       maybeAutoLogin() {
         return !this.$store.getters.lastLogged() && this.useDomainAuth && !!this.domainOAuthServer && !!this.server
           && !!this.domainOAuthResource &&  !!this.domainOAuthClientId && !!this.domainOAuthDomainName;
@@ -113,27 +138,27 @@
       loginRules() {
         if (this.useDomainAuth)
           return true;
-        return !!this.login || 'Login is required'
+        return !!this.login || this.$t('login.errRequiredAccount')
       },
       domainServerRules() {
         if (!this.useDomainAuth)
           return true;
-        return !!this.domainOAuthServer || 'OAuth url is required'
+        return !!this.domainOAuthServer || this.$t('login.errRequiredOauthServer')
       },
       domainNameRules() {
         if (!this.useDomainAuth)
           return true;
-        return !!this.domainOAuthDomainName || 'Domain is required'
+        return !!this.domainOAuthDomainName || this.$t('login.errRequiredOauthDomain')
       },
       domainResourceRules() {
         if (!this.useDomainAuth)
           return true;
-        return !!this.domainOAuthResource || 'Resource is required'
+        return !!this.domainOAuthResource || this.$t('login.errRequiredOauthResource')
       },
       domainClientIdRules() {
         if (!this.useDomainAuth)
           return true;
-        return !!this.domainOAuthClientId || 'Client ID is required'
+        return !!this.domainOAuthClientId || this.$t('login.errRequiredOauthClientId')
       },
 
       setError(msg) {

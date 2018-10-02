@@ -1,0 +1,126 @@
+{
+  "name": "English",
+  "app": {
+    "search": "Search",
+    "loading": "Loading",
+    "close": "Close",
+    "cancel": "Cancel",
+    "ok": "OK"
+  },
+  "user": {
+    "statusReady": "Ready",
+    "statusBusy": "Busy",
+    "statusCallCenter": "Call Center",
+    "statusOnBreak": "On Break",
+    "stateCCWaiting": "Waiting",
+    "stateDND": "Do not disturb",
+    "stateCallForward": "Call forward"
+  },
+  "users": {
+    "statusNotRegister": "Not register",
+    "statusTalking": "Talking",
+    "statusAgent": "Agent {description}",
+    "statusCallForward": "Call forwarding {number}",
+    "statusOnBreak": "On break {description}",
+    "statusDND": "DND {description}",
+    "statusAvailable": "Available"
+  },
+  "call": {
+    "blindTransferNumber": "Blind transfer",
+    "infoPanel": "Info",
+    "postProcessPanel": "Post process",
+    "dlrSuccessCall": "Success call",
+    "dlrScheduleCall": "Schedule a call time",
+    "dlrNextAfterTime": "Time",
+    "dlrNextAfterDate": "Date",
+    "dlrDoNotCallThisNumber": "Do not call this number",
+    "dlrCallToNumber": "Add new number",
+    "dlrCallResult": "Call result",
+    "dlrDescription": "Description",
+    "errPostProcessTitle": "Save post process error:",
+    "closeCall": "Close call",
+    "retryCall": "Retry",
+    "ringing": "RINGING",
+    "active": "ACTIVE",
+    "hold": "HOLD",
+    "down": "DOWN"
+  },
+  "changeStatus": {
+    "title": "Change status",
+    "status": "Status",
+    "state": "State",
+    "tag": "Tag"
+  },
+  "toolbar": {
+    "history": "History",
+    "callback": "Callback",
+    "users": "Users",
+    "settings": "Settings"
+  },
+  "login": {
+    "language": "Language",
+    "oauthName": "Name",
+    "oauthServer": "OAuth server",
+    "oauthDomain": "Webitel domain",
+    "oauthResource": "Resource",
+    "oauthClientId": "Client ID",
+    "useOauth": "Use domain auth",
+    "account": "Login",
+    "password": "Password",
+    "server": "Server",
+    "authBtn": "Login",
+
+    "errRequiredAccount": "Login is required",
+    "errRequiredOauthServer": "OAuth url is required",
+    "errRequiredOauthDomain": "Domain is required",
+    "errRequiredOauthResource": "Resource is required",
+    "errRequiredOauthClientId": "Client ID is required"
+  },
+  "history": {
+    "header": "Total: {count} records (last 7 days)",
+    "rowTile": "{callerIdNumber} to {destinationNumber}",
+    "rowSubTile": "{startTime} duration {durationString}",
+    "noResultFound": "No results found:",
+    "emptyResult": "The history is empty"
+  },
+  "callback": {
+    "view": "View",
+    "noResultFound": "No results found:",
+    "emptyResult": "The callback queue is empty",
+    "dialogDoneTitle": "Mark as done",
+    "dialogDoneContent": "You can't undo this action.",
+    "rowTile": "{number} from {queue}",
+    "viewOverdue": "Overdue",
+    "viewScheduled": "Scheduled",
+    "viewCompleted": "Completed",
+    "callbackList": "Callback list",
+    "commentSubTile": "{createdBy} added e comment - {date}",
+    "newCommentPlaceholder": "New comment",
+    "doneAt": "Done at",
+    "doneBy": "Done by",
+    "href": "Href",
+    "widget": "Widget",
+    "requestIP": "Request IP",
+    "userAgent": "User Agent",
+    "country": "Country",
+    "regionName": "Region Name",
+    "timeZone": "Time Zone"
+  },
+  "settings": {
+    "theme": "Theme",
+    "useWebPhone": "Use web phone",
+    "iceServers": "Use STUN",
+    "sipAutoAnswer": "SIP auto answer",
+    "autoLoginCallCenter": "Agent auto login",
+    "agentOnDemand": "Agent on demand",
+    "usePostProcess": "Use post process",
+    "ringInboundCall": "Ring inbound call",
+    "notifyNewCall": "Notify new call",
+    "notifyMissedCall": "Notify missed call",
+    "audioInDevice": "Microphone",
+    "audioOutDevices": "Output device",
+    "ringInboundSinkId": "Ring device",
+    "refreshDevices": "Refresh devices",
+    "logout": "Logout"
+  }
+}

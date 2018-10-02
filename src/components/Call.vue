@@ -8,7 +8,7 @@
           <v-card-title >
             <v-layout row>
               <v-flex xs3 class="text-xs-left">
-                <h5>{{call.state}}</h5>
+                <h5>{{call.state ? $t('call.' + call.state.toLowerCase()) : ''}}</h5>
               </v-flex>
               <v-flex xs6 class="text-xs-center">
                 <h2 @click="copyClipboard(call.number)" class="copy-to-clipboard text-xs-center">{{call.name}}</h2>
@@ -92,7 +92,7 @@
                   <v-card>
                     <v-card-text>
                       <v-layout align-center>
-                        <v-text-field v-model="blindTransferNumber" label="Blind transfer"></v-text-field>
+                        <v-text-field v-model="blindTransferNumber" :label="$t('call.blindTransferNumber')"></v-text-field>
                         <v-btn :disabled="!blindTransferNumber" @click="call.blindTransfer(blindTransferNumber); transferPanel = false" icon small>
                           <v-icon :color="blindTransferNumber ? 'success': ''">swap_horiz</v-icon>
                         </v-btn>
@@ -151,20 +151,20 @@
               <v-card-text>
                 <v-expansion-panel expand>
                   <v-expansion-panel-content :value="true" v-show="call.info.length > 0">
-                    <div slot="header">Info</div>
+                    <div slot="header">{{$t('call.infoPanel')}}</div>
                     <div style="padding: 3px;" class="text--accent-1" v-for="(item, index) in call.info">
                       <vue-markdown :breaks="false" :anchor-attributes="anchorAttrs">{{item.title}}: {{item.content}}</vue-markdown>
                     </div>
                   </v-expansion-panel-content>
 
                   <v-expansion-panel-content @keyup.native.enter="call.state === 'DOWN' && sendPostProcess()" :value="true" v-show="call.postProcessing && call.dbUuid">
-                    <div slot="header">Post process</div>
+                    <div slot="header">{{$t('call.postProcessPanel')}}</div>
 
                     <v-card flat color="transparent" >
                       <v-card-text align-content-start>
                         <v-flex xs5>
                           <v-checkbox
-                            :label="`Success call`"
+                            :label="$t('call.dlrSuccessCall')"
                             v-model="successCall"
                           ></v-checkbox>
                         </v-flex>
@@ -173,7 +173,7 @@
 
                           <v-flex xs5>
                             <v-checkbox
-                              :label="`Schedule a call time`"
+                              :label="$t('call.dlrScheduleCall')"
                               v-model="nextAfterEnabled"
                               width="100px"
                             ></v-checkbox>
@@ -196,15 +196,15 @@
                                   slot="activator"
                                   :required="nextAfterEnabled"
                                   v-model="nextAfterTime"
-                                  label="Time"
+                                  :label="$t('call.dlrNextAfterTime')"
                                   clearable
                                   readonly
                                   prepend-icon="access_time"
                                 ></v-text-field>
                                 <v-time-picker v-model="nextAfterTime" actions format="24hr">
                                   <v-spacer></v-spacer>
-                                  <v-btn flat color="primary" @click="modalTime = false">Cancel</v-btn>
-                                  <v-btn flat color="primary" @click="$refs.dialogTime.save(nextAfterTime)">OK</v-btn>
+                                  <v-btn flat color="primary" @click="modalTime = false">{{$t('app.cancel')}}</v-btn>
+                                  <v-btn flat color="primary" @click="$refs.dialogTime.save(nextAfterTime)">{{$t('app.ok')}}</v-btn>
                                 </v-time-picker>
                               </v-dialog>
                             </v-flex>
@@ -232,8 +232,8 @@
                                 ></v-text-field>
                                 <v-date-picker v-model="nextAfterDate" scrollable :allowed-dates="allowedDates">
                                   <v-spacer></v-spacer>
-                                  <v-btn flat color="primary" @click="modalDate = false">Cancel</v-btn>
-                                  <v-btn flat color="primary" @click="$refs.dialogDate.save(nextAfterDate)">OK</v-btn>
+                                  <v-btn flat color="primary" @click="modalDate = false">{{$t('app.cancel')}}</v-btn>
+                                  <v-btn flat color="primary" @click="$refs.dialogDate.save(nextAfterDate)">{{$t('app.ok')}}</v-btn>
                                 </v-date-picker>
                               </v-dialog>
                             </v-flex>
@@ -242,14 +242,14 @@
                           <v-flex xs5>
                             <v-checkbox
                               v-model="doNotCallThisNumber"
-                              :label="`Do not call this number`"
+                              :label="$t('call.dlrDoNotCallThisNumber')"
                             ></v-checkbox>
                           </v-flex>
 
                           <v-text-field
                             type="text"
                             v-model="callToNumber"
-                            label="Add new number"
+                            :label="$t('call.dlrCallToNumber')"
                           ></v-text-field>
                         </div>
 
@@ -258,7 +258,7 @@
                             :items="descriptionsAutocomplete"
                             v-model="callResult"
                             :item-text="'name'"
-                            label="Call result"
+                            :label="$t('call.dlrCallResult')"
                             dont-fill-mask-blanks
                           ></v-select>
 
@@ -266,7 +266,7 @@
                             v-if="callResult && callResult.items"
                             v-model="callResult.subText"
                             :items="callResult.items"
-                            label="Description"
+                            :label="$t('call.Description')"
                             combobox
                             clearable
                             dont-fill-mask-blanks
@@ -291,12 +291,12 @@
     <v-layout row justify-center>
       <v-dialog v-model="errorDialog" max-width="290">
         <v-card>
-          <v-card-title class="headline">Save post process error:</v-card-title>
+          <v-card-title class="headline">{{$t('call.errPostProcessTitle')}}</v-card-title>
           <v-card-text>{{errorDialogText}}</v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn color="green darken-1" flat="flat" @click="call.destroy()">Close call</v-btn>
-            <v-btn color="green darken-1" flat="flat" :disabled="call.requestPostProcess" @click="sendPostProcess()">Retry</v-btn>
+            <v-btn color="green darken-1" flat="flat" @click="call.destroy()">{{$t('call.closeCall')}}</v-btn>
+            <v-btn color="green darken-1" flat="flat" :disabled="call.requestPostProcess" @click="sendPostProcess()">{{$t('call.retryCall')}}</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>

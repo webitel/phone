@@ -6,81 +6,80 @@
           <v-form>
 
             <v-btn small block @click="logout()">
-              Logout
+              {{$t('settings.logout')}}
             </v-btn>
 
             <v-select
               v-model="theme"
               :items="themes"
-              label="Theme"
+              :label="$t('settings.theme')"
               prepend-icon="settings_brightness"
             ></v-select>
 
             <v-checkbox
-              label="Use Web phone"
+              :label="$t('settings.useWebPhone')"
               v-model="useWebPhone"
             ></v-checkbox>
 
             <v-checkbox
-              label="Use STUN"
+              :label="$t('settings.iceServers')"
               v-model="iceServers"
             ></v-checkbox>
 
             <v-checkbox
-              label="SIP auto answer"
+              :label="$t('settings.sipAutoAnswer')"
               v-model="sipAutoAnswer"
             ></v-checkbox>
 
             <v-checkbox
-              label="Agent auto login"
+              :label="$t('settings.autoLoginCallCenter')"
               v-model="autoLoginCallCenter"
             ></v-checkbox>
 
             <v-checkbox
-              label="Agent on demand"
+              :label="$t('settings.agentOnDemand')"
               v-model="agentOnDemand"
             ></v-checkbox>
 
             <v-checkbox
-              label="Use post process"
+              :label="$t('settings.usePostProcess')"
               v-model="usePostProcess"
             ></v-checkbox>
 
             <v-checkbox
-              label="Ring inbound call"
+              :label="$t('settings.ringInboundCall')"
               v-model="ringInboundCall"
             ></v-checkbox>
 
             <v-checkbox
-              label="Notify new call"
+              :label="$t('settings.notifyNewCall')"
               v-model="notifyNewCall"
             ></v-checkbox>
 
             <v-checkbox
-              label="Notify missed call"
+              :label="$t('settings.notifyMissedCall')"
               v-model="notifyMissedCall"
             ></v-checkbox>
 
             <v-select
               :items="audioInDevices"
               v-model="audioInDevice"
-              label="Microphone"
-              hint="Microphone"
+              :label="$t('settings.audioInDevice')"
+              :hint="$t('settings.audioInDevice')"
               item-text="label"
               item-value="id"
               :loading="loading"
               :disabled="loading"
               cache-items
               single-line
-              auto
               prepend-icon="mic_none"
             ></v-select>
 
 
             <v-select
               :items="audioOutDevices"
-              label="Output device"
-              hint="Output device"
+              :label="$t('settings.audioOutDevices')"
+              :hint="$t('settings.audioOutDevices')"
               v-model="audioOutDevice"
               item-text="label"
               item-value="id"
@@ -88,14 +87,13 @@
               :disabled="loading"
               cache-items
               single-line
-              auto
               prepend-icon="headset"
             ></v-select>
 
             <v-select
               :items="audioOutDevices"
-              label="Ring device"
-              hint="Ring device"
+              :hint="$t('settings.ringInboundSinkId')"
+              :label="$t('settings.ringInboundSinkId')"
               v-model="ringInboundSinkId"
               item-text="label"
               item-value="id"
@@ -103,14 +101,13 @@
               :disabled="loading"
               cache-items
               single-line
-              auto
               prepend-icon="hearing"
             ></v-select>
 
             <v-btn class="btn-refresh-devices" fab small @click="refreshDevices(true)">
               <v-icon>refresh</v-icon>
             </v-btn>
-            Refresh devices
+            {{$t('settings.refreshDevices')}}
 
           </v-form>
         </v-card-text>
@@ -177,6 +174,9 @@
       },
 
       watch: {
+        "i18n"() {
+          debugger
+        },
         user(user) {
           if (user) {
             this.refreshDevices()

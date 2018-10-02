@@ -10,7 +10,9 @@
             <v-select
               :items="items"
               v-model="select"
-              label="View"
+              item-value="id"
+              item-text="name"
+              :label="$t('callback.view')"
             ></v-select>
           </v-card-title>
         </v-card>
@@ -23,7 +25,7 @@
               </v-flex>
               <v-flex xs8>
                 <div>
-                  <div class="headline">No results found:</div>
+                  <div class="headline">{{$t('callback.noResultFound')}}</div>
                   <div>{{search}}</div>
                 </div>
               </v-flex>
@@ -39,7 +41,7 @@
               </v-flex>
               <v-flex xs8>
                 <div>
-                  <div class="headline">The callback queue is empty</div>
+                  <div class="headline">{{$t('callback.emptyResult')}}</div>
                 </div>
               </v-flex>
             </v-card-title>
@@ -57,12 +59,12 @@
                   <v-dialog v-model="i._dialog" persistent max-width="290">
                     <v-checkbox slot="activator" @click.stop.prevent="!i.done && confirmDone(i)" :input-value="i.done === true"></v-checkbox>
                     <v-card >
-                      <v-card-title class="headline">Mark as done</v-card-title>
-                      <v-card-text>You can't undo this action.</v-card-text>
+                      <v-card-title class="headline">{{$t('callback.dialogDoneTitle')}}</v-card-title>
+                      <v-card-text>{{$t('callback.dialogDoneContent')}}</v-card-text>
                       <v-card-actions>
                         <v-spacer></v-spacer>
-                        <v-btn color="green darken-1" flat @click.native="i._dialog = false">Cancel</v-btn>
-                        <v-btn color="green darken-1" flat @click.native="setDone(i)">OK</v-btn>
+                        <v-btn color="green darken-1" flat @click.native="i._dialog = false">{{$t('app.cancel')}}</v-btn>
+                        <v-btn color="green darken-1" flat @click.native="setDone(i)">{{$t('app.ok')}}</v-btn>
                       </v-card-actions>
                     </v-card>
                   </v-dialog>
@@ -70,7 +72,10 @@
 
                 <v-list-tile-content  class="body-1">
                   <v-list-tile-title>
-                    <a @click="makeCall(i.number)">{{i.number}}</a> from {{i.queue_name}}
+                    <i18n path="callback.rowTile" tag="span">
+                      <a @click="makeCall(i.number)" place="number">{{i.number}}</a>
+                      <span place="queue">{{i.queue_name}}</span>
+                    </i18n>
                   </v-list-tile-title>
                   <v-list-tile-sub-title>
                     {{i._time}}
@@ -97,32 +102,32 @@
 
               <v-container  grid-list-xl style="padding: 0 13px;" v-if="i._record" v-show="i.activeDetail === 'info'">
                 <v-flex class="callback-detail-field" xs12 v-show="i._record.done_at">
-                  Done at: {{dateToTimeString(+i._record.done_at)}}
+                  {{$t('callback.doneAt')}}: {{dateToTimeString(+i._record.done_at)}}
                 </v-flex>
                 <v-flex class="callback-detail-field" xs12 v-if="i._record.done_by">
-                  Done by: {{deleteDomain(i._record.done_by)}}
+                  {{$t('callback.doneBy')}}: {{deleteDomain(i._record.done_by)}}
                 </v-flex>
                 <v-flex class="callback-detail-field" xs12 v-show="i._record.href">
-                  Href: <a @click="openLink(i._record.href)" target="_blank">{{i._record.href}}</a>
+                  {{$t('callback.href')}}: <a @click="openLink(i._record.href)" target="_blank">{{i._record.href}}</a>
                 </v-flex>
                 <v-flex class="callback-detail-field" xs12 v-show="i._record.widget_name">
-                  Widget: {{i._record.widget_name}}
+                  {{$t('callback.widget')}}: {{i._record.widget_name}}
                 </v-flex>
                 <v-flex class="callback-detail-field" xs12 v-show="i._record.request_ip">
-                  Request IP: {{i._record.request_ip}}
+                  {{$t('callback.requestIP')}}: {{i._record.request_ip}}
                 </v-flex>
                 <v-flex class="callback-detail-field" xs12 v-show="i._record.user_agent">
-                  User Agent: {{i._record.user_agent}}
+                  {{$t('callback.userAgent')}}: {{i._record.user_agent}}
                 </v-flex>
                 <div v-if="i._record.location">
                   <v-flex class="callback-detail-field" xs12 v-show="i._record.location.country_name">
-                    Country: {{i._record.location.country_name}}
+                    {{$t('callback.country')}}: {{i._record.location.country_name}}
                   </v-flex>
                   <v-flex class="callback-detail-field" xs12 v-show="i._record.location.region_name">
-                    Region Name: {{i._record.location.region_name}}
+                    {{$t('callback.regionName')}}: {{i._record.location.region_name}}
                   </v-flex>
                   <v-flex class="callback-detail-field" xs12 v-show="i._record.location.time_zone">
-                    Time Zone: {{i._record.location.time_zone}}
+                    {{$t('callback.timeZone')}}: {{i._record.location.time_zone}}
                   </v-flex>
                 </div>
               </v-container>
@@ -131,7 +136,9 @@
                 <v-flex  style="padding: 18px 0 0;">
                   <div class="callback-comment-row" v-for="comment in i._record.comments" >
                     <div>{{comment.text}}</div>
-                    <div class="text--secondary">{{deleteDomain(comment.created_by)}} added e comment - {{dateToTimeString(comment.created_on)}}</div>
+                    <div class="text--secondary">
+                      {{$t('callback.commentSubTile', {createdBy: deleteDomain(comment.created_by), date: dateToTimeString(comment.created_on)})}}
+                    </div>
                     <v-divider></v-divider>
                   </div>
                 </v-flex>
@@ -139,10 +146,10 @@
                   <v-text-field
                     append-icon="send"
                     v-model="i._newComment"
-                    :append-icon-cb="sendComment(i)"
-                    @keyup.enter="sendComment(i)()"
+                    @click:append="sendComment(i)"
+                    @keyup.enter="sendComment(i)"
                     type="text"
-                    placeholder="New comment"
+                    :placeholder="$t('callback.newCommentPlaceholder')"
                   ></v-text-field>
                 </v-flex>
               </v-layout>
@@ -187,12 +194,24 @@
     data() {
       return {
         busy: true,
-        select: localStorage.getItem('callback_view') || "Overdue",
+        select: localStorage.getItem('callback_view') || "overdue",
         items: [
-          'Overdue',
-          'Scheduled',
-          'Callback list',
-          'Completed'
+          {
+            name: this.$t('callback.viewOverdue'),
+            id: "overdue"
+          },
+          {
+            name: this.$t('callback.viewScheduled'),
+            id: "scheduled"
+          },
+          {
+            name: this.$t('callback.callbackList'),
+            id: "callbackList"
+          },
+          {
+            name: this.$t('callback.viewCompleted'),
+            id: "completed"
+          }
         ],
         data: []
       }
@@ -258,32 +277,30 @@
         })
       },
       sendComment(item) {
-        return () => {
-          if (!item._newComment) {
-            return
-          }
-
-          if (!item._record.comments) {
-            item._record.comments = [];
-          }
-
-          this.busy = true;
-          this.callback.addComment(item.queue_id, item.id, item._newComment, (err, result) => {
-            this.busy = false;
-            if (err)
-              throw err;
-
-            item._record.comments.push({
-              created_by: result.created_by,
-              created_on: +result.created_on,
-              id: result.id,
-              member_id: result.member_id,
-              text: result.text
-            });
-            item._newComment = "";
-
-          });
+        if (!item._newComment) {
+          return
         }
+
+        if (!item._record.comments) {
+          item._record.comments = [];
+        }
+
+        this.busy = true;
+        this.callback.addComment(item.queue_id, item.id, item._newComment, (err, result) => {
+          this.busy = false;
+          if (err)
+            throw err;
+
+          item._record.comments.push({
+            created_by: result.created_by,
+            created_on: +result.created_on,
+            id: result.id,
+            member_id: result.member_id,
+            text: result.text
+          });
+          item._newComment = "";
+
+        });
       },
       makeCall(number) {
         this.user.makeCall(number);

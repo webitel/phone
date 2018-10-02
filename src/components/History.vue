@@ -11,7 +11,7 @@
             </v-flex>
             <v-flex xs8>
               <div>
-                <div class="headline">No results found:</div>
+                <div class="headline">{{$t('history.noResultFound')}}</div>
                 <div>{{search}}</div>
               </div>
             </v-flex>
@@ -28,7 +28,7 @@
             </v-flex>
             <v-flex xs8>
               <div>
-                <div class="headline">The history is empty</div>
+                <div class="headline">{{$t('history.emptyResult')}}</div>
               </div>
             </v-flex>
           </v-card-title>
@@ -37,7 +37,7 @@
 
 
       <v-list  v-show="cdrData.length" style="margin-bottom: 30px" two-line subheader expand v-infinite-scroll="loadMore" infinite-scroll-disabled11="busy">
-        <v-subheader> Total: {{totalCount}} records (last 7 days)
+        <v-subheader> {{$t('history.header', {count: totalCount})}}
         </v-subheader>
         <div v-for="item in cdrData">
           <v-subheader inset>{{item.name}}</v-subheader>
@@ -46,19 +46,22 @@
 
               <v-list-tile-content >
                 <v-list-tile-title>
-                  <v-icon>{{i.imgClassName}}</v-icon><a @click="makeCall(i['caller_id_number'])">{{i['caller_id_number']}}</a> to
-                  <a @click="makeCall(i['destination_number'])">{{i['destination_number']}}</a>
+                  <v-icon>{{i.imgClassName}}</v-icon>
+                  <i18n path="history.rowTile" tag="span">
+                    <a @click="makeCall(i['caller_id_number'])" place="callerIdNumber">{{i['caller_id_number']}}</a>
+                    <a @click="makeCall(i['destination_number'])" place="destinationNumber">{{i['destination_number']}}</a>
+                  </i18n>
                 </v-list-tile-title>
                 <v-list-tile-sub-title>
-                  {{ i.startTime }} duration {{ i.durationString }}
+                  {{$t('history.rowSubTile', {startTime: i.startTime, durationString: i.durationString})}}
                 </v-list-tile-sub-title>
 
               </v-list-tile-content>
 
               <v-list-tile-action>
                 <v-list-tile-action-text v-show="showDetailActions(i)" @click="i.activeDetail = !i.activeDetail">
-                  <v-icon class="title lighten-1" v-show="showCallData(i)">info</v-icon>
-                  <v-icon class="title green--text lighten-1" v-show="showRecordFile(i)">audiotrack</v-icon>
+                  <v-icon class="lighten-1" v-show="showCallData(i)">info</v-icon>
+                  <v-icon class="green--text lighten-1" v-show="showRecordFile(i)">mdi-audiotrack</v-icon>
                 </v-list-tile-action-text>
               </v-list-tile-action>
             </v-list-tile>

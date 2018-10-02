@@ -8,10 +8,10 @@
           </v-btn>
           <v-list>
             <v-list-tile @click="setReady">
-              <v-list-tile-title >Ready</v-list-tile-title>
+              <v-list-tile-title >{{$t('user.statusReady')}}</v-list-tile-title>
             </v-list-tile>
             <v-list-tile @click="setBreak">
-              <v-list-tile-title>On Break</v-list-tile-title>
+              <v-list-tile-title>{{$t('user.statusOnBreak')}}</v-list-tile-title>
             </v-list-tile>
             <v-list-tile @click="showChangeStatusDialog()">
               <v-list-tile-title>...</v-list-tile-title>
@@ -45,15 +45,15 @@
 
     </v-system-bar>
 
-    <v-toolbar app tabs v-if="showMenu" :ripple ="false" >
+    <v-toolbar app v-if="showMenu" :ripple ="false" >
       <v-text-field
         v-model="search"
         @keyup.enter.native="onMakeCall"
         @input="throttledSearch"
-        prepend-icon="search"
-        label="Search"
+        prepend-inner-icon="search"
+        :label="$t('app.search')"
         solo-inverted
-        class="mx-2"
+        style="margin-top: 3px;"
         flat
       ></v-text-field>
 
@@ -86,21 +86,22 @@
 
     <v-container fluid class="app-spinner" fill-height v-show="!initialize || viewSpinner">
       <v-layout align-center justify-center>
-        <v-progress-circular indeterminate :size="120" :width="2" color="warning">Loading</v-progress-circular>
+        <v-progress-circular indeterminate :size="120" :width="2" color="warning">{{$t('app.loading')}}</v-progress-circular>
       </v-layout>
     </v-container>
 
     <v-dialog v-model="viewStatusDialog" max-width="390">
-      <v-card>
-        <v-card-title class="headline">Change status</v-card-title>
+      <v-card v-if="viewStatusDialog">
+        <v-card-title class="headline">{{$t('changeStatus.title')}}</v-card-title>
         <v-card-text>
           <v-form >
             <v-select
               :items="listUserStatus"
-              label="Status"
+              :label="$t('changeStatus.status')"
               v-model="dialogStatus"
               class="input-group--focused"
               item-value="text"
+              :item-text="getStatusText"
               required
             ></v-select>
 
@@ -110,22 +111,22 @@
               :items="listUserState(dialogStatus)"
               v-model="dialogState"
               item-value="code"
-              item-text="text"
-              label="State"
+              :item-text="getStatusText"
+              :label="$t('changeStatus.state')"
             ></v-select>
 
             <v-text-field
               v-show="dialogStatus === 'Busy'"
               v-model="dialogTag"
               name="Tag"
-              label="Tag"
+              :label="$t('changeStatus.tag')"
             ></v-text-field>
           </v-form>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="green darken-1" flat="flat" @click.native="viewStatusDialog = false">Close</v-btn>
-          <v-btn color="green darken-1" flat="flat" :disabled="!dialogStatusValid" @click="changeStatus(dialogStatus, dialogState, dialogTag)">OK</v-btn>
+          <v-btn color="green darken-1" flat="flat" @click.native="viewStatusDialog = false">{{$t('app.close')}}</v-btn>
+          <v-btn color="green darken-1" flat="flat" :disabled="!dialogStatusValid" @click="changeStatus(dialogStatus, dialogState, dialogTag)">{{$t('app.ok')}}</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -138,22 +139,22 @@
       :active.sync="currentLinkIdx"
     >
       <v-btn flat :ripple="false" to="/">
-        <span>History</span>
+        <span>{{$t('toolbar.history')}}</span>
         <v-icon>contact_phone</v-icon>
       </v-btn>
 
       <v-btn flat :ripple="false" router-link to="/callback" v-show="showCallbackTab">
-        <span>Callback</span>
+        <span>{{$t('toolbar.callback')}}</span>
         <v-icon>update</v-icon>
       </v-btn>
 
       <v-btn flat :ripple="false" router-link to="/users">
-        <span>Users</span>
+        <span>{{$t('toolbar.users')}}</span>
         <v-icon>people</v-icon>
       </v-btn>
 
       <v-btn flat :ripple="false" router-link to="/settings">
-        <span>Settings</span>
+        <span>{{$t('toolbar.settings')}}</span>
         <v-icon>settings</v-icon>
       </v-btn>
 
@@ -251,33 +252,41 @@
 
         listUserStatus: [
           {
+            id: "statusReady",
             text: 'Ready'
           },
           {
+            id: "statusCallCenter",
             text: 'Call Center',
             state: [
               {
+                id: "stateCCWaiting",
                 text: "Waiting",
                 code: "Waiting"
               },
               {
+                id: "statusOnBreak",
                 text: "On Break",
                 code: "ONBREAK"
               }
             ]
           },
           {
+            id: "statusBusy",
             text: 'Busy',
             state: [
               {
+                id: "stateDND",
                 text: "Do not disturb",
-                code: "DND"
+                code: "DND",
               },
               {
+                id: "statusOnBreak",
                 text: "On Break",
                 code: "ONBREAK"
               },
               {
+                id: "stateCallForward",
                 text: "Call forward",
                 code: "CALLFORWARD"
               }
@@ -423,6 +432,10 @@
     },
 
     methods: {
+
+      getStatusText(st) {
+        return this.$t(`user.${st.id}`)
+      },
 
       openHotLink(href = '') {
         href = href.replace(/\${KEY}|\${TOKEN}/g, (str) => {

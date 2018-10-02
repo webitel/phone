@@ -5,10 +5,10 @@ class Callback {
     this.session = session;
     this.loading = false;
     this.views = {
-      'Overdue': new CallbackView('overdue'),
-      'Scheduled': new CallbackView('scheduled'),
-      'Callback list': new CallbackView('no_time'),
-      'Completed': new CallbackView('completed')
+      'overdue': new CallbackView('overdue'),
+      'scheduled': new CallbackView('scheduled'),
+      'callbackList': new CallbackView('no_time'),
+      'completed': new CallbackView('completed')
     };
   }
 
