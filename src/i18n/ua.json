@@ -1,2 +1,126 @@
 {
+  "name": "Українська",
+  "app": {
+    "search": "Пошук",
+    "loading": "Завантаження",
+    "close": "Закрити",
+    "cancel": "Відміна",
+    "ok": "Гаразд"
+  },
+  "user": {
+    "statusReady": "Готовий",
+    "statusBusy": "Зайнятий",
+    "statusCallCenter": "Контакт Центр",
+    "statusOnBreak": "Перерва",
+    "stateCCWaiting": "Очікування",
+    "stateDND": "Не турбувати",
+    "stateCallForward": "Переадресація"
+  },
+  "users": {
+    "statusNotRegister": "Без реєстрації",
+    "statusTalking": "У розмові",
+    "statusAgent": "Оператор {description}",
+    "statusCallForward": "Переадресація {number}",
+    "statusOnBreak": "Перерва {description}",
+    "statusDND": "DND {description}",
+    "statusAvailable": "Доступний"
+  },
+  "call": {
+    "blindTransferNumber": "Перенаправити",
+    "infoPanel": "Інформація",
+    "postProcessPanel": "Обробка дзвінка",
+    "dlrSuccessCall": "Успішний дзвінок",
+    "dlrScheduleCall": "Запланувати час дзвінка",
+    "dlrNextAfterTime": "Година",
+    "dlrNextAfterDate": "Дата",
+    "dlrDoNotCallThisNumber": "Більше не дзвіонити на цей номер",
+    "dlrCallToNumber": "Додати новий номер",
+    "dlrCallResult": "Результат дзвінка",
+    "dlrDescription": "Опис",
+    "errPostProcessTitle": "Помилка збереження:",
+    "closeCall": "Закрити лзвінок",
+    "retryCall": "Перенабрати",
+    "ringing": "RINGING",
+    "active": "ACTIVE",
+    "hold": "HOLD",
+    "down": "DOWN"
+  },
+  "changeStatus": {
+    "title": "Змінити статус",
+    "status": "Статус",
+    "state": "Стан",
+    "tag": "Ярлик"
+  },
+  "toolbar": {
+    "history": "Історія",
+    "callback": "Callback",
+    "users": "Користувачі",
+    "settings": "Налаштування"
+  },
+  "login": {
+    "language": "Мова",
+    "oauthName": "Name",
+    "oauthServer": "OAuth server",
+    "oauthDomain": "Webitel domain",
+    "oauthResource": "Resource",
+    "oauthClientId": "Client ID",
+    "useOauth": "Use domain auth",
+    "account": "Користувач",
+    "password": "Пароль",
+    "server": "Сервер",
+    "authBtn": "Увійти",
+
+    "errRequiredAccount": "Login is required",
+    "errRequiredOauthServer": "OAuth url is required",
+    "errRequiredOauthDomain": "Domain is required",
+    "errRequiredOauthResource": "Resource is required",
+    "errRequiredOauthClientId": "Client ID is required"
+  },
+  "history": {
+    "header": "Загалом: {count} записів (останні 7 днів)",
+    "rowTile": "{callerIdNumber} to {destinationNumber}",
+    "rowSubTile": "{startTime} тривалість {durationString}",
+    "noResultFound": "Не знайдено:",
+    "emptyResult": "Відсутні записи"
+  },
+  "callback": {
+    "view": "Представлення",
+    "noResultFound": "Не знайдено:",
+    "emptyResult": "Порожня callback черга",
+    "dialogDoneTitle": "Виконати",
+    "dialogDoneContent": "Ві не зможете відмінити цю дію.",
+    "rowTile": "{number} із {queue}",
+    "viewOverdue": "Протерміновано",
+    "viewScheduled": "Заплановано",
+    "viewCompleted": "Виконано",
+    "callbackList": "Callback черга",
+    "commentSubTile": "{createdBy} додано коментар - {date}",
+    "newCommentPlaceholder": "Коментарі відсутні",
+    "doneAt": "Виконано в",
+    "doneBy": "Виконано",
+    "href": "Href",
+    "widget": "Widget",
+    "requestIP": "Request IP",
+    "userAgent": "User Agent",
+    "country": "Country",
+    "regionName": "Region Name",
+    "timeZone": "Time Zone"
+  },
+  "settings": {
+    "theme": "Тема",
+    "useWebPhone": "Використовувати гарнітуру",
+    "iceServers": "Увімкнути STUN",
+    "sipAutoAnswer": "Автовідповідь для SIP",
+    "autoLoginCallCenter": "Автовхід оператора",
+    "agentOnDemand": "Оператор за вимогою",
+    "usePostProcess": "Увімкнути обробку дзвінків",
+    "ringInboundCall": "Звукове сповіщення",
+    "notifyNewCall": "Банер вхідного дзвінка",
+    "notifyMissedCall": "Банер пропущеного дзвінка",
+    "audioInDevice": "Мікрофон",
+    "audioOutDevices": "Пристрій виводу",
+    "ringInboundSinkId": "Пристрій для звукового сповіщення",
+    "refreshDevices": "Оновити список пристроїв",
+    "logout": "Вийти"
+  }
 }
