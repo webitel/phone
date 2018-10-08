@@ -7,6 +7,12 @@
     "cancel": "Cancel",
     "ok": "OK"
   },
+  "notificationNewCall": {
+    "answer": "Answer",
+    "refuse": "Refuse",
+    "hold": "Hold",
+    "hangup": "Hangup"
+  },
   "user": {
     "statusReady": "Ready",
     "statusBusy": "Busy",

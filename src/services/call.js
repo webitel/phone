@@ -1,5 +1,6 @@
 import store from "../store";
 import notification from './notification'
+import {NotificationInboundCall} from './notification'
 import settings from "./settings";
 import {twoDigits} from "./helper"
 import CONST from './const'
@@ -92,7 +93,8 @@ class Call {
     this.dtmfDigits = [];
 
     if (this.direction === 'inbound' && settings.get('notifyNewCall')) {
-      this.notificationNewCall = notification(`Inbound call`, `Call from ${this.getName()}`, CONST.ICON_CALL)
+      this.notificationNewCall = new NotificationInboundCall(this)
+      //notification(`Inbound call`, `Call from ${this.getName()}`, CONST.ICON_CALL)
     }
 
     store.commit("ON_NEW_CALL", this);
@@ -149,9 +151,26 @@ class Call {
     }
   }
 
-  setAnswerTime() {
-    this.closeNotificationNewCall();
+  answerNotificationNewCall() {
+    if (this.notificationNewCall) {
+      this.notificationNewCall.onAnswer();
+    }
+  }
 
+  activeNotificationNewCall() {
+    if (this.notificationNewCall) {
+      this.notificationNewCall.onActive();
+    }
+  }
+
+  holdNotificationNewCall() {
+    if (this.notificationNewCall) {
+      this.notificationNewCall.onHold();
+    }
+  }
+
+
+  setAnswerTime() {
     if (!this.answeredAt) {
       this.state = STATES.ACTIVE;
       this.answeredAt = Date.now();
@@ -298,17 +317,20 @@ class Call {
 
   onHold() {
     this.state = STATES.HOLD;
+    this.holdNotificationNewCall();
   }
 
   onActive() {
     this.state = STATES.ACTIVE;
+    this.activeNotificationNewCall();
   }
 
   OnAnswer(data) {
     if (!this.dbUuid) {
       this.dbUuid = data.dbUuid
     }
-    this.setAnswerTime()
+    this.setAnswerTime();
+    this.answerNotificationNewCall();
   }
 
   onBridge(data) {

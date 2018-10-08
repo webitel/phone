@@ -11,16 +11,9 @@ import store from './store'
 import Resource from 'vue-resource'
 import VueLocalStorage from 'vue-localstorage'
 import infiniteScroll from 'vue-infinite-scroll'
-import VueI18n from 'vue-i18n'
 
-import * as messages from './i18n'
+import i18n from './services/i18n'
 
-Vue.use(VueI18n);
-
-const i18n = new VueI18n({
-  locale: localStorage.getItem('language') || 'en', // set locale
-  messages
-});
 
 Vue.use(infiniteScroll);
 

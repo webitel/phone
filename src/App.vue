@@ -326,7 +326,7 @@
           return this.$router.push("/login")
         }
         this.$store.commit("AUTH", credentials);
-      })
+      });
     },
 
     computed: {
@@ -618,5 +618,14 @@
     background-size: contain;
     margin-left: 9px;
     background-image: url("./assets/webrtc.svg");
+  }
+
+  .call-info-row {
+    padding: 3px;
+    word-break: break-all;
+  }
+
+  .call-info-row .call-info-item img {
+    width: 100%;
   }
 </style>
