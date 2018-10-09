@@ -10,7 +10,7 @@ var nw = new NwBuilder({
     buildDir: './desktop',
     cacheDir: './desktop/.cache',
     platforms: ['win64', 'osx64', 'linux64'],
-    version: '0.30.5'
+    version: '0.33.4'
 });
 
 //Log stuff you want

@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en" >
+
+<head>
+  <meta charset="UTF-8">
+  <title>Incoming Call</title>
+
+  <style>
+    /*#E6B146*/
+    /* base */
+    body {
+      color: #444;
+      font-family: "Helvetica Neue", "Arial", sans-serif;
+      overflow-y: hidden;
+    }
+
+    a {
+      cursor: pointer;
+    }
+
+    .actions {
+      margin: 0;
+      padding: 0;
+      list-item-style: none;
+    }
+    .actions > li {
+      /*display: inline-block;*/
+    }
+
+    /* main */
+    .container {
+      position: relative;
+    }
+
+    li {
+      -webkit-app-region: no-drag;
+    }
+
+    .call {
+      position: absolute;
+      width: 100%;
+      box-sizing: border-box;
+      color: #ecf0f1;
+      padding: 10px;
+      border-radius: 4px;
+      transition: all 1s, background-color 600ms, opacity 600ms;
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+      /*height: 134px;*/
+    }
+
+    .ringing {
+      z-index: 10;
+
+      /*background-color: #4ea9f7;*/
+    }
+
+    .dark .ringing {
+      background-color: #212121;
+    }
+
+    .lite .ringing {
+      background-color: #80bbee;
+    }
+
+    .hold {
+      /*background-color: #E9B863 !important;*/
+      background-color: #f1a82b !important;
+    }
+
+    .speaking {
+      /*background-color: #88cfaf;*/
+      background-color: #4caf50;
+    }
+
+    /* inner */
+    .head {
+      font-size: 42px;
+      text-align: center;
+      margin: 0 auto;
+    }
+
+    .details {
+      color: #ecf0f1;
+      text-align: center;
+      font-size: 16px;
+      font-weight: bold;
+      padding: 8px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: .3s cubic-bezier(.25,.8,.5,1);
+      white-space: nowrap;
+      width: 100%;
+    }
+
+    .actions {
+      width: 100%;
+      padding: 2px 16px;
+      box-sizing: border-box;
+    }
+
+    .action {
+      margin-left: -2px;
+      margin-right: -2px;
+      width: 50%;
+      padding: 0 8px 0 12px;
+      box-sizing: border-box;
+      display: inline-block;
+      -webkit-app-region: no-drag;
+    }
+    .action > a {
+      width: 100%;
+      text-align: center;
+      display: inline-block;
+      box-sizing: border-box;
+      padding: 5px 8px;
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: bold;
+      border-radius: 4px;
+      color: rgba(255, 255, 255, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+    }
+    .action > a:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    /* animation */
+    .-fadeout {
+      -webkit-filter: blur(6px);
+      filter: blur(6px);
+      opacity: 0;
+    }
+
+    .-drop {
+      -webkit-filter: blur(6px);
+      filter: blur(6px);
+      opacity: 0;
+      -webkit-transform: translateY(20%) rotateX(20deg);
+      transform: translateY(20%) rotateX(20deg);
+    }
+
+    .-flip {
+      -webkit-transform: rotateY(180deg);
+      transform: rotateY(180deg);
+    }
+
+    .flipback {
+      -webkit-transform: rotateY(-180deg);
+      transform: rotateY(-180deg);
+    }
+
+    .-ringing {
+      -webkit-animation: _ringing 1200ms infinite;
+      animation: _ringing 1200ms infinite;
+      -webkit-animation-fill-mode: forward;
+      animation-fill-mode: forward;
+      -webkit-animation-direction: normal;
+      animation-direction: normal;
+      -webkit-animation-timing-function: linear;
+      animation-timing-function: linear;
+    }
+
+    @-webkit-keyframes _ringing {
+      0% {
+        -webkit-transform: translate(0, 0);
+        transform: translate(0, 0);
+      }
+      10% {
+        -webkit-transform: translate(6px, 0px);
+        transform: translate(6px, 0px);
+        -webkit-transform: rotateZ(2deg);
+        transform: rotateZ(2deg);
+      }
+      20% {
+        -webkit-transform: translate(-6px, 0px);
+        transform: translate(-6px, 0px);
+        -webkit-transform: rotateZ(-2deg);
+        transform: rotateZ(-2deg);
+      }
+      30% {
+        -webkit-transform: translate(3px, 0px);
+        transform: translate(3px, 0px);
+        -webkit-transform: rotateZ(1deg);
+        transform: rotateZ(1deg);
+      }
+      40% {
+        -webkit-transform: translate(-3px, 0px);
+        transform: translate(-3px, 0px);
+        -webkit-transform: rotateZ(-1deg);
+        transform: rotateZ(-1deg);
+      }
+      50% {
+        -webkit-transform: translate(2px, 0px);
+        transform: translate(2px, 0px);
+        -webkit-transform: rotateZ(1deg);
+        transform: rotateZ(1deg);
+      }
+      60% {
+        -webkit-transform: translate(0, 0);
+        transform: translate(0, 0);
+      }
+      100% {
+        -webkit-transform: translate(0, 0);
+        transform: translate(0, 0);
+      }
+    }
+
+    @keyframes _ringing {
+      0% {
+        -webkit-transform: translate(0, 0);
+        transform: translate(0, 0);
+      }
+      10% {
+        -webkit-transform: translate(6px, 0px);
+        transform: translate(6px, 0px);
+        -webkit-transform: rotateZ(2deg);
+        transform: rotateZ(2deg);
+      }
+      20% {
+        -webkit-transform: translate(-6px, 0px);
+        transform: translate(-6px, 0px);
+        -webkit-transform: rotateZ(-2deg);
+        transform: rotateZ(-2deg);
+      }
+      30% {
+        -webkit-transform: translate(3px, 0px);
+        transform: translate(3px, 0px);
+        -webkit-transform: rotateZ(1deg);
+        transform: rotateZ(1deg);
+      }
+      40% {
+        -webkit-transform: translate(-3px, 0px);
+        transform: translate(-3px, 0px);
+        -webkit-transform: rotateZ(-1deg);
+        transform: rotateZ(-1deg);
+      }
+      50% {
+        -webkit-transform: translate(2px, 0px);
+        transform: translate(2px, 0px);
+        -webkit-transform: rotateZ(1deg);
+        transform: rotateZ(1deg);
+      }
+      60% {
+        -webkit-transform: translate(0, 0);
+        transform: translate(0, 0);
+      }
+      100% {
+        -webkit-transform: translate(0, 0);
+        transform: translate(0, 0);
+      }
+    }
+    /* eq */
+    .hidden {
+      display: none;
+    }
+
+    .close-stack {
+      position: relative;
+      display: inline-block;
+      width: 24px;
+      height: 24px;
+      line-height: 24px;
+      vertical-align: middle;
+    }
+
+    .drag-zone {
+      -webkit-app-region: drag;
+    }
+
+    .sound {
+      -webkit-app-region: no-drag;
+      font-size: 26px;
+      position: absolute;
+      top: -3px;
+      right: 0px;
+      opacity: .8;
+      cursor: pointer;
+    }
+
+    .sound:hover {
+      opacity: .5;
+    }
+
+    .head {
+      height: 46px;
+    }
+
+    .call-info {
+      /*display: none;*/
+      word-break: break-all;
+      -webkit-app-region: no-drag;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .call-info img {
+      width: 100%;
+    }
+
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-thumb:vertical {
+      margin: 5px;
+      background-color: #999;
+      -webkit-border-radius: 5px;
+    }
+
+    ::-webkit-scrollbar-button:start:decrement,
+    ::-webkit-scrollbar-button:end:increment {
+      height: 5px;
+      display: block;
+    }
+  </style>
+
+</head>
+
+<body >
+
+
+<div id="body-container" class="container">
+  <div class="call ringing">
+    <div class="drag-zone">
+      <div class="head">
+        <div class="sound">
+        <span class="close-stack" onclick="closeWindow()">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="#ecf0f1" width="24" height="24" viewBox="0 0 24 24"><path fill="none" d="M0 0h24v24H0V0z"/><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+        </span>
+        </div>
+        <svg fill="#ecf0f1" width="48" height="48" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="none"/><path d="M7.58 4.08L6.15 2.65C3.75 4.48 2.17 7.3 2.03 10.5h2c.15-2.65 1.51-4.97 3.55-6.42zm12.39 6.42h2c-.15-3.2-1.73-6.02-4.12-7.85l-1.42 1.43c2.02 1.45 3.39 3.77 3.54 6.42zM18 11c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2v-5zm-6 11c.14 0 .27-.01.4-.04.65-.14 1.18-.58 1.44-1.18.1-.24.15-.5.15-.78h-4c.01 1.1.9 2 2.01 2z"/></svg>
+      </div>
+      <div class="details"><span class="number"></span> is calling...</div>
+      <div class="actions">
+        <div class="action">
+          <a id="answer-btn" onclick="answerCall()" href="#">Accept</a>
+        </div>
+        <div class="action">
+          <a id="refuse-btn" onclick="hangupCall()" href="#">Refuse</a>
+        </div>
+      </div>
+
+      <div class="call-info"></div>
+
+    </div>
+  </div>
+  <div class="call speaking flipback">
+    <div class="head">
+      <div class="sound">
+        <span class="close-stack" onclick="closeWindow()">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="#ecf0f1" width="24" height="24" viewBox="0 0 24 24"><path fill="none" d="M0 0h24v24H0V0z"/><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+        </span>
+      </div>
+      <svg xmlns="http://www.w3.org/2000/svg" fill="#ecf0f1" width="48" height="48" viewBox="0 0 24 24"><path d="M0 0h24v24H0z" fill="none"/><path d="M20 15.5c-1.25 0-2.45-.2-3.57-.57-.35-.11-.74-.03-1.02.24l-2.2 2.2c-2.83-1.44-5.15-3.75-6.59-6.59l2.2-2.21c.28-.26.36-.65.25-1C8.7 6.45 8.5 5.25 8.5 4c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1 0 9.39 7.61 17 17 17 .55 0 1-.45 1-1v-3.5c0-.55-.45-1-1-1zM19 12h2c0-4.97-4.03-9-9-9v2c3.87 0 7 3.13 7 7zm-4 0h2c0-2.76-2.24-5-5-5v2c1.66 0 3 1.34 3 3z"/></svg>
+    </div>
+    <div class="details"><span class="number"></span></div>
+
+    <div class="actions">
+      <div class="action">
+        <a id="hold-btn" onclick="toggleHold()" href="#">Hold</a>
+      </div>
+      <div class="action">
+        <a id="hangup-btn" onclick="hangupCall()" href="#">Drop</a>
+      </div>
+    </div>
+
+    <div class="call-info"></div>
+  </div>
+
+</div>
+
+<script src="/static/lib/markdown-it.min.js"></script>
+
+<script  language="JavaScript">
+  /* init */
+
+  if (typeof WEBITEL_NUMBER === "string") {
+    for (let elem of document.getElementsByClassName('number')) {
+      elem.textContent = WEBITEL_NUMBER || "Unknown";
+    }
+  }
+
+  if (typeof WEBITEL_CALL_INFO === "object") {
+    var md = markdownit();
+    var html = '';
+    for (let row of WEBITEL_CALL_INFO) {
+      html += `<p>${row.title}: ${md.renderInline(row.content)}</p>`
+    }
+
+    for (let elem of document.getElementsByClassName('call-info')) {
+      elem.innerHTML = html;
+    }
+  }
+
+  function addClass(elem, className) {
+    elem.classList.add(className)
+  }
+  function removeClass(elem, className) {
+    elem.classList.remove(className)
+  }
+
+  var $ringing = document.getElementsByClassName('ringing')[0];
+  var $speaking = document.getElementsByClassName('speaking')[0];
+
+  var setRinging = function(){
+    setTimeout(function(){
+      addClass($ringing, '-ringing');
+    }, 600);
+  };
+
+  setRinging();
+
+  /* user */
+  /*
+    $('#refuse').click(function(){
+
+      // $('.ringing')
+      //   .removeClass('-ringing')
+      // ;
+      //
+      // setTimeout(function(){
+      //
+      //   $('.ringing')
+      //     .addClass('-fadeout')
+      //   ;
+      //
+      // }, 0);
+      //
+      // setTimeout(function(){
+      //
+      //   $('.ringing')
+      //     .addClass('-ringing')
+      //     .removeClass('-fadeout')
+      //   ;
+      //
+      // }, 2000);
+
+    });
+
+    $('#drop').click(function(){
+
+      // onStop();
+      //
+      // $('.speaking')
+      //   .addClass('-drop')
+      // ;
+      //
+      // setTimeout(function(){
+      //
+      //   $('.ringing')
+      //     .removeClass('-flip')
+      //   ;
+      //
+      //   $('.speaking')
+      //     .addClass('flipback')
+      //     .removeClass('hold')
+      //     .removeClass('-drop')
+      //   ;
+      //
+      //   setRinging();
+      //
+      // }, 2000);
+
+    });
+  */
+  var onStart = function () {
+    removeClass($ringing, '-ringing');
+
+    setTimeout(function() {
+      addClass($ringing, '-flip');
+      removeClass($speaking, 'flipback')
+    }, 0);
+  };
+
+  var onHold = function (pause) {
+    addClass($speaking, 'hold')
+  };
+
+  var onActive= function () {
+    removeClass($speaking, 'hold')
+  }
+
+  var onStop = function () {
+    // stopped = true;
+    // if (!audio){
+    //   return;
+    // }
+    // audio.pause();
+    // audio.currentTime = 0;
+  };
+</script>
+</body>
+
+</html>

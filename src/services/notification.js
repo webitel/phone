@@ -1,3 +1,4 @@
+import CONST from "./const";
 
 export default function (title = "", body = "", icon, onClick) {
   if (Notification.permission !== "granted") {
@@ -13,3 +14,36 @@ export default function (title = "", body = "", icon, onClick) {
     return notification
   }
 }
+
+class NotificationInboundCallDef {
+  constructor(call) {
+    this.id = call.uuid;
+
+    this.notification = new Notification(`Inbound call`, {
+      icon: CONST.ICON_CALL,
+      body: `Call from ${call.getName()}`
+    });
+  }
+
+  onAnswer () {
+    this.close();
+  }
+
+  onActive() {
+  }
+
+  onHold() {
+  }
+
+  close() {
+    try {
+      this.notification.close();
+    } catch (e) {
+      console.error(e)
+    }
+  }
+}
+
+const NotificationInboundCall = typeof WEBITEL_NOTIFICATION_NEW_CALL === "function" ? WEBITEL_NOTIFICATION_NEW_CALL : NotificationInboundCallDef;
+
+export {NotificationInboundCall};

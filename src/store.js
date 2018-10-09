@@ -5,12 +5,15 @@ import CDR from './services/cdr'
 import Callback from './services/callback'
 import settings from './services/settings'
 import {findUserById} from "./services/helper";
+import i18n from './services/i18n'
 
 Vue.use(Vuex);
 
 const store = new Vuex.Store({
   debug: true,
   state: {
+    i18n,
+    emitter: new Vue(),
     viewSpinner: false,
     logged: false,
     lastLogged: null,
@@ -24,6 +27,8 @@ const store = new Vuex.Store({
     reconnecting: false
   },
   getters: {
+    i18n: state => () => state.i18n,
+
     countCalls: state => () => {
       return state.calls.length;
     },
@@ -163,6 +168,14 @@ const store = new Vuex.Store({
   actions: {
     viewSpinner({ commit, state }, view) {
       commit("VIEW_SPINNER", view)
+    },
+
+    publish({ state }, event = {}) {
+      state.emitter.$emit(event.name, event.data)
+    },
+
+    subscribe({state}, sub = {}) {
+      state.emitter.$on(sub.name, sub.fn)
     }
   }
 });
