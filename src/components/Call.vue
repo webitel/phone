@@ -152,8 +152,8 @@
                 <v-expansion-panel expand>
                   <v-expansion-panel-content :value="true" v-show="call.info.length > 0">
                     <div slot="header">{{$t('call.infoPanel')}}</div>
-                    <div style="padding: 3px;" class="text--accent-1" v-for="(item, index) in call.info">
-                      <vue-markdown :breaks="false" :anchor-attributes="anchorAttrs">{{item.title}}: {{item.content}}</vue-markdown>
+                    <div class="call-info-row text--accent-1" v-for="(item, index) in call.info">
+                      <vue-markdown :breaks="true" class="call-info-item" :anchor-attributes="anchorAttrs">{{item.title}}: {{item.content}}</vue-markdown>
                     </div>
                   </v-expansion-panel-content>
 

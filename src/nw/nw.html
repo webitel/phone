@@ -14,6 +14,89 @@
     };
 
     let lockCloseWindow = false;
+    let translate = null;
+
+    class MiniCall {
+      constructor(call, config) {
+        this.id = call.uuid;
+        this.win = null;
+        this.call = call;
+        gui.Window.open('./miniCall.html', {
+          id: 'call-1',// call.uuid,
+          focus: true,
+          frame: false,
+          show: false,
+          width: 310,
+          height: 150,
+          resizable: false,
+          transparent: true
+        }, win => {
+          win.setAlwaysOnTop(true);
+          this.win = win;
+          this.win.window.hangupCall = this.hangupCall.bind(this);
+          this.win.window.toggleHold = this.toggleHold.bind(this);
+          this.win.window.answerCall = this.answerCall.bind(this);
+          this.win.window.closeWindow = this.closeWindow.bind(this);
+          this.win.window.WEBITEL_NUMBER = this.call.getName();
+          this.win.window.WEBITEL_CALL_INFO = this.call.info;
+          win.on('loaded', () => {
+            let mh = win.window.document.getElementsByClassName('call')[0].offsetHeight + 15;
+            if (mh > 500) {
+              mh = 500
+            }
+            if (userConfig.get("theme")) {
+              win.window.document.getElementById("body-container").classList.add(userConfig.get("theme"))
+            } else {
+              win.window.document.getElementById("body-container").classList.add("lite")
+            }
+
+            /*translate*/
+            win.window.document.getElementById('answer-btn').text = translate.t("notificationNewCall.answer");
+            win.window.document.getElementById('refuse-btn').text = translate.t("notificationNewCall.refuse");
+            win.window.document.getElementById('hold-btn').text = translate.t("notificationNewCall.hold");
+            win.window.document.getElementById('hangup-btn').text = translate.t("notificationNewCall.hangup");
+            /**/
+
+            win.setResizable(true);
+            win.setMaximumSize(310, mh); //todo
+            win.setMinimumSize(310, mh);
+            win.setResizable(false);
+            win.show();
+          });
+        })
+      }
+
+      closeWindow() {
+        this.win.close();
+      }
+
+      hangupCall() {
+        this.call.hangup();
+      }
+      toggleHold() {
+        this.call.toggleHold();
+      }
+      answerCall() {
+        this.call.answer();
+      }
+
+      onAnswer () {
+        this.win.window.onStart();
+      }
+
+      onActive() {
+        this.win.window.onActive()
+      }
+
+      onHold() {
+        this.win.window.onHold()
+      }
+
+      close() {
+        this.call = null;
+        this.win.close()
+      }
+    }
 
     class FileStorage {
 
@@ -56,6 +139,7 @@
     }
 
     const phoneSettings = new FileStorage(defaultSystemSettings, path.join(global.__dirname, systemConfigFileName));
+    const userConfig = new FileStorage({}, findUserConfigFilePath(userConfigFileName));
 
     if (~["win32", "win64"].indexOf(process.platform) && phoneSettings.get('disableOAuth') !== true) {
       localStorage.setItem("oauthName", phoneSettings.get('oauthName') || process.env.COMPUTERNAME)
@@ -106,12 +190,12 @@
         win.setShowInTaskbar(true);
         win.setMinimumSize(GUI_MIN_WIDTH, GUI_MIN_HEIGHT);
 
-        const userConfig = new FileStorage({}, findUserConfigFilePath(userConfigFileName));
         if (userConfig.get("useHotdesk") && !userConfig.get("hotdeskId")) {
           userConfig.set("hotdeskId", process.env.COMPUTERNAME);
         }
         win.window.WEBITEL_CONFIG = userConfig;
         win.window.WEBITEL_LINK = WEBITEL_LINK;
+        win.window.WEBITEL_NOTIFICATION_NEW_CALL = MiniCall;
         win.window.WEBITEL_COPY_TO_CLIPBOARD = (text) => {
           gui.Clipboard.get().set(text, 'text')
         };
@@ -149,6 +233,7 @@
           });
           win.setAlwaysOnTop(phoneSettings.get('alwaysOnTop') || false);
 
+          translate = win.window.phoneStore.getters.i18n();
           if (phoneSettings.get('callAlwaysOnTop')) {
             listenerCallCount(win, alwaysOnTopMenu)
           }
