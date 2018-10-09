@@ -625,7 +625,7 @@
     word-break: break-all;
   }
 
-  .call-info-row .call-info-item img {
+  .call-info-row .call-info-item * {
     width: 100%;
   }
 </style>
