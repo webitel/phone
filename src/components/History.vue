@@ -72,7 +72,7 @@
                 <player :file="i._uri"></player>
 
                 <div class="call-info-row text--accent-1" v-show="i.webitelData.length > 0" v-for="data in i.webitelData">
-                  <vue-markdown class="call-info-item" :breaks="false" :anchor-attributes="anchorAttrs">{{data.name}}: {{data.value}}</vue-markdown>
+                  <vue-markdown class="call-info-item" :breaks="false" :anchor-attributes="anchorAttrs">**{{data.name}}**: {{data.value}}</vue-markdown>
                 </div>
               </v-container>
             </v-layout>

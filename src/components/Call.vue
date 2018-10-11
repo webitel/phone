@@ -22,12 +22,12 @@
             </v-layout>
             <p @click="copyClipboard(call.number)" class="copy-to-clipboard .display-1 text-xs-center">{{call.number}}</p>
 
-            <p style="width: 100%" class=".display-1 text-xs-center">
+            <p style="width: 100%" class="text-xs-center">
               <Countdown :start="call.answeredAt" :end="call.hangupAt"></Countdown>
             </p>
           </v-card-title>
 
-          <v-card-media >
+          <v-responsive >
             <v-layout column class="media">
               <v-card-title>
                 <v-menu
@@ -149,20 +149,32 @@
               </v-card-title>
 
               <v-card-text>
-                <v-expansion-panel expand>
-                  <v-expansion-panel-content :value="true" v-show="call.info.length > 0">
+                <v-expansion-panel expand v-model="panel">
+                  <v-expansion-panel-content key="0" v-show="call.info.length > 0">
                     <div slot="header">{{$t('call.infoPanel')}}</div>
-                    <div class="call-info-row text--accent-1" v-for="(item, index) in call.info">
-                      <vue-markdown :breaks="true" class="call-info-item" :anchor-attributes="anchorAttrs">{{item.title}}: {{item.content}}</vue-markdown>
-                    </div>
-                  </v-expansion-panel-content>
-
-                  <v-expansion-panel-content @keyup.native.enter="call.state === 'DOWN' && sendPostProcess()" :value="true" v-show="call.postProcessing && call.dbUuid">
-                    <div slot="header">{{$t('call.postProcessPanel')}}</div>
 
                     <v-card flat color="transparent" >
                       <v-card-text align-content-start>
-                        <v-flex xs5>
+                        <v-flex>
+                          <div class="call-info-row text--accent-1" v-for="(item, index) in call.info">
+                            <vue-markdown :breaks="true" class="call-info-item" :anchor-attributes="anchorAttrs">**{{item.title}}**: {{item.content}}</vue-markdown>
+                          </div>
+                        </v-flex>
+                      </v-card-text>
+                    </v-card>
+
+                  </v-expansion-panel-content>
+
+                  <v-expansion-panel-content key="1" @keyup.native.enter="call.state === 'DOWN' && sendPostProcess()" v-show="call.postProcessing && call.dbUuid && call.bridgedAt">
+                    <div slot="header">{{$t('call.postProcessPanel')}}
+                      <countdownWrap @countdownend="() => call.destroy()" :leading-zero="true" v-if="call.state === 'DOWN' && call.infoProtectedVariables.dlr_wrap > 0"  :time="call.infoProtectedVariables.dlr_wrap * 1000">
+                        <template slot-scope="props">{{ props.minutes }}:{{ props.seconds }}</template>
+                      </countdownWrap>
+                    </div>
+
+                    <v-card flat color="transparent" >
+                      <v-card-text align-content-start>
+                        <v-flex>
                           <v-checkbox
                             :label="$t('call.dlrSuccessCall')"
                             v-model="successCall"
@@ -171,7 +183,7 @@
 
                         <div v-show="!successCall">
 
-                          <v-flex xs5>
+                          <v-flex>
                             <v-checkbox
                               :label="$t('call.dlrScheduleCall')"
                               v-model="nextAfterEnabled"
@@ -239,7 +251,7 @@
                             </v-flex>
                           </v-layout>
 
-                          <v-flex xs5>
+                          <v-flex>
                             <v-checkbox
                               v-model="doNotCallThisNumber"
                               :label="$t('call.dlrDoNotCallThisNumber')"
@@ -280,7 +292,7 @@
                 </v-expansion-panel>
               </v-card-text>
             </v-layout>
-          </v-card-media>
+          </v-responsive>
 
         </v-card>
 
@@ -310,10 +322,11 @@
     import Countdown from './Countdown'
     import VueMarkdown from 'vue-markdown'
     import copyToClipboard from '../services/clipboard'
+    import VueCountdown from '@xkeshi/vue-countdown';
 
     export default {
       name: "Call",
-      components: { Countdown, VueMarkdown },
+      components: { Countdown, VueMarkdown, countdownWrap: VueCountdown },
       created() {
         if (!this.call) {
           this.$router.push("/");
@@ -440,6 +453,7 @@
         return {
           modalTime: false,
           modalDate: false,
+          panel: [true, true],
 
           dtmfPanel: false,
           blindTransferNumber: '',
