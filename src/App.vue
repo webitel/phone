@@ -139,23 +139,47 @@
       :active.sync="currentLinkIdx"
     >
       <v-btn flat :ripple="false" to="/">
-        <span>{{$t('toolbar.history')}}</span>
-        <v-icon>contact_phone</v-icon>
+        <v-tooltip top>
+          <v-icon
+            slot="activator"
+          >
+            contact_phone
+          </v-icon>
+          <span>{{$t('toolbar.history')}}</span>
+        </v-tooltip>
       </v-btn>
 
       <v-btn flat :ripple="false" router-link to="/callback" v-show="showCallbackTab">
-        <span>{{$t('toolbar.callback')}}</span>
-        <v-icon>update</v-icon>
+        <v-tooltip top>
+          <v-icon
+            slot="activator"
+          >
+            update
+          </v-icon>
+          <span>{{$t('toolbar.callback')}}</span>
+        </v-tooltip>
       </v-btn>
 
       <v-btn flat :ripple="false" router-link to="/users">
-        <span>{{$t('toolbar.users')}}</span>
-        <v-icon>people</v-icon>
+        <v-tooltip top>
+          <v-icon
+            slot="activator"
+          >
+            people
+          </v-icon>
+          <span>{{$t('toolbar.users')}}</span>
+        </v-tooltip>
       </v-btn>
 
       <v-btn flat :ripple="false" router-link to="/settings">
-        <span>{{$t('toolbar.settings')}}</span>
-        <v-icon>settings</v-icon>
+        <v-tooltip top>
+          <v-icon
+            slot="activator"
+          >
+            settings
+          </v-icon>
+          <span>{{$t('toolbar.settings')}}</span>
+        </v-tooltip>
       </v-btn>
 
     </v-bottom-nav>
