@@ -45,18 +45,44 @@ class Call {
 
     this.info = [];
     this.infoProtectedVariables = {};
-
     this.postProcessDescriptionMetadata = null;
+
+    this.oldCallInfoText = null;
 
     this.dbUuid = null;
     if (this.direction === 'outbound') {
       this.dbUuid = data['my-uuid']
     }
 
-    try {
-      if (data.data && data.data !== 'undefined') {
-        const info = JSON.parse(data.data.replace(/'/g, ''));
+    this.updateCallInfo(data.data);
 
+    if (this.infoProtectedVariables.dlr_wrap > 0) {
+      this.postProcessing = true;
+    }
+
+    this.state = STATES.NEW;
+
+    this.name = this.direction === "inbound" ? data.callerName : data.calleeName;
+    this.number = this.direction === "inbound" ? data.callerNumber : data.calleeNumber;
+
+    this.dtmfDigits = [];
+
+    if (this.direction === 'inbound' && settings.get('notifyNewCall')) {
+      this.notificationNewCall = new NotificationInboundCall(this)
+      //notification(`Inbound call`, `Call from ${this.getName()}`, CONST.ICON_CALL)
+    }
+
+    store.commit("ON_NEW_CALL", this);
+  }
+
+  updateCallInfo(data) {
+    try {
+      if (data && data !== 'undefined' && this.oldCallInfoText !== data) {
+        const info = JSON.parse(data.replace(/'/g, ''));
+        this.oldCallInfoText = data;
+        this.info = [];
+        this.infoProtectedVariables = {};
+        this.postProcessDescriptionMetadata = null;
         for (let key in info) {
 
           if (!info.hasOwnProperty(key)) {
@@ -81,24 +107,6 @@ class Call {
       console.error(e)
       //TODO
     }
-
-    if (this.infoProtectedVariables.dlr_wrap > 0) {
-      this.postProcessing = true;
-    }
-
-    this.state = STATES.NEW;
-
-    this.name = this.direction === "inbound" ? data.callerName : data.calleeName;
-    this.number = this.direction === "inbound" ? data.callerNumber : data.calleeNumber;
-
-    this.dtmfDigits = [];
-
-    if (this.direction === 'inbound' && settings.get('notifyNewCall')) {
-      this.notificationNewCall = new NotificationInboundCall(this)
-      //notification(`Inbound call`, `Call from ${this.getName()}`, CONST.ICON_CALL)
-    }
-
-    store.commit("ON_NEW_CALL", this);
   }
 
   setPostProcessMetadata(metadata) {
@@ -332,6 +340,7 @@ class Call {
     }
     this.setAnswerTime();
     this.answerNotificationNewCall();
+    this.updateCallInfo(data.data);
   }
 
   onBridge(data) {
