@@ -152,7 +152,7 @@ class User extends InternalUser {
       if (call) {
         call.setHangupTime(e.hangup_cause);
         if ((!call.postProcessing || !settings.get('usePostProcess')) ||
-          (call.direction === 'inbound' && !call.answeredAt)) {
+          (call.direction === 'inbound' && !call.bridgedAt)) {
           call.destroy();
         }
       }

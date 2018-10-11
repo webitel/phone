@@ -628,4 +628,9 @@
   .call-info-row .call-info-item * {
     width: 100%;
   }
+
+  .call-info-row .call-info-item p {
+    margin-bottom: 0px;
+    line-height: 1.1;
+  }
 </style>
