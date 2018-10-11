@@ -1,0 +1,132 @@
+{
+  "name": "Русский",
+  "app": {
+    "search": "Поиск",
+    "loading": "Загрузка",
+    "close": "Закрыть",
+    "cancel": "Отмена",
+    "ok": "OK"
+  },
+  "notificationNewCall": {
+    "answer": "Принять",
+    "refuse": "Refuse",
+    "hold": "Удержание",
+    "hangup": "Отклонить"
+  },
+  "user": {
+    "statusReady": "Готов",
+    "statusBusy": "Занят",
+    "statusCallCenter": "Call Center",
+    "statusOnBreak": "Перерыв",
+    "stateCCWaiting": "На линии",
+    "stateDND": "Не беспокоить",
+    "stateCallForward": "Переадресация"
+  },
+  "users": {
+    "statusNotRegister": "Нет регистрации",
+    "statusTalking": "В разговоре",
+    "statusAgent": "Оператор {description}",
+    "statusCallForward": "Переадресация{number}",
+    "statusOnBreak": "Перерыв {description}",
+    "statusDND": "Не беспокоить {description}",
+    "statusAvailable": "Доступен"
+  },
+  "call": {
+    "blindTransferNumber": "Перевод без консультации",
+    "infoPanel": "Info",
+    "postProcessPanel": "Обработка звонка",
+    "dlrSuccessCall": "Успешный",
+    "dlrScheduleCall": "Запланировать звонок",
+    "dlrNextAfterTime": "Время",
+    "dlrNextAfterDate": "Дата",
+    "dlrDoNotCallThisNumber": "Не звонить на этот номер",
+    "dlrCallToNumber": "Добавить номер",
+    "dlrCallResult": "Результат",
+    "dlrDescription": "Описание",
+    "errPostProcessTitle": "Ошибка обработки звонка:",
+    "closeCall": "Закрыть звонок",
+    "retryCall": "Повтор",
+    "ringing": "Звонит",
+    "active": "Активен",
+    "hold": "Удержание",
+    "down": "DOWN"
+  },
+  "changeStatus": {
+    "title": "Сменить статус",
+    "status": "Статус",
+    "state": "Состояние",
+    "tag": "Тэг"
+  },
+  "toolbar": {
+    "history": "История",
+    "callback": "Задания",
+    "users": "Пользователи",
+    "settings": "Настройки"
+  },
+  "login": {
+    "language": "Язык",
+    "oauthName": "Имя",
+    "oauthServer": "OAuth server",
+    "oauthDomain": "Webitel domain",
+    "oauthResource": "Resource",
+    "oauthClientId": "Client ID",
+    "useOauth": "Доменная авторизация",
+    "account": "Login",
+    "password": "Password",
+    "server": "Server",
+    "authBtn": "Login",
+
+    "errRequiredAccount": "Login is required",
+    "errRequiredOauthServer": "OAuth url is required",
+    "errRequiredOauthDomain": "Domain is required",
+    "errRequiredOauthResource": "Resource is required",
+    "errRequiredOauthClientId": "Client ID is required"
+  },
+  "history": {
+    "header": "Total: {count} records (last 7 days)",
+    "rowTile": "{callerIdNumber} to {destinationNumber}",
+    "rowSubTile": "{startTime} duration {durationString}",
+    "noResultFound": "No results found:",
+    "emptyResult": "The history is empty"
+  },
+  "callback": {
+    "view": "View",
+    "noResultFound": "Нет результатов поиска:",
+    "emptyResult": "Очередь задач пуста",
+    "dialogDoneTitle": "Выполнено",
+    "dialogDoneContent": "Вы не сможете отменить это действие.",
+    "rowTile": "{number} от {queue}",
+    "viewOverdue": "Overdue",
+    "viewScheduled": "Scheduled",
+    "viewCompleted": "Завершено",
+    "callbackList": "Список задач",
+    "commentSubTile": "{createdBy} добавлен комментарий - {date}",
+    "newCommentPlaceholder": "Добавить комментарий",
+    "doneAt": "Дата выполнения",
+    "doneBy": "Выполнено",
+    "href": "Href",
+    "widget": "Widget",
+    "requestIP": "Request IP",
+    "userAgent": "Клиент пользователя",
+    "country": "Страна",
+    "regionName": "Регион,
+    "timeZone": "Часовой пояс"
+  },
+  "settings": {
+    "theme": "Тема",
+    "useWebPhone": "Использовать гарнитуру",
+    "iceServers": "Использовать STUN",
+    "sipAutoAnswer": "SIP auto answer",
+    "autoLoginCallCenter": "Автоматический вход оператора",
+    "agentOnDemand": "Оператор по условию",
+    "usePostProcess": "Использовать обработку звонков",
+    "ringInboundCall": "Звук входящего звонка",
+    "notifyNewCall": "Уведомление входящего звонка",
+    "notifyMissedCall": "Уведомление по пропущенным",
+    "audioInDevice": "Микрофон",
+    "audioOutDevices": "Устройство воспроизведения",
+    "ringInboundSinkId": "Устройство для звуковых оповещений",
+    "refreshDevices": "Очистить",
+    "logout": "Выйти"
+  }
+}
