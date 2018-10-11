@@ -9,9 +9,9 @@
   },
   "notificationNewCall": {
     "answer": "Принять",
-    "refuse": "Refuse",
+    "refuse": "Отклонить",
     "hold": "Удержание",
-    "hangup": "Отклонить"
+    "hangup": "Завершить"
   },
   "user": {
     "statusReady": "Готов",
@@ -109,7 +109,7 @@
     "requestIP": "Request IP",
     "userAgent": "Клиент пользователя",
     "country": "Страна",
-    "regionName": "Регион,
+    "regionName": "Регион",
     "timeZone": "Часовой пояс"
   },
   "settings": {

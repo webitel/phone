@@ -7,6 +7,12 @@
     "cancel": "Відміна",
     "ok": "Гаразд"
   },
+  "notificationNewCall": {
+    "answer": "Прийняти",
+    "refuse": "Відхилити",
+    "hold": "Утримання",
+    "hangup": "Завершити"
+  },
   "user": {
     "statusReady": "Готовий",
     "statusBusy": "Зайнятий",
