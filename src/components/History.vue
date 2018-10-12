@@ -36,49 +36,55 @@
       </v-flex>
 
 
-      <v-list  v-show="cdrData.length" style="margin-bottom: 30px" two-line subheader expand v-infinite-scroll="loadMore" infinite-scroll-disabled11="busy">
-        <v-subheader> {{$t('history.header', {count: totalCount})}}
+      <v-list style="margin-bottom: 30px" v-show="cdrData.length"  two-line subheader expand v-infinite-scroll="loadMore" infinite-scroll-disabled11="busy">
+        <v-subheader>
+          {{$t('history.header', {count: totalCount})}}
         </v-subheader>
+
         <div v-for="item in cdrData">
           <v-subheader inset>{{item.name}}</v-subheader>
-          <div v-for="i in item.items" :key="item.title" >
-            <v-list-tile avatar @click="">
 
-              <v-list-tile-content >
+          <div v-for="(i, index) in item.items">
+            <v-list-tile
+              :key="i.uuid"
+              class="history-row"
+              @click=""
+            >
+              <v-list-tile-action class="history-direction">
+                <v-icon>{{i.imgClassName}}</v-icon>
+              </v-list-tile-action>
+
+              <v-list-tile-content>
                 <v-list-tile-title>
-                  <v-icon>{{i.imgClassName}}</v-icon>
-                  <i18n path="history.rowTile" tag="span">
-                    <a @click="makeCall(i['caller_id_number'])" place="callerIdNumber">{{i['caller_id_number']}}</a>
-                    <a @click="makeCall(i['destination_number'])" place="destinationNumber">{{i['destination_number']}}</a>
-                  </i18n>
+                  <a @click="makeCall(i.displayNumber)">{{ i.displayNumber }}</a>
                 </v-list-tile-title>
+
                 <v-list-tile-sub-title>
                   {{$t('history.rowSubTile', {startTime: i.startTime, durationString: i.durationString})}}
                 </v-list-tile-sub-title>
 
               </v-list-tile-content>
 
-              <v-list-tile-action>
-                <v-list-tile-action-text v-show="showDetailActions(i)" @click="i.activeDetail = !i.activeDetail">
-                  <v-icon class="lighten-1" v-show="showCallData(i)">info</v-icon>
-                  <v-icon class="green--text lighten-1" v-show="showRecordFile(i)">mdi-audiotrack</v-icon>
-                </v-list-tile-action-text>
+              <v-list-tile-action class="history-actions" >
+                <v-icon class="lighten-1" @click="i.activeDetail = !i.activeDetail" v-show="showCallData(i)">info</v-icon>
+                <v-icon class="lighten-1" @click="i.activeDetail = !i.activeDetail" v-show="i._uri">voicemail</v-icon>
               </v-list-tile-action>
             </v-list-tile>
 
-            <v-layout row wrap v-if="i.activeDetail && showDetailActions(i)">
+            <v-layout row wrap v-if="i.activeDetail">
               <v-container fluid grid-list-md>
-
-                <player :file="i._uri"></player>
-
+                <player v-if="i._uri" :file="i._uri"></player>
                 <div class="call-info-row text--accent-1" v-show="i.webitelData.length > 0" v-for="data in i.webitelData">
                   <vue-markdown class="call-info-item" :breaks="false" :anchor-attributes="anchorAttrs">**{{data.name}}**: {{data.value}}</vue-markdown>
                 </div>
               </v-container>
             </v-layout>
-          </div>
 
-          <!--<v-divider inset></v-divider>-->
+            <v-divider
+              v-if="index + 1 < item.items.length"
+            ></v-divider>
+
+          </div>
         </div>
       </v-list>
 
@@ -203,14 +209,17 @@
 </script>
 
 <style scoped>
-  .var-name {
-    text-decoration: underline;
+  .history-direction {
+    min-width: 35px;
+  }
+  .history-actions {
+    min-width: 30px;
   }
 
-  .webitel-data-list {
 
-  }
-  .webitel-data-list .webitel-data-list-item {
-    height: 40px;
+</style>
+<style>
+  .history-row > a {
+    cursor: default;
   }
 </style>

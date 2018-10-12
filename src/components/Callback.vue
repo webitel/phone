@@ -52,8 +52,8 @@
         <v-list style="margin-bottom: 30px" two-line subheader expand v-infinite-scroll="loadMore" infinite-scroll-disabled="busy">
           <div v-for="item in data">
             <v-subheader inset>{{item.name}}</v-subheader>
-            <div v-for="i in item.items" :key="item.title" >
-              <v-list-tile avatar @click="">
+            <div v-for="(i, index) in item.items" :key="item.title" >
+              <v-list-tile @click="" avatar class="callback-row">
 
                 <v-list-tile-action class="callback-done-btn">
                   <v-dialog v-model="i._dialog" persistent max-width="290">
@@ -84,18 +84,16 @@
 
                 </v-list-tile-content>
 
-                <v-list-tile-action>
-                  <v-list-tile-action-text >
-                    <div  class="text-xs-center">
-                      <v-btn class="text--secondary" :class="{'btn--active': i.activeDetail === 'comments'}" small flat icon @click="openItem(i, 'comments')">
-                        <v-icon>comment</v-icon>
-                      </v-btn>
+                <v-list-tile-action class="callback-actions">
 
-                      <v-btn class="text--secondary" :class="{'btn--active': i.activeDetail === 'info'}" style="margin-left: 5px" flat icon @click="openItem(i, 'info')">
-                        <v-icon>info</v-icon>
-                      </v-btn>
-                    </div>
-                  </v-list-tile-action-text>
+                  <v-btn class="text--secondary" :class="{'btn--active': i.activeDetail === 'info'}"  flat icon @click="openItem(i, 'info')">
+                    <v-icon>info</v-icon>
+                  </v-btn>
+
+                  <v-btn class="text--secondary" :class="{'btn--active': i.activeDetail === 'comments'}" flat icon @click="openItem(i, 'comments')">
+                    <v-icon>comment</v-icon>
+                  </v-btn>
+
                 </v-list-tile-action>
 
               </v-list-tile>
@@ -154,6 +152,10 @@
                 </v-flex>
               </v-layout>
 
+
+              <v-divider
+                v-if="index + 1 < item.items.length"
+              ></v-divider>
             </div>
 
           </div>
@@ -358,5 +360,16 @@
   }
   .callback-comment-row {
     margin-bottom: 7px;
+  }
+
+
+  .callback-actions {
+    min-width: 30px;
+  }
+</style>
+
+<style>
+  .callback-row > a {
+    cursor: default;
   }
 </style>
