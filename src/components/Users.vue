@@ -18,11 +18,12 @@
       </v-flex>
 
       <v-list two-line>
-        <template v-for="(item, index) in listInternalUsers">
-          <v-list-tile avatar @click="">
-            <v-list-tile-avatar>
+        <div v-for="(item, index) in listInternalUsers">
+          <v-list-tile avatar @click="" class="users-row">
+            <v-list-tile-action class="users-action-status">
               <v-icon :color="getStateColor(item)">fiber_manual_record</v-icon>
-            </v-list-tile-avatar>
+            </v-list-tile-action>
+
             <v-list-tile-content>
               <v-list-tile-title >
                 {{item.name}}
@@ -39,7 +40,12 @@
             </v-list-tile-action>
 
           </v-list-tile>
-        </template>
+
+          <v-divider
+            v-if="index + 1 < listInternalUsers.length"
+          ></v-divider>
+
+        </div>
       </v-list>
     </v-flex>
   </v-layout>
@@ -107,5 +113,12 @@
 </script>
 
 <style scoped>
-
+  .users-action-status {
+    min-width: 35px;
+  }
+</style>
+<style>
+  .users-row > a {
+    cursor: default;
+  }
 </style>

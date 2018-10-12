@@ -179,8 +179,10 @@ function parseElasticResponse(session, res) {
 
     if (session.number === t.caller_id_number) {
       t.direction = "outbound"
+      t.displayNumber = t.destination_number;
     } else {
       t.direction = "inbound"
+      t.displayNumber = t.caller_id_number;
     }
 
     data.push(t);
