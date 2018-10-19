@@ -155,26 +155,43 @@ class Call {
 
   closeNotificationNewCall() {
     if (this.notificationNewCall) {
-      this.notificationNewCall.close();
-      this.notificationNewCall = null;
+      try {
+        this.notificationNewCall.close();
+      } catch (e) {
+        console.error(e)
+      } finally {
+        this.notificationNewCall = null;
+      }
     }
   }
 
   answerNotificationNewCall() {
     if (this.notificationNewCall) {
-      this.notificationNewCall.onAnswer();
+      try {
+        this.notificationNewCall.onAnswer();
+      } catch (e) {
+        console.error(e);
+      }
     }
   }
 
   activeNotificationNewCall() {
     if (this.notificationNewCall) {
-      this.notificationNewCall.onActive();
+      try {
+        this.notificationNewCall.onActive();
+      } catch (e) {
+        console.error(e)
+      }
     }
   }
 
   holdNotificationNewCall() {
     if (this.notificationNewCall) {
-      this.notificationNewCall.onHold();
+      try {
+        this.notificationNewCall.onHold();
+      } catch (e) {
+        console.error(e)
+      }
     }
   }
 
