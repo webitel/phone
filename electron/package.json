@@ -1,0 +1,9 @@
+{
+  "name": "webitel-phone",
+  "productName": "Webitel phone",
+  "description": "Application for Webitel phone",
+  "version": "2.0.0",
+  "main": "electron.js",
+  "license": "MIT",
+  "author": "Navrotskyj Igor"
+}
