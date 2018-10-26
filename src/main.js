@@ -41,9 +41,7 @@ Vue.use(Vuetify, {
 if (typeof nw === 'object') {
   window.phoneStore = store;
 } else if (window.isElectron) {
-  console.error('try');
   window.initPhone(store);
-  console.error('ok');
 }
 
 /* eslint-disable no-new */

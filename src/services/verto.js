@@ -84,6 +84,7 @@ const jQuery = {
   }
 
   $.FSRTC = function(options) {
+    var self = this;
     this.options = Object.assign({
       useVideo: null,
       useStereo: false,
@@ -1522,7 +1523,11 @@ const jQuery = {
     var self = this;
     if (self.socketReady()) {
       self._ws_socket.onclose = function (w) {console.log("Closing Socket");};
-      self._ws_socket.close();
+      try {
+        self._ws_socket.close();
+      } catch (e) {
+        console.error(e)
+      }
     }
     clearTimeout(self.to)
   };
@@ -1624,6 +1629,7 @@ const jQuery = {
    */
   $.JsonRpcClient.prototype._wsCall = function(socket, request, success_cb, error_cb) {
     var request_json = $.toJSON(request);
+    var self = this;
 
     if (socket.readyState < 1) {
       // The websocket is not open yet; we have to set sending of the message in onopen.
@@ -1650,6 +1656,7 @@ const jQuery = {
   $.JsonRpcClient.prototype._wsOnMessage = function(event) {
     // Check if this could be a JSON RPC message.
     var response;
+    var self = this;
 
     // Special sub proto
     if (event.data[0] == "#" && event.data[1] == "S" && event.data[2] == "P") {
@@ -2027,7 +2034,7 @@ const jQuery = {
   $.verto = function(options, callbacks) {
     var verto = this;
 
-    $.verto.saved.push(verto);
+    //$.verto.saved.push(verto);
 
     verto.options = Object.assign({
       login: null,

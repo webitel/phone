@@ -2,7 +2,11 @@ const fs = require('fs');
 const path = require('path');
 const systemConfigFileName = 'config.json';
 const userConfigFileName = 'user_config.json';
-const app = require('electron').remote.app;
+const remote = require('electron').remote;
+const app = remote.app;
+const clipboard = remote.clipboard;
+const {ipcRenderer} = require('electron');
+const Tray = require('./tray');
 
 class FileStorage {
   constructor(defaultData = {}, pathFile) {
@@ -43,11 +47,16 @@ class FileStorage {
   }
 }
 
-window.WEBITEL_CONFIG = new FileStorage({}, findUserConfigFilePath(userConfigFileName));
+const userConfig = new FileStorage({}, findUserConfigFilePath(userConfigFileName));
+const phoneSettings = new FileStorage({}, path.join(__dirname, systemConfigFileName));
+
 window.isElectron = true;
+
+window.WEBITEL_CONFIG = userConfig;
 window.initPhone = (store) => {
-  console.error(store);
+  window.WEBITEL_APP = new App(window, userConfig, store)
 };
+
 
 function findUserConfigFilePath(fileName) {
   if (fs.existsSync(path.join(__dirname, fileName))) {
@@ -55,4 +64,118 @@ function findUserConfigFilePath(fileName) {
   }
 
   return path.join(app.getPath('userData'), fileName);
+}
+
+
+class App {
+  constructor(win, config, store, ...options) {
+    this.config = config;
+    this.alwaysOnTop = false;
+    this.tray = null;
+    this.hide = false;
+
+    if (~["win32", "win64"].indexOf(process.platform) && phoneSettings.get('disableOAuth') !== true) {
+      localStorage.setItem("oauthName", phoneSettings.get('oauthName') || process.env.COMPUTERNAME)
+    }
+
+    this.initWindow(win);
+    this.makeTray(store);
+    this.subscribeStore(store);
+  }
+
+  makeTray(store) {
+    const links = this.config.get('hotLinks') || this.config.get('hot_links');
+    const tray = this.tray = new Tray(store.getters.i18n(), links, {alwaysOnTop: this.alwaysOnTop});
+    tray.on('set-status', (params = {}) => {
+      const user = store.getters.user();
+
+      switch (params.status) {
+        case "Ready":
+          user.logoutCallCenter();
+          user.setReady();
+          break;
+        case "Busy":
+          user.logoutCallCenter();
+          user.setBusy(params.state, '');
+          break;
+        case "Call Center":
+          user.loginCC();
+          if (params.state === 'Waiting') {
+            user.setReady();
+          } else {
+            user.setBusy("ONBREAK", '');
+          }
+          break;
+      }
+    });
+
+    tray.on('always-on-top', (val) => {
+      this.config.set('alwaysOnTop', val);
+      this.setAlwaysOnTop(val);
+    });
+
+    tray.on('toggle-show', () => {
+      this.toggleShow()
+    });
+
+    tray.on('quit', this.close);
+  }
+
+  toggleShow() {
+    if (this.hide) {
+      this.setShow();
+    } else {
+      this.setHide();
+    }
+  }
+
+  close() {
+    ipcRenderer.send('close-phone')
+  }
+
+  subscribeStore(store) {
+    store.watch(store.getters.status, status => {
+      this.tray.setState({status});
+    });
+
+    store.watch(store.getters.countInboundNoAnswerCall, count => {
+      if (count > 0) {
+        //TODO IPC
+        this.remote.getCurrentWindow().webContents.focus();
+      }
+    });
+  }
+
+  initWindow(window) {
+    this.setAlwaysOnTop(this.config.get('alwaysOnTop'));
+    window.WEBITEL_COPY_TO_CLIPBOARD = this.copyClipboard.bind(this);
+    window.WEBITEL_MINIMALIZE = this.minimize.bind(this);
+    window.WEBITEL_HIDE = this.setHide.bind(this);
+  }
+
+  setAlwaysOnTop(val) {
+    ipcRenderer.send('always-on-top-phone', val);
+    this.alwaysOnTop = val;
+  }
+
+  minimize() {
+    ipcRenderer.send('minimize-phone');
+  }
+
+  setHide() {
+    this.hide = true;
+    ipcRenderer.send('hide-phone');
+    this.tray.setState({hide: this.hide});
+  }
+
+  setShow() {
+    this.hide = false;
+    ipcRenderer.send('show-phone');
+    this.tray.setState({hide: this.hide});
+  }
+
+  copyClipboard() {
+    clipboard.writeText(text)
+  }
+
 }

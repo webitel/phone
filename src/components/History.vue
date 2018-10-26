@@ -1,9 +1,9 @@
 <template>
-  <v-layout row v-show="cdr">
-    <Spinner :value="busy"></Spinner>
+  <v-layout row>
+    <Spinner :value="loading"></Spinner>
     <v-flex xs12 sm6 offset-sm3>
 
-      <v-flex xs12 v-show="!cdrData.length && search">
+      <v-flex xs12 v-show="!groups.length && search">
         <v-card flat>
           <v-card-title>
             <v-flex xs4 class="text-md-center">
@@ -20,7 +20,7 @@
       </v-flex>
 
 
-      <v-flex xs12 v-show="!cdrData.length && !search">
+      <v-flex xs12 v-show="!groups.length && !search">
         <v-card flat>
           <v-card-title>
             <v-flex xs4 class="text-md-center">
@@ -36,17 +36,16 @@
       </v-flex>
 
 
-      <v-list style="margin-bottom: 30px" v-show="cdrData.length"  two-line subheader expand v-infinite-scroll="loadMore" infinite-scroll-disabled11="busy">
+      <v-list style="margin-bottom: 30px" v-show="groups.length"  two-line subheader expand v-infinite-scroll="loadMore" infinite-scroll-disabled="loading">
         <v-subheader>
-          {{$t('history.header', {count: totalCount})}}
+          {{$t('history.header', {count: totalRecord})}}
         </v-subheader>
 
-        <div v-for="item in cdrData">
+        <div v-for="item in groups">
           <v-subheader inset>{{item.name}}</v-subheader>
 
           <div v-for="(i, index) in item.items">
             <v-list-tile
-              :key="i.uuid"
               class="history-row"
               @click=""
             >
@@ -66,22 +65,23 @@
               </v-list-tile-content>
 
               <v-list-tile-action class="history-actions" >
-                <v-icon class="lighten-1" @click="i.activeDetail = !i.activeDetail" v-show="showCallData(i)">info</v-icon>
-                <v-icon class="lighten-1" @click="i.activeDetail = !i.activeDetail" v-show="i._uri">voicemail</v-icon>
+                <v-icon class="lighten-1" @click="toggleActiveDetail(i)" v-show="showCallData(i)">contact_mail</v-icon>
+                <!--<v-icon class="lighten-1" @click="toggleActiveDetail(i)" v-show="i._uri">voicemail</v-icon>-->
+                <i class="history-record-session-icon" @click="toggleActiveDetail(i)" v-show="i._uri" ></i>
               </v-list-tile-action>
             </v-list-tile>
 
             <v-layout row wrap v-if="i.activeDetail">
               <v-container fluid grid-list-md>
                 <player v-if="i._uri" :file="i._uri"></player>
-                <div class="call-info-row text--accent-1" v-show="i.webitelData.length > 0" v-for="data in i.webitelData">
+                <div class="call-info-row text--accent-1" v-if="i.webitelData.length > 0" v-for="data in i.webitelData">
                   <vue-markdown class="call-info-item" :breaks="false" :anchor-attributes="anchorAttrs">**{{data.name}}**: {{data.value}}</vue-markdown>
                 </div>
               </v-container>
             </v-layout>
 
             <v-divider
-              v-if="index + 1 < item.items.length"
+              v-show="index + 1 < item.items.length"
             ></v-divider>
 
           </div>
@@ -96,7 +96,8 @@
           fixed
           bottom
           fab
-          @click="refreshData(true)"
+          @click="refreshData()"
+          :disabled="loading"
           style="margin-bottom: 50px; margin-left: -10px;"
         >
           <v-icon>refresh</v-icon>
@@ -111,37 +112,36 @@
     import Player from "./Player"
     import VueMarkdown from 'vue-markdown'
     import Spinner from './Spinner'
-
+    //
     export default {
       name: "History",
       components: {
-        Player,
-        VueMarkdown,
-        Spinner
+         Player,
+         VueMarkdown,
+         Spinner
+      },
+      beforeMount: function(){
+        if (!this.groups.length)
+          this.$store.dispatch("cdr/fetch", {reset: true});
       },
       created() {
-        this.refreshData();
+
       },
       data() {
         return {
-          busy: true,
-          cdrData: [],
-          totalCount: 0,
           anchorAttrs: {
-          target: '_blank',
-            onclick: `typeof WEBITEL_LINK === 'function' ? WEBITEL_LINK(this, event): null`,
-            // onclick: "debugger;",
+            target: '_blank',
+            // onclick: `typeof WEBITEL_LINK === 'function' ? WEBITEL_LINK(this, event): null`,
             rel: 'noopener noreferrer nofollow'
-        }
+          }
         }
       },
+      beforeDestroy() {
 
+      },
       methods: {
         makeCall(number) {
-          this.user.makeCall(number)
-        },
-        showDetailActions (cdrItem) {
-          return this.showCallData(cdrItem) || this.showRecordFile(cdrItem)
+         this.user.makeCall(number)
         },
         showRecordFile: (cdrItem) => {
           return cdrItem['variables.webitel_record_file_name'] && cdrItem.billsec >= 1
@@ -149,60 +149,42 @@
         showCallData: (cdrItem) => {
           return cdrItem.webitelData.length > 0
         },
-        refreshData(reset) {
-          if (!this.cdr) {
-            this.cdrData = [];
-            return
-          }
-
-          if (reset) {
-            this.cdrData = [];
-          }
-          this.busy = true;
-          this.cdr.find(this.search, (err, res, totalCount, nextData) => {
-            this.busy = false;
-            if (err) {
-              // TODO
-              return
-            }
-            this.totalCount = totalCount;
-            this.cdrData = res;
-          }, reset)
+        toggleActiveDetail: (item) => {
+          item.activeDetail = !item.activeDetail;
+        },
+        refreshData() {
+          this.$store.dispatch('cdr/fetch', {reset: true})
         },
 
         loadMore() {
-          if (this.busy || !this.cdr.availableMoreData()) {
-            return;
-          }
-
-          this.busy = true;
-          this.cdr.next((err, data, totalCount, nextData) => {
-            this.busy = false;
-            this.totalCount = totalCount;
-            this.cdrData = data;
-          })
+          if (this.haveMoreData)
+            this.$store.dispatch("cdr/fetch");
         }
       },
 
       computed: {
+        groups() {
+          return this.$store.getters['cdr/groups'];
+        },
+        totalRecord() {
+          return this.$store.getters['cdr/total'];
+        },
+        haveMoreData() {
+          return this.$store.getters['cdr/haveMoreData']
+        },
+        loading () {
+          return this.$store.getters['cdr/loading'];
+        },
         search() {
           return this.$store.getters.getSearch();
         },
         user() {
           return this.$store.getters.user();
-        },
-        cdr() {
-          return this.$store.getters.cdr();
         }
       },
       watch: {
-        cdr(val) {
-          if (val) {
-            this.refreshData()
-          }
-        },
         search() {
-          this.refreshData()
+          this.$store.dispatch('cdr/fetch')
         }
       }
     }
@@ -214,6 +196,22 @@
   }
   .history-actions {
     min-width: 30px;
+  }
+
+  .history-record-session-icon {
+    cursor: pointer;
+    display: inline-block;
+    width:  24px;
+    height: 24px;
+    -webkit-mask: url(/static/img/history_record_session.svg) no-repeat 100% 100%;
+    mask: url(/static/img/history_record_session.svg) no-repeat 100% 100%;
+    -webkit-mask-size: cover;
+    mask-size: cover;
+    background-color: #767676;
+  }
+
+  .theme--dark .history-record-session-icon {
+    background-color: #ffffff;
   }
 
 

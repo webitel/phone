@@ -20,28 +20,38 @@
         </v-menu>
       </div>
 
-      <span v-show="user">
+      <span v-show="user" class="drag-zone">
         {{user.name}}
       </span>
 
       <v-spacer></v-spacer>
 
-      <!--<v-icon style="margin-left: 5px">link</v-icon>-->
-      <div v-show="hotLinks.length > 0">
-        <v-menu bottom left>
-          <v-btn small icon slot="activator" >
-            <v-icon>link</v-icon>
-          </v-btn>
-          <v-list>
-            <v-list-tile v-for="link in hotLinks" @click="openHotLink(link.src)" target="_blank">
-              <v-list-tile-title>{{link.name}}</v-list-tile-title>
-            </v-list-tile>
-          </v-list>
-        </v-menu>
+      <div class="system-bar-icons">
+
+        <div v-show="hotLinks.length > 0">
+          <v-menu bottom left>
+            <a slot="activator" >
+              <v-icon>link</v-icon>
+            </a>
+            <v-list>
+              <v-list-tile v-for="link in hotLinks" @click="openHotLink(link.src)" target="_blank">
+                <v-list-tile-title>{{link.name}}</v-list-tile-title>
+              </v-list-tile>
+            </v-list>
+          </v-menu>
+        </div>
+
+        <i v-show="user && user.loggedCC" class="in-queue"></i>
+        <v-icon v-show="user && user.webPhoneRegister">headset_mic</v-icon>
+
+        <a  @click="minimize">
+          <v-icon>remove</v-icon>
+        </a>
+        <a  @click="hide">
+          <v-icon>close</v-icon>
+        </a>
       </div>
 
-      <v-icon v-show="user && user.loggedCC">contact_mail</v-icon>
-      <v-icon v-show="user && user.webPhoneRegister" class="icon-web-rtc"></v-icon>
 
     </v-system-bar>
 
@@ -78,7 +88,7 @@
 
     </v-toolbar>
 
-    <v-content class="app-content">
+    <v-content class="app-content" v-if="initialize">
       <div class="app-view">
         <router-view></router-view>
       </div>
@@ -320,6 +330,9 @@
       }
     },
 
+    beforeCreate() {
+
+    },
     created() {
 
       this.ringer = new Audio('/static/sounds/iphone.mp3');
@@ -330,7 +343,7 @@
           return false;
         }
 
-        if (!this.$store.state.user && to.name !== 'Login') {
+        if (!this.user && to.name !== 'Login') {
           return next('/login');
         } else if (to.name === 'Login') {
           // return next('/');
@@ -362,10 +375,10 @@
         return []
       },
       showMenu () {
-        return !!this.$store.state.user && !this.reconnecting
+        return !!this.user && !this.reconnecting
       },
       user() {
-        return this.$store.state.user
+        return this.$store.getters.user()
       },
       webitel() {
         return this.$store.getters.webitel
@@ -393,7 +406,7 @@
 
       userStatus() {
         console.error('userStatus');
-        if (this.$store.state.user) {
+        if (this.user) {
           return "non-reg"
         }
         return ""
@@ -508,22 +521,22 @@
 
       showChangeStatusDialog() {
         this.viewStatusDialog = true;
-        if (this.$store.state.user.loggedCC) {
+        if (this.user.loggedCC) {
           this.dialogTag = '';
           this.dialogStatus = this.listUserStatus[1].text;
-          if (this.$store.state.user.status === 'ONBREAK') {
+          if (this.user.status === 'ONBREAK') {
             this.dialogState = 'ONBREAK';
           } else {
             this.dialogState = 'Waiting';
           }
 
-        } else if (this.$store.state.user.state === 'ONHOOK' && this.$store.state.user.status === 'NONE') {
+        } else if (this.user.state === 'ONHOOK' && this.user.status === 'NONE') {
           this.dialogTag = '';
           this.dialogStatus = this.listUserStatus[0].text;
         } else {
           this.dialogStatus = this.listUserStatus[2].text;
-          this.dialogState = this.$store.state.user.status;
-          this.dialogTag = this.$store.state.user.description;
+          this.dialogState = this.user.status;
+          this.dialogTag = this.user.description;
         }
       },
 
@@ -576,14 +589,67 @@
 
       onSearch() {
         this.$store.commit("CHANGE_SEARCH", this.search);
+      },
+
+      minimize() {
+        if (typeof WEBITEL_MINIMALIZE === 'function') {
+          WEBITEL_MINIMALIZE()
+        }
+        //todo
+      },
+
+      hide() {
+        if (typeof WEBITEL_HIDE === 'function') {
+          WEBITEL_HIDE()
+        }
+        //todo
       }
     }
   }
 </script>
 
+<style scoped>
+  .in-queue {
+    display: inline-block;
+    width: 20px;
+    height: 17px;
+    min-width: 16px;
+    min-height: 16px;
+    -webkit-mask: url(/static/img/in_queue.svg) no-repeat 100% 100%;
+    mask: url(/static/img/in_queue.svg) no-repeat 100% 100%;
+    -webkit-mask-size: cover;
+    mask-size: cover;
+    background-color: #767676;
+  }
+
+  .theme--dark .in-queue {
+    background-color: hsla(0,0%,100%,.7);
+  }
+</style>
+
 <style>
   html {
     overflow-y: auto;
+  }
+
+  .drag-zone {
+    -webkit-app-region: drag;
+    cursor: pointer;
+    width: 100%;
+  }
+
+  .system-bar-icons {
+    display: contents;
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -khtml-user-select: none; /* Konqueror HTML */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none; /* Non-prefixed version, currently*/
+  }
+  .system-bar-icons > * {
+    margin-left: 5px;
+    width: 23px;
   }
 
   .app-content {

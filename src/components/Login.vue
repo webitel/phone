@@ -1,5 +1,21 @@
 <template>
   <v-container fluid fill-height>
+
+    <v-system-bar app class="lighten-1" height="30px">
+      <span class="drag-zone" style="height: 100%;">
+
+      </span>
+      <v-spacer></v-spacer>
+        <div class="system-bar-icons">
+          <a  @click="minimize">
+            <v-icon>remove</v-icon>
+          </a>
+          <a  @click="hide">
+            <v-icon>close</v-icon>
+          </a>
+        </div>
+    </v-system-bar>
+
     <v-layout align-center justify-center>
       <v-flex xs12 sm8 md4>
         <v-card >
@@ -108,7 +124,7 @@
       }
     },
     mounted() {
-      if (this.$store.state.user) {
+      if (this.$store.getters.user()) {
          return this.$router.push("/")
       }
 
@@ -245,6 +261,20 @@
         if (this.$refs.form.validate()) {
           this.doLogin();
         }
+      },
+
+      minimize() {
+        if (typeof WEBITEL_MINIMALIZE === 'function') {
+          WEBITEL_MINIMALIZE()
+        }
+        //todo
+      },
+
+      hide() {
+        if (typeof WEBITEL_HIDE === 'function') {
+          WEBITEL_HIDE()
+        }
+        //todo
       }
     },
     computed: {

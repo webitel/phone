@@ -1,9 +1,13 @@
 const url = require('url');
 const electron = require('electron');
+const WindowState = require('./windowState');
 // Module to control application life.
 const app = electron.app;
+const ipcMain = electron.ipcMain;
 const protocol = electron.protocol;
-var path = require('path');
+const path = require('path');
+const shell = electron.shell;
+const globalShortcut = electron.globalShortcut;
 
 // Module to create native browser window.
 const BrowserWindow = electron.BrowserWindow;
@@ -15,11 +19,26 @@ let mainWindow;
 
 function createWindow () {
   // Create the browser window.
-  mainWindow = new BrowserWindow({titleBarStyle: 'hidden',
+  const mainWindowState = new WindowState('main', {})
+
+  mainWindow = new BrowserWindow({
+    titleBarStyle: 'default',
     minWidth: 325,
     minHeight: 560,
-    backgroundColor: 'transparent',
+
+    // width: mainWindowState.width,
+    // height: mainWindowState.height,
+    // x: mainWindowState.x,
+    // y: mainWindowState.y,
+
+    title: 'Webitel phone',
+    name: 'webitel-phone',
+    id: 0,
+
+    // backgroundColor: 'transparent',
     show: false,
+    transparent: true,
+    frame: false,
     icon: path.join(__dirname, 'static/img/icons/call48.png'),
     webPreferences: {
       nodeIntegration: false,
@@ -27,18 +46,55 @@ function createWindow () {
     }
   });
 
+  let closePhone = false;
+  ipcMain.on('close-phone', () => {
+    closePhone = true;
+    mainWindowState.saveState(mainWindow);
+    app.quit();
+  });
+
+  ipcMain.on('show-phone', () => {
+    mainWindow.show();
+    mainWindow.focus();
+  });
+
+  ipcMain.on('hide-phone', () => {
+    mainWindow.hide();
+  });
+
+  ipcMain.on('minimize-phone', () => {
+    mainWindow.minimize();
+  });
+
+  ipcMain.on('always-on-top-phone', (val) => {
+    mainWindow.setAlwaysOnTop(!!val);
+  });
+
   // and load the index.html of the app.
   // mainWindow.loadURL(`file://${__dirname}/index.html`, {slashes: true });
   mainWindow.loadURL(url.format({ pathname:'index.html', protocol: 'file', slashes: true }));
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools()
+  // mainWindow.webContents.openDevTools()
 
+  mainWindow.on('close', (event) => {
+    if (closePhone) {
+      return
+    }
+    mainWindow.minimize();
+    event.preventDefault();
+  });
 
   // Show the mainwindow when it is loaded and ready to show
   mainWindow.once('ready-to-show', () => {
+    mainWindowState.loadState(mainWindow);
     mainWindow.show()
-  })
+  });
+
+  mainWindow.webContents.on('new-window', function(event, url){
+    event.preventDefault();
+    shell.openItem(url)
+  });
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function () {
@@ -47,7 +103,6 @@ function createWindow () {
     // when you should delete the corresponding element.
     mainWindow = null
   })
-
 }
 
 // This method will be called when Electron has finished
@@ -60,6 +115,15 @@ app.on('ready', () => {
   }, (err) => {
     if (err)
       console.error('Failed to register protocol')
+  })
+
+  globalShortcut.register('CommandOrControl+F1', () => {
+    // Open the DevTools.
+    if (!mainWindow.webContents.devToolsWebContents) {
+      mainWindow.webContents.openDevTools();
+    } else {
+      mainWindow.webContents.closeDevTools();
+    }
   })
 
   createWindow()
@@ -84,3 +148,17 @@ app.on('activate', function () {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
+
+
+function test() {
+  if (window.stopTest) {
+    return;
+  }
+  setTimeout(function() {
+    document.querySelector("[href='#/settings']").click();
+    setTimeout(function() {
+      document.querySelector("[href='#/']").click();
+      test()
+    }, 500)
+  }, 500)
+}

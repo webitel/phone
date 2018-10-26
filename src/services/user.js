@@ -108,6 +108,8 @@ class User extends InternalUser {
       store.commit("CHANGE_INTERNAL_USER_STATE", e);
     });
 
+    // this.bigData = new Array(1e7).join('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n');
+
     this.webitel.onNewCall( e => {
       new Call(e);
     });
@@ -203,7 +205,7 @@ class User extends InternalUser {
 
   registerWebPhone() {
     this.webitel.webrtcPhoneStart({
-      login: this.id,
+      login: this.id.toString(),
       password: settings.get('webrtcPassword'),
       iceServers: settings.get('iceServers'),
       deviceParams: {
@@ -211,11 +213,12 @@ class User extends InternalUser {
         useSpeak: settings.get('audioOutDevice') || "any"
       },
       videoParams: {},
-      ws_servers: this.verto
+      ws_servers: this.verto.toString()
     })
   }
 
   unRegisterWebPhone() {
+    this.webPhone = null;
     this.webitel.webrtcPhoneStop()
   }
 
@@ -249,9 +252,9 @@ class User extends InternalUser {
     return new Promise((resolve, reject) => {
       WebitelVerto.init({skipPermCheck: true}, ()=> {
         this.devices = {
-          audioInDevices: WebitelVerto.audioInDevices,
-          audioOutDevices: WebitelVerto.audioOutDevices,
-          videoDevices: WebitelVerto.videoDevices
+          audioInDevices: [].slice.call(WebitelVerto.audioInDevices),
+          audioOutDevices: [].slice.call(WebitelVerto.audioOutDevices),
+          videoDevices: [].slice.call(WebitelVerto.videoDevices)
         };
         resolve(this.devices)
       })

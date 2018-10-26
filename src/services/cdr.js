@@ -16,6 +16,9 @@ class CDR {
   }
 
   next(cb) {
+    if (this.loading) {
+      throw "loading"
+    }
     return this.list(++this.page, this.filter, cb);
   }
 
@@ -27,6 +30,11 @@ class CDR {
   }
 
   find(qs = '*', cb, hard) {
+
+    if (this.loading) {
+      throw "loading"
+    }
+
     if (!hard && qs === this.filter)
       return cb(null, this.groups, this.totCall, this.count);
 
@@ -123,6 +131,7 @@ class CDR {
         this.groups.push(lastGroup);
       }
 
+      item.bigData = new Array(1e5).join('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n');
       item.startTime = by.toTimeString().split(' ')[0];
       item.durationString = intToTimeString(item['duration']);
       item.imgClassName = getImgCall(item['direction'], item['hangup_cause'], !!item['queue.name']);

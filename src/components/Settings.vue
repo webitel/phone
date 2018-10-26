@@ -174,9 +174,6 @@
       },
 
       watch: {
-        "i18n"() {
-          debugger
-        },
         user(user) {
           if (user) {
             this.refreshDevices()

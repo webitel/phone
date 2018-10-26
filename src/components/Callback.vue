@@ -218,6 +218,9 @@
         data: []
       }
     },
+    beforeDestroy() {
+      this.data = [];
+    },
     created() {
       this.refreshData();
     },
