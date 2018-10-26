@@ -5,7 +5,10 @@
     "loading": "Завантаження",
     "close": "Закрити",
     "cancel": "Відміна",
-    "ok": "Гаразд"
+    "ok": "Гаразд",
+    "hide": "Заховати",
+    "show": "Показати",
+    "alwaysOnTop": "Поверх вікон"
   },
   "notificationNewCall": {
     "answer": "Прийняти",

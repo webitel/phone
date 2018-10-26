@@ -19,18 +19,12 @@ let mainWindow;
 
 function createWindow () {
   // Create the browser window.
-  const mainWindowState = new WindowState('main', {})
+  const mainWindowState = new WindowState('main', {});
 
   mainWindow = new BrowserWindow({
     titleBarStyle: 'default',
     minWidth: 325,
     minHeight: 560,
-
-    // width: mainWindowState.width,
-    // height: mainWindowState.height,
-    // x: mainWindowState.x,
-    // y: mainWindowState.y,
-
     title: 'Webitel phone',
     name: 'webitel-phone',
     id: 0,
@@ -66,7 +60,7 @@ function createWindow () {
     mainWindow.minimize();
   });
 
-  ipcMain.on('always-on-top-phone', (val) => {
+  ipcMain.on('always-on-top-phone', (e, val) => {
     mainWindow.setAlwaysOnTop(!!val);
   });
 
@@ -124,10 +118,10 @@ app.on('ready', () => {
     } else {
       mainWindow.webContents.closeDevTools();
     }
-  })
+  });
 
   createWindow()
-})
+});
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function () {
@@ -136,7 +130,7 @@ app.on('window-all-closed', function () {
   if (process.platform !== 'darwin') {
     app.quit()
   }
-})
+});
 
 app.on('activate', function () {
   // On OS X it's common to re-create a window in the app when the
@@ -148,17 +142,3 @@ app.on('activate', function () {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
-
-
-function test() {
-  if (window.stopTest) {
-    return;
-  }
-  setTimeout(function() {
-    document.querySelector("[href='#/settings']").click();
-    setTimeout(function() {
-      document.querySelector("[href='#/']").click();
-      test()
-    }, 500)
-  }, 500)
-}

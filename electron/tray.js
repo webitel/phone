@@ -82,7 +82,7 @@ const getContextMenu = (state = {}, tray) => {
   template.push(
     {type: 'separator'},
     {
-      label: tray.i18n.t('app.AlwaysOnTop'),
+      label: tray.i18n.t('app.alwaysOnTop'),
       type: 'checkbox',
       checked: tray.state.alwaysOnTop,
       click: (i) => {

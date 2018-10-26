@@ -5,7 +5,10 @@
     "loading": "Loading",
     "close": "Close",
     "cancel": "Cancel",
-    "ok": "OK"
+    "ok": "OK",
+    "hide": "Hide",
+    "show": "Show",
+    "alwaysOnTop": "Always no top"
   },
   "notificationNewCall": {
     "answer": "Answer",
