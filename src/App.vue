@@ -2,22 +2,6 @@
   <v-app :dark="theme === 'dark'">
     <v-system-bar app height="30px" v-if="showMenu">
       <div>
-        <v-menu bottom left>
-          <v-btn small icon slot="activator" >
-            <v-icon :color="getStateColor(user)" >account_circle</v-icon>
-          </v-btn>
-          <v-list>
-            <v-list-tile @click="setReady">
-              <v-list-tile-title >{{$t('user.statusReady')}}</v-list-tile-title>
-            </v-list-tile>
-            <v-list-tile @click="setBreak">
-              <v-list-tile-title>{{$t('user.statusOnBreak')}}</v-list-tile-title>
-            </v-list-tile>
-            <v-list-tile @click="showChangeStatusDialog()">
-              <v-list-tile-title>...</v-list-tile-title>
-            </v-list-tile>
-          </v-list>
-        </v-menu>
       </div>
 
       <span v-show="user" class="drag-zone">
@@ -55,21 +39,45 @@
 
     </v-system-bar>
 
-    <v-toolbar app v-if="showMenu" :ripple ="false" >
+    <v-toolbar app v-if="showMenu" height="48" dense>
+
+      <v-menu
+        bottom
+        right
+        offset-y
+      >
+        <v-btn icon slot="activator">
+          <v-icon large :color="getStateColor(user)" >account_circle</v-icon>
+        </v-btn>
+        <v-list>
+          <v-list-tile @click="setReady">
+            <v-list-tile-title >{{$t('user.statusReady')}}</v-list-tile-title>
+          </v-list-tile>
+          <v-list-tile @click="setBreak">
+            <v-list-tile-title>{{$t('user.statusOnBreak')}}</v-list-tile-title>
+          </v-list-tile>
+          <v-list-tile @click="showChangeStatusDialog()">
+            <v-list-tile-title>...</v-list-tile-title>
+          </v-list-tile>
+        </v-list>
+      </v-menu>
+
       <v-text-field
+        class="input-or-search-number"
+        hide-details
         v-model="search"
         @keyup.enter.native="onMakeCall"
         @input="throttledSearch"
-        prepend-inner-icon="search"
         :label="$t('app.search')"
         solo-inverted
-        style="margin-top: 3px;"
         flat
       ></v-text-field>
 
-      <v-menu bottom left :open-on-click="false"  v-model="showChangeCallDialog">
+      <v-menu
+        offset-y bottom left :open-on-click="false"  v-model="showChangeCallDialog"
+      >
         <v-btn icon slot="activator" @click="onShowCallDialog">
-          <v-badge v-bind:class="countInboundNoAnswerCall > 0 ? 'flashing' : ''" v-model="showBadgeCall" left color="error" overlap>
+          <v-badge v-bind:class="countInboundNoAnswerCall > 0 ? 'flashing' : ''" v-model="showBadgeCall" right color="error" overlap>
             <span slot="badge">{{countCalls}}</span>
             <v-icon
               large
@@ -231,32 +239,6 @@
     return -1
   }
 
-  function init(app, cb) {
-    const server = settings.get("server");
-    const token = app.$localStorage.get('token');
-    const xkey = app.$localStorage.get('xkey');
-    if (!server || !token || !xkey) {
-      return cb(new Error("No session"))
-    }
-
-    Vue.http.headers.common['x-key'] = xkey;
-    Vue.http.headers.common['x-access-token'] = token;
-
-    Vue.http.get(`${parseServerUri(server)}/api/v2/whoami`).then(
-      response => {
-        response.body.server = parseServerUri(server);
-        response.body.token = token;
-        response.body.key = xkey;
-        return cb(null, response.body);
-      },
-      response => {
-        return cb(new Error("Unauthorized"))
-      }
-    )
-  }
-
-
-
   export default {
     name: 'App',
     components: {
@@ -331,7 +313,30 @@
     },
 
     beforeCreate() {
+      const server = settings.get("server");
+      const token = this.$localStorage.get('token');
+      const xkey = this.$localStorage.get('xkey');
+      if (!server || !token || !xkey) {
+        setTimeout(() => {
+          this.afterInit(new Error("No session"));
+        }, 10);
+        return;
+      }
 
+      Vue.http.headers.common['x-key'] = xkey;
+      Vue.http.headers.common['x-access-token'] = token;
+
+      Vue.http.get(`${parseServerUri(server)}/api/v2/whoami`).then(
+        response => {
+          response.body.server = parseServerUri(server);
+          response.body.token = token;
+          response.body.key = xkey;
+          this.afterInit(null, response.body);
+        },
+        response => {
+          this.afterInit(new Error("Unauthorized"));
+        }
+      )
     },
     created() {
 
@@ -355,15 +360,6 @@
         this.currentLinkIdx = getTabByName(to.name);
       });
       this.currentLinkIdx = getTabByName(this.$route.name);
-
-      init(this, (err, credentials) => {
-        this.initialize = true;
-
-        if (err) {
-          return this.$router.push("/login")
-        }
-        this.$store.commit("AUTH", credentials);
-      });
     },
 
     computed: {
@@ -469,6 +465,14 @@
     },
 
     methods: {
+      afterInit(err, credentials) {
+        this.initialize = true;
+
+        if (err) {
+          return this.$router.push("/login")
+        }
+        this.$store.commit("AUTH", credentials);
+      },
 
       getStatusText(st) {
         return this.$t(`user.${st.id}`)
@@ -625,11 +629,16 @@
   .theme--dark .in-queue {
     background-color: hsla(0,0%,100%,.7);
   }
+
 </style>
 
 <style>
   html {
     overflow-y: auto;
+  }
+
+  .input-or-search-number.v-text-field.v-text-field--solo .v-input__control {
+    min-height: 38px;
   }
 
   .drag-zone {

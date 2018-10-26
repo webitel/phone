@@ -11,7 +11,7 @@
     "build": "node build/build.js",
     "build-nw": "npm run build && node build/nw.js",
     "package-mac": "electron-packager ./dist webitel-phone --overwrite --asar --platform=darwin --arch=x64 --icon=static/img/icons/icon.icns --prune=true --out=release-builds",
-    "package-win": "electron-packager ./dist webitel-phone --overwrite -no--asar --platform=win32 --arch=ia32 --icon=static/img/icons/icon.ico --prune --out=release-builds --version-string.CompanyName=CE --version-string.FileDescription=CE --version-string.ProductName=\"Webitel Phone App\"",
+    "package-win": "electron-packager ./dist webitel-phone --overwrite --asar --platform=win32 --arch=ia32 --icon=static/img/icons/icon.ico --prune --out=release-builds --version-string.CompanyName=CE --version-string.FileDescription=CE --version-string.ProductName=\"Webitel Phone App\"",
     "package-linux": "electron-packager ./dist webitel-phone --overwrite --asar=true --platform=linux --arch=x64 --icon=static/img/icons/call48.png --prune=true --out=release-builds",
     "create-installer-mac": "electron-installer-dmg ./release-builds/Webitel\\ phone-darwin-x64/Webitel\\ phone.app webitel-phone --out=release-builds --overwrite --icon=static/img/icons/icon.icns",
     "create-installer-win": "node installers/windows/createinstaller.js",
