@@ -1,13 +1,12 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import User from './services/user'
-import CDR from './services/cdr'
-import Callback from './services/callback'
-import settings from './services/settings'
-import {findUserById} from "./services/helper";
-import i18n from './services/i18n'
+import User from '../services/user'
+import Callback from '../services/callback'
+import settings from '../services/settings'
+import {findUserById} from "../services/helper";
+import i18n from '../services/i18n'
 
-import CDRStore from './store/cdr'
+import CDRStore from '../store/cdr'
 
 Vue.use(Vuex);
 

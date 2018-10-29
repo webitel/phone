@@ -12,6 +12,10 @@
 
       <div class="system-bar-icons">
 
+        <i v-show="user && user.loggedCC" class="in-queue"></i>
+
+        <v-icon v-show="user && user.webPhoneRegister">headset_mic</v-icon>
+
         <div v-show="hotLinks.length > 0">
           <v-menu bottom left>
             <a slot="activator" >
@@ -24,9 +28,6 @@
             </v-list>
           </v-menu>
         </div>
-
-        <i v-show="user && user.loggedCC" class="in-queue"></i>
-        <v-icon v-show="user && user.webPhoneRegister">headset_mic</v-icon>
 
         <a  @click="minimize">
           <v-icon>remove</v-icon>
@@ -41,26 +42,10 @@
 
     <v-toolbar app v-if="showMenu" height="48" dense>
 
-      <v-menu
-        bottom
-        right
-        offset-y
-      >
-        <v-btn icon slot="activator">
-          <v-icon large :color="getStateColor(user)" >account_circle</v-icon>
-        </v-btn>
-        <v-list>
-          <v-list-tile @click="setReady">
-            <v-list-tile-title >{{$t('user.statusReady')}}</v-list-tile-title>
-          </v-list-tile>
-          <v-list-tile @click="setBreak">
-            <v-list-tile-title>{{$t('user.statusOnBreak')}}</v-list-tile-title>
-          </v-list-tile>
-          <v-list-tile @click="showChangeStatusDialog()">
-            <v-list-tile-title>...</v-list-tile-title>
-          </v-list-tile>
-        </v-list>
-      </v-menu>
+
+      <v-btn icon @click="showChangeStatusDialog()">
+        <v-icon large :color="getStateColor(user)" >account_circle</v-icon>
+      </v-btn>
 
       <v-text-field
         class="input-or-search-number"
@@ -77,14 +62,15 @@
         offset-y bottom left :open-on-click="false"  v-model="showChangeCallDialog"
       >
         <v-btn icon slot="activator" @click="onShowCallDialog">
-          <v-badge v-bind:class="countInboundNoAnswerCall > 0 ? 'flashing' : ''" v-model="showBadgeCall" right color="error" overlap>
+          <v-icon
+            large
+            :color="showBadgeCall ? '' : 'success'"
+          >
+            call
+          </v-icon>
+
+          <v-badge right overlap class="badge-call-count"  v-bind:class="countInboundNoAnswerCall > 0 ? 'flashing' : ''" v-model="showBadgeCall" right color="error" overlap>
             <span slot="badge">{{countCalls}}</span>
-            <v-icon
-              large
-              :color="showBadgeCall ? '' : 'success'"
-            >
-              call
-            </v-icon>
           </v-badge>
         </v-btn>
         <v-list>
@@ -638,13 +624,17 @@
   }
 
   .input-or-search-number.v-text-field.v-text-field--solo .v-input__control {
-    min-height: 38px;
+    min-height: 42px;
   }
 
   .drag-zone {
     -webkit-app-region: drag;
     cursor: pointer;
     width: 100%;
+  }
+
+  .badge-call-count .v-badge__badge {
+    top: -22px;
   }
 
   .system-bar-icons {

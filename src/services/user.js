@@ -187,6 +187,7 @@ class User extends InternalUser {
     }
     return false;
   }
+
   setWebPhoneSpeak(id) {
     if (this.webPhone) {
       this.webPhone.deviceParams({useSpeak: id || 'any'});

@@ -19,7 +19,7 @@ const getTrayIconFileNameSuffix = (state = {}) => {
 const getContextMenu = (state = {}, tray) => {
   const template = [
     {
-      label: tray.state.hide ? tray.i18n.t('app.open') : tray.i18n.t('app.hide'),
+      label: tray.state.hide ? tray.i18n.t('app.show') : tray.i18n.t('app.hide'),
       click: () => tray.emit('toggle-show')
     },
     {type: 'separator'}
