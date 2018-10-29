@@ -104,6 +104,25 @@
       </v-fab-transition>
       </v-layout>
     </v-flex>
+
+    <v-dialog v-model="showErrorDialog" max-width="390">
+      <v-card>
+        <v-card-title class="headline">Error</v-card-title>
+        <v-card-text>
+          {{error}}
+        </v-card-text>
+        <v-divider></v-divider>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            flat
+            @click="closeErrorDialog()"
+          >
+            OK
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-layout>
 </template>
 
@@ -128,6 +147,7 @@
       },
       data() {
         return {
+          showErrorDialog: false,
           anchorAttrs: {
             target: '_blank',
             // onclick: `typeof WEBITEL_LINK === 'function' ? WEBITEL_LINK(this, event): null`,
@@ -155,12 +175,19 @@
         loadMore() {
           if (this.haveMoreData)
             this.$store.dispatch("cdr/fetch");
+        },
+
+        closeErrorDialog() {
+          this.$store.dispatch('cdr/clearError');
         }
       },
 
       computed: {
         groups() {
           return this.$store.getters['cdr/groups'];
+        },
+        error() {
+          return this.$store.getters['cdr/error'];
         },
         totalRecord() {
           return this.$store.getters['cdr/total'];
@@ -179,6 +206,9 @@
         }
       },
       watch: {
+        error(val) {
+          this.showErrorDialog = !!val;
+        },
         search() {
           this.$store.dispatch('cdr/fetch')
         }

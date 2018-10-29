@@ -25,7 +25,8 @@ export default {
     },
     loading: state => state.status.loading,
     total: state => state.total,
-    haveMoreData: state => !state.end
+    haveMoreData: state => !state.end,
+    error: state => state.status.error
   },
   mutations: {
     RESET_PAGINATION(state, payload) {
@@ -112,6 +113,10 @@ export default {
         commit('ERROR', err.message);
       });
 
+    },
+
+    clearError({ commit }) {
+      commit('CLEAR_ERROR');
     }
   }
 };

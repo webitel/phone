@@ -19,7 +19,3 @@ export default {
     }
   }
 }
-
-function f() {
-
-}
