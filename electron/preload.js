@@ -59,11 +59,34 @@ window.initPhone = (store) => {
 
 
 function findUserConfigFilePath(fileName) {
+  const filePath = findUserConfigFilePathFromArgs();
+  if (filePath) {
+    //TODO make new file ?
+    if (fs.existsSync(filePath)) {
+      return filePath;
+    } else {
+      console.error(`Not exists file ${filePath}`)
+    }
+  }
+
   if (fs.existsSync(path.join(__dirname, fileName))) {
     return path.join(__dirname, fileName);
   }
 
   return path.join(app.getPath('userData'), fileName);
+}
+
+function findUserConfigFilePathFromArgs() {
+  const process = remote.process;
+  const args = process.argv.splice(process.execArgv.length + 2);
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === '-c' && args[i + 1]) {
+      return args[i + 1]
+    } else if (args[i].startsWith('--config')) {
+      return args[i].substring(9)
+    }
+  }
+  return null;
 }
 
 
