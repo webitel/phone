@@ -131,17 +131,15 @@ function getRequestBody(userId, query, page) {
       "destination_number",
       "billsec",
       "duration",
-      "variables.webitel_record_file_name",
       "variables.webitel_data",
       "created_time",
       "hangup_cause"
     ],
-    // "includes": ["recordings"],
+    "includes": ["recordings"],
     "columnsDate": [],
     "pageNumber": page,
     "limit": FETCH_COUNT,
     "query": query,
-    // "domain": "10.10.10.144", //TODO DODO
     "filter": {
       "bool": {
         "must": [
@@ -182,8 +180,8 @@ function responseToRow(user, item) {
       item.fields.caller_id_number.toString().indexOf('@'));
   }
 
-  if (row.hasOwnProperty('variables.webitel_record_file_name')) {
-    row._uri = getCdrFileUri(user, row['variables.webitel_record_file_name'].toString())
+  if (item._source.hasOwnProperty('recordings') && item._source.recordings.length) {
+    row._uri = getCdrFileUri(user, item._source.recordings[0])
   }
 
   if (user.number === row.caller_id_number) {
@@ -231,18 +229,14 @@ function fillGroups(user, groups, res) {
   return groups;
 }
 
-function getCdrFileUri (user, id) {
+function getCdrFileUri (user, recording) {
   //"36bac292-44ea-49b8-bc98-496d5bbfd213_recordSession.mp3"
-  const idx = id.indexOf('_');
-  if (!~idx) {
-    return null;
-  }
-  const name = id.substring(idx + 1);
+
   let uri = user.cdrServer + "/api/v2/files/" +
-    id.substring(0, idx) + "?access_token=" + user.getToken() +
+    recording.uuid + "?access_token=" + user.getToken() +
     "&x_key=" + user.getKey();
-  if (name)
-    uri += "&name=" + name.substring(0, name.indexOf('.')) + "&file_name=" + name;
+  if (recording.name)
+    uri += "&name=" + recording.name + "&file_name=" + recording.name;
   return uri;
 }
 

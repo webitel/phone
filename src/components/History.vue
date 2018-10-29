@@ -66,7 +66,6 @@
 
               <v-list-tile-action class="history-actions" >
                 <v-icon class="lighten-1" @click="toggleActiveDetail(i)" v-show="showCallData(i)">contact_mail</v-icon>
-                <!--<v-icon class="lighten-1" @click="toggleActiveDetail(i)" v-show="i._uri">voicemail</v-icon>-->
                 <i class="history-record-session-icon" @click="toggleActiveDetail(i)" v-show="i._uri" ></i>
               </v-list-tile-action>
             </v-list-tile>
@@ -142,9 +141,6 @@
       methods: {
         makeCall(number) {
          this.user.makeCall(number)
-        },
-        showRecordFile: (cdrItem) => {
-          return cdrItem['variables.webitel_record_file_name'] && cdrItem.billsec >= 1
         },
         showCallData: (cdrItem) => {
           return cdrItem.webitelData.length > 0
