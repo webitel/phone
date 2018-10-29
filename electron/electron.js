@@ -20,7 +20,7 @@ let mainWindow;
 
 function createWindow () {
   // Create the browser window.
-  const mainWindowState = new WindowState('main', {});
+  const mainWindowState = new WindowState(app.getPath('userData'), 'main', {});
 
   mainWindow = new BrowserWindow({
     titleBarStyle: 'default',
@@ -29,7 +29,7 @@ function createWindow () {
     title: 'Webitel phone',
     name: 'webitel-phone',
     id: 0,
-
+    hasShadow: false,
     // backgroundColor: 'transparent',
     show: false,
     transparent: true,

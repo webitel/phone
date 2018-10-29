@@ -44,6 +44,6 @@ class NotificationInboundCallDef {
   }
 }
 
-const NotificationInboundCall = typeof WEBITEL_NOTIFICATION_NEW_CALL === "function" ? WEBITEL_NOTIFICATION_NEW_CALL : NotificationInboundCallDef;
+const NotificationInboundCall = window.WEBITEL_NOTIFICATION_NEW_CALL ? window.WEBITEL_NOTIFICATION_NEW_CALL : NotificationInboundCallDef;
 
 export {NotificationInboundCall};

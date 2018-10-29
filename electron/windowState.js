@@ -1,12 +1,10 @@
 const path = require("path");
 const fs = require("fs");
-const electron = require('electron');
-const app = electron.app;
 
 class WindowState {
-  constructor(name, defaults) {
+  constructor(folder, name, defaults) {
     this.name = name;
-    this.path = path.join(app.getPath('userData'), `window-${this.name}-state.json`);
+    this.path = path.join(folder, `window-${this.name}-state.json`);
     this.state = {
       width: defaults.width,
       height: defaults.height

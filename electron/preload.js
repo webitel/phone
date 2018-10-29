@@ -7,6 +7,7 @@ const app = remote.app;
 const clipboard = remote.clipboard;
 const {ipcRenderer} = require('electron');
 const Tray = require('./tray');
+const NotificationNewCall = require('./notificationNewCall');
 
 class FileStorage {
   constructor(defaultData = {}, pathFile) {
@@ -52,6 +53,7 @@ const phoneSettings = new FileStorage({}, path.join(__dirname, systemConfigFileN
 
 window.isElectron = true;
 
+window.WEBITEL_NOTIFICATION_NEW_CALL = NotificationNewCall;
 window.WEBITEL_CONFIG = userConfig;
 window.initPhone = (store) => {
   window.WEBITEL_APP = new App(window, userConfig, store)
@@ -104,6 +106,15 @@ class App {
     this.initWindow(win);
     this.makeTray(store);
     this.subscribeStore(store);
+
+    const translate = store.getters.i18n();
+    this.t = (name) => {
+      return translate.t(name)
+    }
+  }
+
+  getTheme() {
+    return this.config.get('theme')
   }
 
   makeTray(store) {
@@ -164,7 +175,7 @@ class App {
     store.watch(store.getters.countInboundNoAnswerCall, count => {
       if (count > 0) {
         //TODO IPC
-        this.remote.getCurrentWindow().webContents.focus();
+        //this.remote.getCurrentWindow().webContents.focus();
       }
     });
   }
