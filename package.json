@@ -1,24 +1,71 @@
 {
-  "name": "Webitel",
+  "name": "webitel-phone",
   "version": "1.0.0",
   "description": "Webitel Phone",
   "author": "Navrotskyj Igor",
   "private": true,
-  "main": "dist/index.html",
+  "main": "dist/electron.js",
   "scripts": {
     "dev": "node build/dev-server.js",
     "start": "node build/dev-server.js",
     "build": "node build/build.js",
+    "relese-latest": "npm run build && electron-builder --config.publish.channel=latest --config.artifactName='${name}_${channel}.${ext}' --publish always --win --linux",
+    "relese-stable": "npm run build && build && electron-builder --config.publish.channel=stable --config.artifactName='${name}.${ext}' --publish onTag  --win --linux",
     "build-nw": "npm run build && node build/nw.js",
     "package-mac": "electron-packager ./dist webitel-phone --overwrite --asar --platform=darwin --arch=x64 --icon=static/img/icons/icon.icns --prune=true --out=release-builds",
     "package-win": "electron-packager ./dist webitel-phone --overwrite --asar --platform=win32 --arch=ia32 --icon=static/img/icons/icon.ico --prune --out=release-builds --version-string.CompanyName=CE --version-string.FileDescription=CE --version-string.ProductName=\"Webitel Phone App\"",
-    "package-linux": "electron-packager ./dist webitel-phone --overwrite --asar=true --platform=linux --arch=x64 --icon=static/img/icons/call48.png --prune=true --out=release-builds",
+    "package-linux": "electron-packager ./dist webitel-phone --overwrite -no--asar --platform=linux --arch=x64 --icon=static/img/icons/call48.png --prune=true --out=release-builds",
     "create-installer-mac": "electron-installer-dmg ./release-builds/Webitel\\ phone-darwin-x64/Webitel\\ phone.app webitel-phone --out=release-builds --overwrite --icon=static/img/icons/icon.icns",
     "create-installer-win": "node installers/windows/createinstaller.js",
     "create-debian-installer": "electron-installer-debian --src release-builds/webitel-phone-linux-x64/ --arch amd64 --config debian.json"
   },
+  "build": {
+    "productName": "webitel-phone",
+    "appId": "org.webitel.phone",
+    "publish": [
+      {
+        "provider": "spaces",
+        "name": "webitel-phone",
+        "region": "ams3",
+        "acl": "public-read"
+      }
+    ],
+    "directories": {
+      "buildResources": "static",
+      "output": "release-builds"
+    },
+    "files": [
+      "dist/**"
+    ],
+    "dmg": {
+      "contents": [
+        {
+          "x": 410,
+          "y": 150,
+          "type": "link",
+          "path": "/Applications"
+        },
+        {
+          "x": 130,
+          "y": 150,
+          "type": "file"
+        }
+      ]
+    },
+    "mac": {
+      "icon": "static/img/icons/icon.icns"
+    },
+    "win": {
+      "icon": "static/img/icons/icon.ico"
+    },
+    "linux": {
+      "icon": "/home/igor/work/tmp/webitel-phone/build/icons/256x256.png"
+    },
+    "asar": false
+  },
   "dependencies": {
     "@xkeshi/vue-countdown": "^1.0.1",
+    "electron-updater": "^3.1.6",
     "plyr": "^3.4.3",
     "vue": "^2.5.17",
     "vue-i18n": "^8.1.0",
@@ -46,6 +93,7 @@
     "css-loader": "^0.28.7",
     "cssnano": "^3.10.0",
     "electron": "^3.0.5",
+    "electron-builder": "^20.29.0",
     "electron-installer-dmg": "^0.1.2",
     "electron-packager": "^12.2.0",
     "electron-winstaller": "=2.4.1",
