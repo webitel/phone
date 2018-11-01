@@ -135,6 +135,8 @@
       </v-card>
     </v-dialog>
 
+    <Upgrade></Upgrade>
+
     <v-bottom-nav
       app
       :ripple ="false"
@@ -196,6 +198,7 @@
   import settings from './services/settings'
   import {getStateColor, parseServerUri} from './services/helper'
   import Spinner from './components/Spinner'
+  import Upgrade from './components/Upgrade'
 
   const TABS = [
     {
@@ -228,7 +231,8 @@
   export default {
     name: 'App',
     components: {
-      Spinner
+      Spinner,
+      Upgrade
     },
     data() {
       return {

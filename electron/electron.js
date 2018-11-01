@@ -10,6 +10,8 @@ const shell = electron.shell;
 const globalShortcut = electron.globalShortcut;
 const Menu = electron.Menu;
 
+const Updater = require('./autoUpdate');
+
 // Module to create native browser window.
 const BrowserWindow = electron.BrowserWindow;
 //Adds the main Menu to our app
@@ -19,6 +21,10 @@ const BrowserWindow = electron.BrowserWindow;
 let mainWindow;
 
 function createWindow () {
+  const updater = new Updater();
+
+  global.currentVersion = updater.version;
+
   // Create the browser window.
   const mainWindowState = new WindowState(app.getPath('userData'), 'main', {});
 
@@ -46,6 +52,22 @@ function createWindow () {
     closePhone = true;
     mainWindowState.saveState(mainWindow);
     app.quit();
+  });
+
+  ipcMain.on('check-update', (e, feed) => {
+    updater.check(feed, e.sender);
+  });
+  ipcMain.on('download-new-version', (e) => {
+    updater.download();
+    updater.once('update-downloaded', (info) => {
+      console.error('dowloaded 1', info);
+      e.sender.send('update-version-downloaded', info);
+    })
+  });
+  ipcMain.on('install-new-version', (e) => {
+    closePhone = true;
+    mainWindowState.saveState(mainWindow);
+    updater.install();
   });
 
   ipcMain.on('show-phone', () => {

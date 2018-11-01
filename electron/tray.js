@@ -90,15 +90,6 @@ const getContextMenu = (state = {}, tray) => {
         tray.emit('always-on-top', i.checked)
       }
     },
-    // {
-    //   label: tray.i18n.t('settings.notifyNewCall'),
-    //   type: 'checkbox',
-    //   checked: tray.state.notifyNewCall,
-    //   click: (i) => {
-    //     tray.state.notifyNewCall = i.checked;
-    //     tray.emit('notify-new-call', i.checked)
-    //   }
-    // },
     {
       label: tray.i18n.t('app.close'),
       click: () => tray.emit('quit')
@@ -143,6 +134,13 @@ class TrayMenu extends EventEmitter {
     });
 
     this.update();
+  }
+
+  destroy() {
+    if (!this.tray)
+      return;
+    this.tray.destroy();
+    this.tray = null;
   }
 
   setState(partialState) {

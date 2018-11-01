@@ -7,13 +7,15 @@ import {findUserById} from "../services/helper";
 import i18n from '../services/i18n'
 
 import CDRStore from '../store/cdr'
+import VersionStore from '../store/version'
 
 Vue.use(Vuex);
 
 const store = new Vuex.Store({
   debug: true,
   modules: {
-    cdr: CDRStore
+    cdr: CDRStore,
+    version: VersionStore
   },
   state: {
     i18n,
@@ -172,6 +174,9 @@ const store = new Vuex.Store({
           return;
         }
       }
+    },
+    SET_CURRENT_VERSION(state, version)  {
+      state.version = version;
     }
   },
   actions: {

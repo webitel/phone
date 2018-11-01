@@ -1,9 +1,132 @@
 {
   "name": "webitel-phone",
-  "productName": "Webitel phone",
-  "description": "Application for Webitel phone",
-  "version": "2.0.0",
-  "main": "electron.js",
-  "license": "MIT",
-  "author": "Navrotskyj Igor"
+  "version": "1.0.0",
+  "description": "Webitel Phone",
+  "author": "Navrotskyj Igor",
+  "private": true,
+  "main": "dist/electron.js",
+  "scripts": {
+    "dev": "node build/dev-server.js",
+    "start": "node build/dev-server.js",
+    "build": "node build/build.js",
+    "build-nw": "npm run build && node build/nw.js",
+    "package-mac": "electron-packager ./dist webitel-phone --overwrite --asar --platform=darwin --arch=x64 --icon=static/img/icons/icon.icns --prune=true --out=release-builds",
+    "package-win": "electron-packager ./dist webitel-phone --overwrite --asar --platform=win32 --arch=ia32 --icon=static/img/icons/icon.ico --prune --out=release-builds --version-string.CompanyName=CE --version-string.FileDescription=CE --version-string.ProductName=\"Webitel Phone App\"",
+    "package-linux": "electron-packager ./dist webitel-phone --overwrite -no--asar --platform=linux --arch=x64 --icon=static/img/icons/call48.png --prune=true --out=release-builds",
+    "create-installer-mac": "electron-installer-dmg ./release-builds/Webitel\\ phone-darwin-x64/Webitel\\ phone.app webitel-phone --out=release-builds --overwrite --icon=static/img/icons/icon.icns",
+    "create-installer-win": "node installers/windows/createinstaller.js",
+    "create-debian-installer": "electron-installer-debian --src release-builds/webitel-phone-linux-x64/ --arch amd64 --config debian.json"
+  },
+  "build": {
+    "productName": "webitel-phone",
+    "appId": "org.webitel.phone",
+    "publish": [
+
+      {
+        "provider": "generic",
+        "url": "http://10.10.10.25/builds"
+      }
+    ],
+    "directories": {
+      "buildResources": "static",
+      "output": "release-builds"
+    },
+    "files": [
+      "dist/**"
+    ],
+    "dmg": {
+      "contents": [
+        {
+          "x": 410,
+          "y": 150,
+          "type": "link",
+          "path": "/Applications"
+        },
+        {
+          "x": 130,
+          "y": 150,
+          "type": "file"
+        }
+      ]
+    },
+    "mac": {
+      "icon": "static/img/icons/icon.icns"
+    },
+    "win": {
+      "icon": "static/img/icons/icon.ico"
+    },
+    "linux": {
+      "icon": "/home/igor/work/tmp/webitel-phone/build/icons/256x256.png"
+    },
+    "asar": false
+  },
+  "dependencies": {
+    "@xkeshi/vue-countdown": "^1.0.1",
+    "electron-updater": "^3.1.6",
+    "plyr": "^3.4.3",
+    "vue": "^2.5.17",
+    "vue-i18n": "^8.1.0",
+    "vue-infinite-scroll": "^2.0.2",
+    "vue-localstorage": "^0.6.2",
+    "vue-markdown": "^2.2.4",
+    "vue-plyr": "^4.0.0",
+    "vue-resource": "^1.5.0",
+    "vue-router": "^2.8.1",
+    "vuetify": "^1.2.5",
+    "vuex": "^3.0.1"
+  },
+  "devDependencies": {
+    "@mdi/font": "^2.8.94",
+    "autoprefixer": "^7.1.5",
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.2",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-preset-env": "^1.6.0",
+    "babel-preset-stage-2": "^6.24.1",
+    "babel-register": "^6.26.0",
+    "chalk": "^2.1.0",
+    "connect-history-api-fallback": "^1.4.0",
+    "copy-webpack-plugin": "^4.1.1",
+    "css-loader": "^0.28.7",
+    "cssnano": "^3.10.0",
+    "electron": "^3.0.5",
+    "electron-installer-dmg": "^0.1.2",
+    "electron-packager": "^12.2.0",
+    "electron-winstaller": "=2.4.1",
+    "eventsource-polyfill": "^0.9.6",
+    "express": "^4.16.2",
+    "extract-text-webpack-plugin": "^3.0.0",
+    "file-loader": "^1.1.5",
+    "friendly-errors-webpack-plugin": "^1.6.1",
+    "html-webpack-plugin": "^2.30.1",
+    "http-proxy-middleware": "^0.17.4",
+    "material-design-icons-iconfont": "^3.0.3",
+    "opn": "^5.1.0",
+    "optimize-css-assets-webpack-plugin": "^3.2.0",
+    "ora": "^1.3.0",
+    "rimraf": "^2.6.2",
+    "semver": "^5.4.1",
+    "shelljs": "^0.7.8",
+    "sw-precache-webpack-plugin": "^0.11.4",
+    "uglify-es": "^3.1.3",
+    "url-loader": "^0.6.2",
+    "vue-loader": "^13.3.0",
+    "vue-style-loader": "^3.0.3",
+    "vue-svg-loader": "^0.10.0",
+    "vue-template-compiler": "^2.5.2",
+    "webpack": "^3.7.1",
+    "webpack-bundle-analyzer": "^2.9.0",
+    "webpack-dev-middleware": "^1.12.0",
+    "webpack-hot-middleware": "^2.19.1",
+    "webpack-merge": "^4.1.0"
+  },
+  "engines": {
+    "node": ">= 4.0.0",
+    "npm": ">= 3.0.0"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not ie <= 8"
+  ]
 }

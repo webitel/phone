@@ -425,10 +425,7 @@
     if (mh > 500) {
       mh = 500
     }
-
-    setTimeout(function () {
-      remote.getCurrentWindow().emit('set-show', {mh});
-    }, 300);
+    remote.getCurrentWindow().emit('set-show', {mh});
   });
 
   ipc.on('answer', (event, message) => {

@@ -15,8 +15,7 @@ class NotificationNewCall extends EventEmitter {
       height: 150,
       resizable: false,
       transparent: true,
-      titleBarStyle: 'default',
-      hasShadow: false,
+      titleBarStyle: 'default'
     });
 
     win.on('answer-call', this.answerCall.bind(this));

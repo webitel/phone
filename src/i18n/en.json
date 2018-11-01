@@ -8,7 +8,14 @@
     "ok": "OK",
     "hide": "Hide",
     "show": "Show",
-    "alwaysOnTop": "Always no top"
+    "alwaysOnTop": "Always no top",
+    "version": "Ver: {version}"
+  },
+  "upgrade": {
+    "title": "New version",
+    "text": "Upgrade to version: {version}",
+    "later": "Later",
+    "install": "Install"
   },
   "notificationNewCall": {
     "answer": "Answer",

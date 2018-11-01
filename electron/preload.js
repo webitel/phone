@@ -118,6 +118,7 @@ class App {
   }
 
   makeTray(store) {
+    alert('make tray');
     const links = this.config.get('hotLinks') || this.config.get('hot_links');
     const tray = this.tray = new Tray(store.getters.i18n(), links, {alwaysOnTop: this.alwaysOnTop});
     tray.on('set-status', (params = {}) => {
@@ -155,6 +156,20 @@ class App {
     tray.on('quit', this.close);
   }
 
+  removeTray() {
+    if (this.tray) {
+      this.tray.removeAllListeners();
+      this.tray.destroy();
+      this.tray = null;
+    }
+  }
+
+  setStateTray(state) {
+    if (this.tray) {
+      this.tray.setState(state);
+    }
+  }
+
   toggleShow() {
     if (this.hide) {
       this.setShow();
@@ -168,9 +183,38 @@ class App {
   }
 
   subscribeStore(store) {
+
+    if (remote.getGlobal("currentVersion"))
+      store.commit('version/SET_VERSION', remote.getGlobal("currentVersion"));
+
     store.watch(store.getters.status, status => {
-      this.tray.setState({status});
+      this.setStateTray({status});
     });
+
+    store.watch(store.getters['version/stage'], stage => {
+      switch (stage) {
+        case 2:
+          ipcRenderer.send('download-new-version');
+          break;
+        case 4:
+          this.removeTray();
+          ipcRenderer.send('install-new-version');
+          break;
+      }
+    });
+
+    ipcRenderer.on('new-version', (e, ver) => {
+      store.commit('version/SET_NEW_VERSION', ver);
+    });
+    ipcRenderer.on('update-version-error', (e, err) => {
+      store.commit('version/SET_ERROR', err);
+    });
+    ipcRenderer.on('update-version-downloaded', (e, info) => {
+      store.commit('version/DOWNLOADED');
+    });
+
+    ipcRenderer.send('check-update');
+
 
     store.watch(store.getters.countInboundNoAnswerCall, count => {
       if (count > 0) {
@@ -199,13 +243,13 @@ class App {
   setHide() {
     this.hide = true;
     ipcRenderer.send('hide-phone');
-    this.tray.setState({hide: this.hide});
+    this.setStateTray({hide: this.hide});
   }
 
   setShow() {
     this.hide = false;
     ipcRenderer.send('show-phone');
-    this.tray.setState({hide: this.hide});
+    this.setStateTray({hide: this.hide});
   }
 
   copyClipboard() {
