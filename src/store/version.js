@@ -13,6 +13,7 @@ export default {
   },
   getters: {
     current: state => state.current,
+    error: state => state.status.error,
     new: state => state.new,
     progress: state => state.status.progress,
     stage: state => () => state.status.stage,
