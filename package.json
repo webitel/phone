@@ -59,7 +59,8 @@
       "icon": "static/img/icons/icon.ico"
     },
     "linux": {
-      "icon": "/home/igor/work/tmp/webitel-phone/build/icons/256x256.png"
+      "category": "Utility",
+      "icon": "static/img/icons/icon.png"
     },
     "asar": false
   },
