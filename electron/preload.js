@@ -190,32 +190,34 @@ class App {
       this.setStateTray({status});
     });
 
-    store.watch(store.getters['version/stage'], stage => {
-      switch (stage) {
-        case 2:
-          ipcRenderer.send('download-new-version');
-          break;
-        case 4:
-          this.removeTray();
-          ipcRenderer.send('install-new-version');
-          break;
-      }
-    });
+    if (!this.config.get('disableAutoUpdate')) {
+      store.watch(store.getters['version/stage'], stage => {
+        switch (stage) {
+          case 2:
+            ipcRenderer.send('download-new-version');
+            break;
+          case 4:
+            this.removeTray();
+            ipcRenderer.send('install-new-version');
+            break;
+        }
+      });
 
-    ipcRenderer.on('new-version', (e, ver) => {
-      store.commit('version/SET_NEW_VERSION', ver);
-    });
-    ipcRenderer.on('update-version-error', (e, err) => {
-      store.commit('version/SET_ERROR', err);
-    });
-    ipcRenderer.on('update-version-downloaded', (e, info) => {
-      store.commit('version/DOWNLOADED');
-    });
-    ipcRenderer.on('update-version-progress', (e, info) => {
-      store.commit('version/SET_PROGRESS', info.percent);
-    });
+      ipcRenderer.on('new-version', (e, ver) => {
+        store.commit('version/SET_NEW_VERSION', ver);
+      });
+      ipcRenderer.on('update-version-error', (e, err) => {
+        store.commit('version/SET_ERROR', err);
+      });
+      ipcRenderer.on('update-version-downloaded', (e, info) => {
+        store.commit('version/DOWNLOADED');
+      });
+      ipcRenderer.on('update-version-progress', (e, info) => {
+        store.commit('version/SET_PROGRESS', info.percent);
+      });
 
-    ipcRenderer.send('check-update');
+      ipcRenderer.send('check-update');
+    }
 
 
     store.watch(store.getters.countInboundNoAnswerCall, count => {

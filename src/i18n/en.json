@@ -139,6 +139,7 @@
     "usePostProcess": "Use post process",
     "ringInboundCall": "Ring inbound call",
     "notifyNewCall": "Notify new call",
+    "disableAutoUpdate": "Disable auto update",
     "notifyMissedCall": "Notify missed call",
     "audioInDevice": "Microphone",
     "audioOutDevices": "Output device",

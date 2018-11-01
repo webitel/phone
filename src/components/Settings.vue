@@ -61,6 +61,11 @@
               v-model="notifyMissedCall"
             ></v-checkbox>
 
+            <v-checkbox
+              :label="$t('settings.disableAutoUpdate')"
+              v-model="disableAutoUpdate"
+            ></v-checkbox>
+
             <v-select
               :items="audioInDevices"
               v-model="audioInDevice"
@@ -130,6 +135,7 @@
           agentOnDemand: settings.get("agentOnDemand"),
           usePostProcess: settings.get("usePostProcess"),
           notifyNewCall: settings.get("notifyNewCall"),
+          disableAutoUpdate: settings.get("disableAutoUpdate"),
           notifyMissedCall: settings.get("notifyMissedCall"),
           audioInDevice: settings.get("audioInDevice"),
           audioOutDevice: settings.get("audioOutDevice"),
@@ -214,6 +220,9 @@
         },
         notifyNewCall: (val) => {
           settings.set("notifyNewCall", val)
+        },
+        disableAutoUpdate: (val) => {
+          settings.set("disableAutoUpdate", val)
         },
         notifyMissedCall: (val) => {
           settings.set("notifyMissedCall", val)

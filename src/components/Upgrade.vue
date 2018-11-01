@@ -10,7 +10,7 @@
 
         <v-divider></v-divider>
 
-        <v-stepper-step step="">End</v-stepper-step>
+        <v-stepper-step :complete="stage > 2" step="">End</v-stepper-step>
       </v-stepper-header>
 
       <v-stepper-items>
