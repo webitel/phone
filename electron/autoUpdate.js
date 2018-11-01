@@ -9,9 +9,8 @@ class Updater extends EventEmitter {
     this.feed = null;
     this.channel = null;
     autoUpdater.autoDownload = false;
-
-    autoUpdater.on('checking-for-update', (a, b) => {
-      // autoUpdater.updateConfigPath = '/home/igor/work/webitel-phone/release-builds/win-unpacked/resources/app-update.yml';
+    autoUpdater.on('checking-for-update', () => {
+      //autoUpdater.updateConfigPath = '/home/igor/work/webitel-phone/release-builds/win-unpacked/resources/app-update.yml';
       if (this.feed) {
         autoUpdater.setFeedURL(this.feed, [{ }]);
       }
@@ -24,19 +23,18 @@ class Updater extends EventEmitter {
       }
     });
 
-    autoUpdater.on('update-not-available', (ev, info) => {
-      console.log('Update not available.', ev, info);
-      this.channel = null;
+    autoUpdater.on('update-not-available', (info) => {
+      console.log('Update not available.', info);
     });
 
-    autoUpdater.on('error', (ev, err) => {
-      console.log('Error in auto-updater.', ev, err);
+    autoUpdater.on('error', (err) => {
+      console.log('Error in auto-updater.', err);
       this.channel.send('update-version-error', err);
-      this.channel = null;
     });
 
-    autoUpdater.on('download-progress', (ev, progressObj) => {
-      console.log('Download progress...', ev, progressObj);
+    autoUpdater.on('download-progress', (progressObj) => {
+      console.log('Download progress...', progressObj);
+      this.emit('download-progress', progressObj)
     });
 
     autoUpdater.on('update-downloaded', (ev, info) => {

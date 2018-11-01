@@ -118,7 +118,6 @@ class App {
   }
 
   makeTray(store) {
-    alert('make tray');
     const links = this.config.get('hotLinks') || this.config.get('hot_links');
     const tray = this.tray = new Tray(store.getters.i18n(), links, {alwaysOnTop: this.alwaysOnTop});
     tray.on('set-status', (params = {}) => {
@@ -211,6 +210,9 @@ class App {
     });
     ipcRenderer.on('update-version-downloaded', (e, info) => {
       store.commit('version/DOWNLOADED');
+    });
+    ipcRenderer.on('update-version-progress', (e, info) => {
+      store.commit('version/SET_PROGRESS', info.percent);
     });
 
     ipcRenderer.send('check-update');

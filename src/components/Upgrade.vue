@@ -1,5 +1,5 @@
 <template>
-  <v-dialog :value="upgradeVersion" max-width="390">
+  <v-dialog :value="upgradeVersion" persistent max-width="390">
     <v-stepper :value="stage">
       <v-stepper-header>
         <v-stepper-step :complete="stage > 1" step="1">Name of step 1</v-stepper-step>
@@ -24,7 +24,7 @@
               {{$t('upgrade.text', upgradeVersion)}}
             </v-card-text>
             <v-card-actions>
-              <v-btn small color="green darken-1" flat="flat">{{$t('upgrade.later')}}</v-btn>
+              <v-btn small color="green darken-1" flat="flat" @click="later()">{{$t('upgrade.later')}}</v-btn>
 
               <v-btn
                 color="green darken-1" flat="flat"
@@ -46,8 +46,9 @@
             <v-card-text>
               <v-progress-linear
                 height="45"
-                value="75"
-              ></v-progress-linear>
+                :value="progress"
+              >
+              </v-progress-linear>
             </v-card-text>
           </v-card>
 
@@ -84,6 +85,9 @@
       upgradeVersion() {
         return this.$store.getters['version/new'];
       },
+      progress() {
+        return this.$store.getters['version/progress'];
+      },
       stage() {
         return this.$store.getters['version/stage']();
       }
@@ -94,6 +98,9 @@
       },
       restart() {
         this.$store.dispatch('version/restart')
+      },
+      later() {
+        this.$store.dispatch('version/later')
       }
     }
   }

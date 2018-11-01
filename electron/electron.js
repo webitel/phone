@@ -60,13 +60,18 @@ function createWindow () {
   ipcMain.on('download-new-version', (e) => {
     updater.download();
     updater.once('update-downloaded', (info) => {
-      console.error('dowloaded 1', info);
       e.sender.send('update-version-downloaded', info);
-    })
+    });
+    updater.on('download-progress', (info) => {
+      e.sender.send('update-version-progress', info);
+    });
+
   });
+
   ipcMain.on('install-new-version', (e) => {
-    closePhone = true;
     mainWindowState.saveState(mainWindow);
+    closePhone = true;
+    app.removeAllListeners('window-all-closed');
     updater.install();
   });
 
@@ -134,7 +139,7 @@ app.on('ready', () => {
       console.error('Failed to register protocol')
   })
 
-  globalShortcut.register('CommandOrControl+F1', () => {
+  globalShortcut.register('F12', () => {
     // Open the DevTools.
     if (!mainWindow.webContents.devToolsWebContents) {
       mainWindow.webContents.openDevTools();

@@ -7,7 +7,7 @@ export default {
     status: {
       stage: 1,
       loading: false,
-      progress: null,
+      progress: 0,
       error: null
     }
   },
@@ -27,30 +27,40 @@ export default {
     SET_ERROR(state, err) {
       state.status.error = err;
       state.status.stage = 3;
-      console.error(err);
+      state.status.loading = false;
+      state.status.progress = 0;
+    },
+    SET_PROGRESS(state, progress) {
+      state.status.progress = progress;
     },
     DOWNLOAD(state) {
+      state.status.loading = true;
       state.status.stage = 2;
     },
     DOWNLOADED(state) {
+      state.status.loading = false;
       state.status.stage = 3;
     },
     CLOSE(state) {
       state.status.stage = 4;
+      state.status.progress = 0;
       state.new = null;
       state.status.loading = false;
       state.status.progress = null;
+    },
+    LATER(state) {
+      state.new = null;
     }
   },
   actions: {
     upgrade({commit}) {
       commit('DOWNLOAD');
-      setTimeout(() => {
-        commit('DOWNLOADED');
-      }, 1000)
     },
     restart({commit}) {
       commit('CLOSE')
+    },
+    later({commit}) {
+      commit('LATER')
     }
   }
 }
