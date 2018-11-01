@@ -216,7 +216,10 @@ class App {
         store.commit('version/SET_PROGRESS', info.percent);
       });
 
-      ipcRenderer.send('check-update');
+      ipcRenderer.send('check-update', {
+        endpoint: phoneSettings.get('updateEndpoint'),
+        channel: phoneSettings.get('updateChannel')
+      });
     }
 
 

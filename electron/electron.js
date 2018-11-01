@@ -54,8 +54,8 @@ function createWindow () {
     app.quit();
   });
 
-  ipcMain.on('check-update', (e, feed) => {
-    updater.check(feed, e.sender);
+  ipcMain.on('check-update', (e, config) => {
+    updater.check(config, e.sender);
   });
   ipcMain.on('download-new-version', (e) => {
     updater.download();

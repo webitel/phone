@@ -6,20 +6,26 @@ class Updater extends EventEmitter {
   constructor() {
     super();
     this.currentVersion = autoUpdater.currentVersion.version;
-    this.feed = null;
+    this.endpoint = null;
     this.channel = null;
+    this.sender = null;
+
     autoUpdater.autoDownload = false;
     autoUpdater.on('checking-for-update', () => {
       //autoUpdater.updateConfigPath = '/home/igor/work/webitel-phone/release-builds/win-unpacked/resources/app-update.yml';
-      if (this.feed) {
-        autoUpdater.setFeedURL(this.feed, [{ }]);
+      if (this.channel) {
+        autoUpdater.channel = this.channel;
+      }
+
+      if (this.endpoint) {
+        autoUpdater.setFeedURL(this.endpoint, [{ }]);
       }
     });
 
     autoUpdater.on('update-available', (info) => {
       console.log('Update available.', info);
-      if (this.channel) {
-        this.channel.send('new-version', info)
+      if (this.sender) {
+        this.sender.send('new-version', info)
       }
     });
 
@@ -29,7 +35,7 @@ class Updater extends EventEmitter {
 
     autoUpdater.on('error', (err) => {
       console.log('Error in auto-updater.', err);
-      this.channel.send('update-version-error', err);
+      this.sender.send('update-version-error', err);
     });
 
     autoUpdater.on('download-progress', (progressObj) => {
@@ -43,9 +49,10 @@ class Updater extends EventEmitter {
     });
   }
 
-  check(feed, channel) {
-    this.feed = feed;
+  check({endpoint = null, channel = null}, sender) {
+    this.endpoint = endpoint;
     this.channel = channel;
+    this.sender = sender;
     autoUpdater.checkForUpdates();
   }
 
