@@ -46,7 +46,7 @@ function createWindow () {
     show: false,
     transparent: true,
     frame: false,
-    icon: path.join(__dirname, 'static/img/icons/call48.png'),
+    icon: path.join(__dirname, 'static/img/icons/icon64x64.png'),
     webPreferences: {
       nodeIntegration: false,
       preload: path.join(__dirname, 'preload.js')
