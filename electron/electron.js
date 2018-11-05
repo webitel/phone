@@ -36,7 +36,9 @@ function createWindow () {
   mainWindow = new BrowserWindow({
     titleBarStyle: 'default',
     minWidth: 325,
+    width: 325,
     minHeight: 560,
+    height: 560,
     title: 'Webitel phone',
     name: 'webitel-phone',
     id: 0,
