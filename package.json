@@ -37,31 +37,35 @@
     "files": [
       "dist/**"
     ],
-    "dmg": {
-      "contents": [
-        {
-          "x": 410,
-          "y": 150,
-          "type": "link",
-          "path": "/Applications"
-        },
-        {
-          "x": 130,
-          "y": 150,
-          "type": "file"
-        }
-      ]
-    },
     "mac": {
-      "target": "zip",
+      "target": ["zip"],
+      "category": "public.app-category.productivity",
+      "bundleVersion": "40",
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.inherit.plist",
+      "helperBundleId": "webitel.phone.electron.helper",
+      "type": "distribution",
       "icon": "static/img/icons/icon.icns"
+    },
+    "pkg": {
+      "isRelocatable": false,
+      "overwriteAction": "upgrade"
+    },
+    "mas": {
+      "entitlements": "build/entitlements.mas.plist",
+      "entitlementsInherit": "build/entitlements.mas.inherit.plist"
     },
     "win": {
       "icon": "static/img/icons/icon.ico"
     },
     "linux": {
-      "category": "Utility",
-      "icon": "static/img/icons/icon.png"
+      "category": "GNOME;GTK;Network;InstantMessaging",
+      "icon": "static/img/icons/icon.png",
+      "executableName": "webitel-phone",
+      "desktop": {
+        "StartupWMClass": "Webitel.Phone",
+        "MimeType": "x-scheme-handler/webitel-phone"
+      }
     },
     "asar": true
   },
