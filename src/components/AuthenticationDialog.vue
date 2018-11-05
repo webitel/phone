@@ -1,5 +1,5 @@
 <template>
-  <v-dialog :value="showDialog">
+  <v-dialog :value="showDialog" persistent max-width="390">
     <v-card>
       <v-card-title class="headline">Authentication</v-card-title>
       <v-card-text>

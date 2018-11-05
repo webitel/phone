@@ -62,12 +62,14 @@
       "category": "Utility",
       "icon": "static/img/icons/icon.png"
     },
-    "asar": false
+    "asar": true
   },
   "dependencies": {
     "@xkeshi/vue-countdown": "^1.0.1",
+    "electron-prompt": "^1.2.0",
     "electron-updater": "^3.1.6",
     "plyr": "^3.4.3",
+    "readline-sync": "^1.4.9",
     "vue": "^2.5.17",
     "vue-i18n": "^8.1.0",
     "vue-infinite-scroll": "^2.0.2",
