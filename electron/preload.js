@@ -222,10 +222,7 @@ class App {
         store.commit('version/SET_PROGRESS', info.percent);
       });
 
-      ipcRenderer.send('check-update', {
-        endpoint: phoneSettings.get('updateEndpoint'),
-        channel: phoneSettings.get('updateChannel')
-      });
+      this.checkUpdate();
     }
 
 
@@ -234,6 +231,13 @@ class App {
         //TODO IPC
         //this.remote.getCurrentWindow().webContents.focus();
       }
+    });
+  }
+
+  checkUpdate() {
+    ipcRenderer.send('check-update', {
+      endpoint: phoneSettings.get('updateEndpoint'),
+      channel: phoneSettings.get('updateChannel')
     });
   }
 
