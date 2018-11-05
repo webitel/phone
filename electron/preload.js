@@ -190,6 +190,12 @@ class App {
       this.setStateTray({status});
     });
 
+    ipcRenderer.on('http-authentication-request', (e) => {
+      store.commit('authentication/SET_REQUEST', credentials => {
+        e.sender.send('http-authentication-response', credentials)
+      })
+    });
+
     if (!this.config.get('disableAutoUpdate')) {
       store.watch(store.getters['version/stage'], stage => {
         switch (stage) {
@@ -231,11 +237,25 @@ class App {
     });
   }
 
+  clearAuthCache() {
+    remote.session.defaultSession.clearAuthCache({ type: 'password' }, function () {
+      console.log('Electron password auth cache cleared');
+    })
+  }
+
   initWindow(window) {
     this.setAlwaysOnTop(this.config.get('alwaysOnTop'));
     window.WEBITEL_COPY_TO_CLIPBOARD = this.copyClipboard.bind(this);
     window.WEBITEL_MINIMALIZE = this.minimize.bind(this);
     window.WEBITEL_HIDE = this.setHide.bind(this);
+    window.addEventListener('keyup', this.keyUp, true)
+  }
+
+  keyUp(e) {
+    if (e.altKey && e.keyCode === 68) {
+      e.preventDefault();
+      ipcRenderer.send('open-dev-tool');
+    }
   }
 
   setAlwaysOnTop(val) {

@@ -94,6 +94,8 @@
       </v-layout>
     </v-container>
 
+    <AuthenticationDialog></AuthenticationDialog>
+
     <v-dialog v-model="viewStatusDialog" max-width="390">
       <v-card v-if="viewStatusDialog">
         <v-card-title class="headline">{{$t('changeStatus.title')}}</v-card-title>
@@ -199,6 +201,7 @@
   import {getStateColor, parseServerUri} from './services/helper'
   import Spinner from './components/Spinner'
   import Upgrade from './components/Upgrade'
+  import AuthenticationDialog from './components/AuthenticationDialog'
 
   const TABS = [
     {
@@ -232,7 +235,8 @@
     name: 'App',
     components: {
       Spinner,
-      Upgrade
+      Upgrade,
+      AuthenticationDialog
     },
     data() {
       return {

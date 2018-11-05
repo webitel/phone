@@ -8,6 +8,7 @@ import i18n from '../services/i18n'
 
 import CDRStore from '../store/cdr'
 import VersionStore from '../store/version'
+import AuthenticationStore from '../store/authentication'
 
 Vue.use(Vuex);
 
@@ -15,7 +16,8 @@ const store = new Vuex.Store({
   debug: true,
   modules: {
     cdr: CDRStore,
-    version: VersionStore
+    version: VersionStore,
+    authentication: AuthenticationStore
   },
   state: {
     i18n,
