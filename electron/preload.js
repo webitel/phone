@@ -49,7 +49,7 @@ class FileStorage {
 }
 
 const userConfig = new FileStorage({}, findUserConfigFilePath(userConfigFileName));
-const phoneSettings = new FileStorage({}, path.join(__dirname, systemConfigFileName));
+const phoneSettings = new FileStorage({}, path.join(app.getPath('userData'), systemConfigFileName));
 
 window.isElectron = true;
 
@@ -95,6 +95,8 @@ function findUserConfigFilePathFromArgs() {
 class App {
   constructor(win, config, store, ...options) {
     this.config = config;
+    this.systemConfig = phoneSettings;
+
     this.alwaysOnTop = false;
     this.tray = null;
     this.hide = false;
