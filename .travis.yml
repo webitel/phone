@@ -1,13 +1,23 @@
 sudo: required
-language: node_js
-  - "10"
+matrix:
+  include:
+    - os: osx
+      osx_image: xcode9.4
+      language: node_js
+      node_js: "10"
+      env:
+        - ELECTRON_CACHE=$HOME/.cache/electron
+        - ELECTRON_BUILDER_CACHE=$HOME/.cache/electron-builder
+
+    - os: linux
+      language: generic
 
 before_install:
-  - if [ ! -z "$TRAVIS_TAG" ]; then sed -i 's/1.0.0/'${TRAVIS_TAG}'/g' package.json; else sed -i 's/1.0.0/1.0.1/g' package.json; fi
+  - if [ ! -z "$TRAVIS_TAG" ]; then sed -i 's/1.0.0/'${TRAVIS_TAG}'/g' package.json; else sed -i 's/1.0.0/2.'${TRAVIS_JOB_NUMBER}'/g' package.json; fi
 
 install:
   - npm install
-  - run relese-latest
+  - npm run relese-latest
 
 notifications:
   slack:
