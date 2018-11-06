@@ -20,10 +20,27 @@ const BrowserWindow = electron.BrowserWindow;
 let mainWindow;
 
 const gotTheLock = app.requestSingleInstanceLock();
+
 if (!gotTheLock) {
   app.quit();
   return;
+} else {
+  app.on('second-instance', (event, argv) => {
+    if (process.platform === 'win32' || process.platform === 'linux') {
+      sendMakeCall(argv.slice(1)[0])
+    }
+  });
 }
+
+function sendMakeCall(number = '') {
+  if (mainWindow) {
+    mainWindow.webContents.send('make-call', {number})
+  }
+}
+
+app.on('open-url', (event, number) => {
+  sendMakeCall({number});
+});
 
 function createWindow () {
   const updater = new Updater();
@@ -151,6 +168,7 @@ app.on('login', (event, webContents, request, authInfo, callback) => {
   })
 });
 
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
@@ -176,6 +194,8 @@ app.on('window-all-closed', function () {
     app.quit()
   }
 });
+
+app.setAsDefaultProtocolClient('sip');
 
 app.on('activate', function () {
   // On OS X it's common to re-create a window in the app when the

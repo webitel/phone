@@ -192,6 +192,15 @@ class App {
       this.setStateTray({status});
     });
 
+    ipcRenderer.on('make-call', (event, payload = {}) => {
+      if (!payload.number) {
+        return;
+      }
+      const user = store.getters['user']();
+      if (user) {
+        user.makeCall(payload.number.replace(/\D/g, ''));
+      }
+    });
     ipcRenderer.on('http-authentication-request', (e) => {
       store.commit('authentication/SET_REQUEST', credentials => {
         e.sender.send('http-authentication-response', credentials)

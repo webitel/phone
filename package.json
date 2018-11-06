@@ -37,8 +37,19 @@
     "files": [
       "dist/**"
     ],
+    "protocols": [
+      {
+        "name": "Webitel phone",
+        "schemes": [
+          "tel",
+          "sip"
+        ]
+      }
+    ],
     "mac": {
-      "target": ["zip"],
+      "target": [
+        "zip"
+      ],
       "category": "public.app-category.productivity",
       "bundleVersion": "40",
       "entitlements": "build/entitlements.mac.plist",
@@ -56,7 +67,23 @@
       "entitlementsInherit": "build/entitlements.mas.inherit.plist"
     },
     "win": {
+      "target": [
+        "nsis"
+      ],
       "icon": "static/img/icons/icon.ico"
+    },
+    "nsis": {
+      "oneClick": true
+    },
+    "appx": {
+      "displayName": "Webitel phone",
+      "publisherDisplayName": "Webitel phone",
+      "languages": [
+        "en-US",
+        "en-GB",
+        "pt-BR"
+      ],
+      "artifactName": "webitel-phone-${version}-${arch}.${ext}"
     },
     "linux": {
       "category": "GNOME;GTK;Network;InstantMessaging",
