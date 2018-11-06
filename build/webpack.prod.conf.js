@@ -100,7 +100,7 @@ const webpackConfig = merge(baseWebpackConfig, {
     ]),
     new CopyWebpackPlugin([
       {
-        from: path.resolve(__dirname, '../src/nw'),
+        from: path.resolve(__dirname, '../electron'),
         to: config.build.assetsRoot,
         ignore: ['.*']
       }

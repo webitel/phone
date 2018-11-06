@@ -2,71 +2,75 @@
   <v-app :dark="theme === 'dark'">
     <v-system-bar app height="30px" v-if="showMenu">
       <div>
-        <v-menu bottom left>
-          <v-btn small icon slot="activator" >
-            <v-icon :color="getStateColor(user)" >account_circle</v-icon>
-          </v-btn>
-          <v-list>
-            <v-list-tile @click="setReady">
-              <v-list-tile-title >{{$t('user.statusReady')}}</v-list-tile-title>
-            </v-list-tile>
-            <v-list-tile @click="setBreak">
-              <v-list-tile-title>{{$t('user.statusOnBreak')}}</v-list-tile-title>
-            </v-list-tile>
-            <v-list-tile @click="showChangeStatusDialog()">
-              <v-list-tile-title>...</v-list-tile-title>
-            </v-list-tile>
-          </v-list>
-        </v-menu>
       </div>
 
-      <span v-show="user">
+      <span v-show="user" class="drag-zone">
         {{user.name}}
       </span>
 
       <v-spacer></v-spacer>
 
-      <!--<v-icon style="margin-left: 5px">link</v-icon>-->
-      <div v-show="hotLinks.length > 0">
-        <v-menu bottom left>
-          <v-btn small icon slot="activator" >
-            <v-icon>link</v-icon>
-          </v-btn>
-          <v-list>
-            <v-list-tile v-for="link in hotLinks" @click="openHotLink(link.src)" target="_blank">
-              <v-list-tile-title>{{link.name}}</v-list-tile-title>
-            </v-list-tile>
-          </v-list>
-        </v-menu>
+      <div class="system-bar-icons">
+
+        <i v-show="user && user.loggedCC" class="in-queue"></i>
+
+        <v-icon v-show="user && user.webPhoneRegister">headset_mic</v-icon>
+
+        <div v-show="hotLinks.length > 0">
+          <v-menu bottom left>
+            <a slot="activator" >
+              <v-icon>link</v-icon>
+            </a>
+            <v-list>
+              <v-list-tile v-for="link in hotLinks" @click="openHotLink(link.src)" target="_blank">
+                <v-list-tile-title>{{link.name}}</v-list-tile-title>
+              </v-list-tile>
+            </v-list>
+          </v-menu>
+        </div>
+
+        <a  @click="minimize">
+          <v-icon>remove</v-icon>
+        </a>
+        <a  @click="hide">
+          <v-icon>close</v-icon>
+        </a>
       </div>
 
-      <v-icon v-show="user && user.loggedCC">contact_mail</v-icon>
-      <v-icon v-show="user && user.webPhoneRegister" class="icon-web-rtc"></v-icon>
 
     </v-system-bar>
 
-    <v-toolbar app v-if="showMenu" :ripple ="false" >
+    <v-toolbar app v-if="showMenu" height="48" dense>
+
+
+      <v-btn icon @click="showChangeStatusDialog()">
+        <v-icon large :color="getStateColor(user)" >account_circle</v-icon>
+      </v-btn>
+
       <v-text-field
+        class="input-or-search-number"
+        hide-details
         v-model="search"
         @keyup.enter.native="onMakeCall"
         @input="throttledSearch"
-        prepend-inner-icon="search"
         :label="$t('app.search')"
         solo-inverted
-        style="margin-top: 3px;"
         flat
       ></v-text-field>
 
-      <v-menu bottom left :open-on-click="false"  v-model="showChangeCallDialog">
+      <v-menu
+        offset-y bottom left :open-on-click="false"  v-model="showChangeCallDialog"
+      >
         <v-btn icon slot="activator" @click="onShowCallDialog">
-          <v-badge v-bind:class="countInboundNoAnswerCall > 0 ? 'flashing' : ''" v-model="showBadgeCall" left color="error" overlap>
+          <v-icon
+            large
+            :color="showBadgeCall ? '' : 'success'"
+          >
+            call
+          </v-icon>
+
+          <v-badge right overlap class="badge-call-count"  v-bind:class="countInboundNoAnswerCall > 0 ? 'flashing' : ''" v-model="showBadgeCall" right color="error" overlap>
             <span slot="badge">{{countCalls}}</span>
-            <v-icon
-              large
-              :color="showBadgeCall ? '' : 'success'"
-            >
-              call
-            </v-icon>
           </v-badge>
         </v-btn>
         <v-list>
@@ -78,7 +82,7 @@
 
     </v-toolbar>
 
-    <v-content class="app-content">
+    <v-content class="app-content" v-if="initialize">
       <div class="app-view">
         <router-view></router-view>
       </div>
@@ -89,6 +93,8 @@
         <v-progress-circular indeterminate :size="120" :width="2" color="warning">{{$t('app.loading')}}</v-progress-circular>
       </v-layout>
     </v-container>
+
+    <AuthenticationDialog></AuthenticationDialog>
 
     <v-dialog v-model="viewStatusDialog" max-width="390">
       <v-card v-if="viewStatusDialog">
@@ -130,6 +136,8 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <Upgrade></Upgrade>
 
     <v-bottom-nav
       app
@@ -192,6 +200,8 @@
   import settings from './services/settings'
   import {getStateColor, parseServerUri} from './services/helper'
   import Spinner from './components/Spinner'
+  import Upgrade from './components/Upgrade'
+  import AuthenticationDialog from './components/AuthenticationDialog'
 
   const TABS = [
     {
@@ -221,36 +231,12 @@
     return -1
   }
 
-  function init(app, cb) {
-    const server = settings.get("server");
-    const token = app.$localStorage.get('token');
-    const xkey = app.$localStorage.get('xkey');
-    if (!server || !token || !xkey) {
-      return cb(new Error("No session"))
-    }
-
-    Vue.http.headers.common['x-key'] = xkey;
-    Vue.http.headers.common['x-access-token'] = token;
-
-    Vue.http.get(`${parseServerUri(server)}/api/v2/whoami`).then(
-      response => {
-        response.body.server = parseServerUri(server);
-        response.body.token = token;
-        response.body.key = xkey;
-        return cb(null, response.body);
-      },
-      response => {
-        return cb(new Error("Unauthorized"))
-      }
-    )
-  }
-
-
-
   export default {
     name: 'App',
     components: {
-      Spinner
+      Spinner,
+      Upgrade,
+      AuthenticationDialog
     },
     data() {
       return {
@@ -320,6 +306,32 @@
       }
     },
 
+    beforeCreate() {
+      const server = settings.get("server");
+      const token = this.$localStorage.get('token');
+      const xkey = this.$localStorage.get('xkey');
+      if (!server || !token || !xkey) {
+        setTimeout(() => {
+          this.afterInit(new Error("No session"));
+        }, 10);
+        return;
+      }
+
+      Vue.http.headers.common['x-key'] = xkey;
+      Vue.http.headers.common['x-access-token'] = token;
+
+      Vue.http.get(`${parseServerUri(server)}/api/v2/whoami`).then(
+        response => {
+          response.body.server = parseServerUri(server);
+          response.body.token = token;
+          response.body.key = xkey;
+          this.afterInit(null, response.body);
+        },
+        response => {
+          this.afterInit(new Error("Unauthorized"));
+        }
+      )
+    },
     created() {
 
       this.ringer = new Audio('/static/sounds/iphone.mp3');
@@ -330,7 +342,7 @@
           return false;
         }
 
-        if (!this.$store.state.user && to.name !== 'Login') {
+        if (!this.user && to.name !== 'Login') {
           return next('/login');
         } else if (to.name === 'Login') {
           // return next('/');
@@ -342,15 +354,6 @@
         this.currentLinkIdx = getTabByName(to.name);
       });
       this.currentLinkIdx = getTabByName(this.$route.name);
-
-      init(this, (err, credentials) => {
-        this.initialize = true;
-
-        if (err) {
-          return this.$router.push("/login")
-        }
-        this.$store.commit("AUTH", credentials);
-      });
     },
 
     computed: {
@@ -362,10 +365,10 @@
         return []
       },
       showMenu () {
-        return !!this.$store.state.user && !this.reconnecting
+        return !!this.user && !this.reconnecting
       },
       user() {
-        return this.$store.state.user
+        return this.$store.getters.user()
       },
       webitel() {
         return this.$store.getters.webitel
@@ -393,7 +396,7 @@
 
       userStatus() {
         console.error('userStatus');
-        if (this.$store.state.user) {
+        if (this.user) {
           return "non-reg"
         }
         return ""
@@ -456,6 +459,14 @@
     },
 
     methods: {
+      afterInit(err, credentials) {
+        this.initialize = true;
+
+        if (err) {
+          return this.$router.push("/login")
+        }
+        this.$store.commit("AUTH", credentials);
+      },
 
       getStatusText(st) {
         return this.$t(`user.${st.id}`)
@@ -508,22 +519,22 @@
 
       showChangeStatusDialog() {
         this.viewStatusDialog = true;
-        if (this.$store.state.user.loggedCC) {
+        if (this.user.loggedCC) {
           this.dialogTag = '';
           this.dialogStatus = this.listUserStatus[1].text;
-          if (this.$store.state.user.status === 'ONBREAK') {
+          if (this.user.status === 'ONBREAK') {
             this.dialogState = 'ONBREAK';
           } else {
             this.dialogState = 'Waiting';
           }
 
-        } else if (this.$store.state.user.state === 'ONHOOK' && this.$store.state.user.status === 'NONE') {
+        } else if (this.user.state === 'ONHOOK' && this.user.status === 'NONE') {
           this.dialogTag = '';
           this.dialogStatus = this.listUserStatus[0].text;
         } else {
           this.dialogStatus = this.listUserStatus[2].text;
-          this.dialogState = this.$store.state.user.status;
-          this.dialogTag = this.$store.state.user.description;
+          this.dialogState = this.user.status;
+          this.dialogTag = this.user.description;
         }
       },
 
@@ -576,14 +587,76 @@
 
       onSearch() {
         this.$store.commit("CHANGE_SEARCH", this.search);
+      },
+
+      minimize() {
+        if (typeof WEBITEL_MINIMALIZE === 'function') {
+          WEBITEL_MINIMALIZE()
+        }
+        //todo
+      },
+
+      hide() {
+        if (typeof WEBITEL_HIDE === 'function') {
+          WEBITEL_HIDE()
+        }
+        //todo
       }
     }
   }
 </script>
 
+<style scoped>
+  .in-queue {
+    display: inline-block;
+    width: 20px;
+    height: 17px;
+    min-width: 16px;
+    min-height: 16px;
+    -webkit-mask: url(/static/img/in_queue.svg) no-repeat 100% 100%;
+    mask: url(/static/img/in_queue.svg) no-repeat 100% 100%;
+    -webkit-mask-size: cover;
+    mask-size: cover;
+    background-color: #767676;
+  }
+
+  .theme--dark .in-queue {
+    background-color: hsla(0,0%,100%,.7);
+  }
+
+</style>
+
 <style>
   html {
     overflow-y: auto;
+  }
+
+  .input-or-search-number.v-text-field.v-text-field--solo .v-input__control {
+    min-height: 42px;
+  }
+
+  .drag-zone {
+    -webkit-app-region: drag;
+    cursor: pointer;
+    width: 100%;
+  }
+
+  .badge-call-count .v-badge__badge {
+    top: -22px;
+  }
+
+  .system-bar-icons {
+    display: contents;
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -khtml-user-select: none; /* Konqueror HTML */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none; /* Non-prefixed version, currently*/
+  }
+  .system-bar-icons > * {
+    margin-left: 5px;
+    width: 23px;
   }
 
   .app-content {

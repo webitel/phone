@@ -40,6 +40,10 @@ Vue.use(Vuetify, {
 //TODO
 if (typeof nw === 'object') {
   window.phoneStore = store;
+} else if (window.isElectron) {
+  window.initPhone(store);
+} else {
+  store.commit('version/SET_VERSION', 'x.x.x')
 }
 
 /* eslint-disable no-new */

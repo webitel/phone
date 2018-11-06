@@ -10,6 +10,7 @@ class InternalUser {
     this.description = userData.tag;
 
     this.loggedCC = userData.inCC || false;
+    // this.bigData = new Array(1e5).join('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n');
   }
 
   setState(state, status, description, inCC) {

@@ -61,6 +61,9 @@
           items: []
         }
       },
+      beforeDestroy() {
+        this.items = [];
+      },
       methods: {
         getStateColor(user) {
           return getStateColor(user.state, user.status)
@@ -94,11 +97,11 @@
       computed: {
         listInternalUsers () {
           if (this.search) {
-            return this.$store.state.internalUsers.filter(item => {
+            return this.$store.getters.internalUsers().filter(item => {
               return item.id.indexOf(this.search) >= 0 || item.name.indexOf(this.search) >= 0|| item.description.indexOf(this.search) >= 0
             })
           }
-          return this.$store.state.internalUsers
+          return this.$store.getters.internalUsers()
         },
 
         search() {
@@ -106,7 +109,7 @@
         },
 
         user() {
-          return this.$store.state.user
+          return this.$store.getters.user()
         },
       }
     }

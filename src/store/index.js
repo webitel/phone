@@ -1,16 +1,24 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import User from './services/user'
-import CDR from './services/cdr'
-import Callback from './services/callback'
-import settings from './services/settings'
-import {findUserById} from "./services/helper";
-import i18n from './services/i18n'
+import User from '../services/user'
+import Callback from '../services/callback'
+import settings from '../services/settings'
+import {findUserById} from "../services/helper";
+import i18n from '../services/i18n'
+
+import CDRStore from '../store/cdr'
+import VersionStore from '../store/version'
+import AuthenticationStore from '../store/authentication'
 
 Vue.use(Vuex);
 
 const store = new Vuex.Store({
   debug: true,
+  modules: {
+    cdr: CDRStore,
+    version: VersionStore,
+    authentication: AuthenticationStore
+  },
   state: {
     i18n,
     emitter: new Vue(),
@@ -19,10 +27,10 @@ const store = new Vuex.Store({
     lastLogged: null,
     user: null,
     search: "",
+    status: null,
     theme: settings.get('theme'),
     internalUsers: [],
     calls: [],
-    cdr: null,
     callback: null,
     reconnecting: false
   },
@@ -61,6 +69,10 @@ const store = new Vuex.Store({
       return state.user;
     },
 
+    internalUsers: state => () => {
+      return state.internalUsers
+    },
+
     theme: (state) => () => {
       return state.theme;
     },
@@ -69,14 +81,11 @@ const store = new Vuex.Store({
       return state.calls;
     },
 
-    cdr: (state) => () => {
-      return state.cdr;
-    },
-
     callback: (state) => () => {
       return state.callback;
     },
 
+    search: state => () => state.search,
     getSearch: state => () => state.search,
 
     reconnecting: state => () => state.reconnecting === true,
@@ -85,7 +94,9 @@ const store = new Vuex.Store({
 
     lastLogged: state => () => state.lastLogged,
 
-    viewSpinner: state => () => state.viewSpinner
+    viewSpinner: state => () => state.viewSpinner,
+
+    status: state => () => state.status
 
   },
 
@@ -95,8 +106,8 @@ const store = new Vuex.Store({
     },
     AUTH (state = {}, credentials) {
       state.user = new User(credentials);
-      state.cdr = new CDR(state.user);
       state.callback = new Callback(state.user);
+      state.status = getStatus(state.user.state, state.user.status);
 
       Vue.http.headers.common['x-key'] = credentials.key;
       Vue.http.headers.common['x-access-token'] = credentials.token;
@@ -104,12 +115,13 @@ const store = new Vuex.Store({
 
     SET_RECONNECT (state = {}, value) {
       state.reconnecting = value;
-      state.logged = state.reconnecting === false
+      state.logged = state.reconnecting === false;
     },
 
     LOGIN (state = {}) {
       state.logged = true;
       state.lastLogged = Date.now();
+      state.status = getStatus(state.user.state, state.user.status);
     },
 
     LOGOUT (state = {}) {
@@ -118,11 +130,11 @@ const store = new Vuex.Store({
       if (state.user) {
         state.user.logout();
         state.user = null;
+        state.status = getStatus("NONREG");
       }
       state.search = "";
       state.internalUsers = [];
       state.calls = [];
-      state.cdr = null;
       state.callback = null;
 
       Vue.http.headers.common['x-key'] = '';
@@ -143,7 +155,8 @@ const store = new Vuex.Store({
       if (user) {
         user.setState(data.state, data.away, data.tag, data.inCC);
         if (state.user && state.user.id === `${data.id}@${data.domain}`) {
-          state.user.setState(data.state, data.away, data.tag, data.inCC)
+          state.user.setState(data.state, data.away, data.tag, data.inCC);
+          state.status = getStatus(user.state, user.status);
         }
       }
     },
@@ -163,6 +176,9 @@ const store = new Vuex.Store({
           return;
         }
       }
+    },
+    SET_CURRENT_VERSION(state, version)  {
+      state.version = version;
     }
   },
   actions: {
@@ -181,3 +197,15 @@ const store = new Vuex.Store({
 });
 
 export default store
+
+function getStatus(state, status) {
+  if (state === 'ONHOOK' && status === 'NONE' ) {
+    return 'ready'
+  } else if (state === 'ISBUSY' && status === 'ONBREAK') {
+    return 'break'
+  } else if (state === 'ISBUSY') {
+    return 'busy'
+  } else {
+    return 'nonreg'
+  }
+}

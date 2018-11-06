@@ -9,8 +9,6 @@
     "dev": "node build/dev-server.js",
     "start": "node build/dev-server.js",
     "build": "node build/build.js",
-    "relese-latest": "npm run build && electron-builder --config.publish.channel=latest --config.artifactName='${name}_${channel}.${ext}' --publish always --win --linux --mac",
-    "relese-stable": "npm run build && build && electron-builder --config.publish.channel=stable --config.artifactName='${name}.${ext}' --publish onTag  --win --linux --mac",
     "build-nw": "npm run build && node build/nw.js",
     "package-mac": "electron-packager ./dist webitel-phone --overwrite --asar --platform=darwin --arch=x64 --icon=static/img/icons/icon.icns --prune=true --out=release-builds",
     "package-win": "electron-packager ./dist webitel-phone --overwrite --asar --platform=win32 --arch=ia32 --icon=static/img/icons/icon.ico --prune --out=release-builds --version-string.CompanyName=CE --version-string.FileDescription=CE --version-string.ProductName=\"Webitel Phone App\"",
@@ -23,11 +21,10 @@
     "productName": "webitel-phone",
     "appId": "org.webitel.phone",
     "publish": [
+
       {
-        "provider": "spaces",
-        "name": "webitel-phone",
-        "region": "ams3",
-        "acl": "public-read"
+        "provider": "generic",
+        "url": "http://10.10.10.25/builds"
       }
     ],
     "directories": {
@@ -37,71 +34,36 @@
     "files": [
       "dist/**"
     ],
-    "protocols": [
-      {
-        "name": "Webitel phone",
-        "schemes": [
-          "tel",
-          "sip"
-        ]
-      }
-    ],
+    "dmg": {
+      "contents": [
+        {
+          "x": 410,
+          "y": 150,
+          "type": "link",
+          "path": "/Applications"
+        },
+        {
+          "x": 130,
+          "y": 150,
+          "type": "file"
+        }
+      ]
+    },
     "mac": {
-      "target": [
-        "zip"
-      ],
-      "category": "public.app-category.productivity",
-      "bundleVersion": "40",
-      "entitlements": "build/entitlements.mac.plist",
-      "entitlementsInherit": "build/entitlements.mac.inherit.plist",
-      "helperBundleId": "webitel.phone.electron.helper",
-      "type": "distribution",
       "icon": "static/img/icons/icon.icns"
     },
-    "pkg": {
-      "isRelocatable": false,
-      "overwriteAction": "upgrade"
-    },
-    "mas": {
-      "entitlements": "build/entitlements.mas.plist",
-      "entitlementsInherit": "build/entitlements.mas.inherit.plist"
-    },
     "win": {
-      "target": [
-        "nsis"
-      ],
       "icon": "static/img/icons/icon.ico"
     },
-    "nsis": {
-      "oneClick": true
-    },
-    "appx": {
-      "displayName": "Webitel phone",
-      "publisherDisplayName": "Webitel phone",
-      "languages": [
-        "en-US",
-        "en-GB",
-        "pt-BR"
-      ],
-      "artifactName": "webitel-phone-${version}-${arch}.${ext}"
-    },
     "linux": {
-      "category": "GNOME;GTK;Network;InstantMessaging",
-      "icon": "static/img/icons/icon.png",
-      "executableName": "webitel-phone",
-      "desktop": {
-        "StartupWMClass": "Webitel.Phone",
-        "MimeType": "x-scheme-handler/webitel-phone"
-      }
+      "icon": "/home/igor/work/tmp/webitel-phone/build/icons/256x256.png"
     },
-    "asar": true
+    "asar": false
   },
   "dependencies": {
     "@xkeshi/vue-countdown": "^1.0.1",
-    "electron-prompt": "^1.2.0",
     "electron-updater": "^3.1.6",
     "plyr": "^3.4.3",
-    "readline-sync": "^1.4.9",
     "vue": "^2.5.17",
     "vue-i18n": "^8.1.0",
     "vue-infinite-scroll": "^2.0.2",
@@ -128,7 +90,6 @@
     "css-loader": "^0.28.7",
     "cssnano": "^3.10.0",
     "electron": "^3.0.5",
-    "electron-builder": "^20.29.0",
     "electron-installer-dmg": "^0.1.2",
     "electron-packager": "^12.2.0",
     "electron-winstaller": "=2.4.1",

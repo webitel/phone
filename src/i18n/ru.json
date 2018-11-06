@@ -5,7 +5,10 @@
     "loading": "Загрузка",
     "close": "Закрыть",
     "cancel": "Отмена",
-    "ok": "OK"
+    "ok": "OK",
+    "hide": "Спрятать",
+    "show": "Показать",
+    "alwaysOnTop": "Поверх окон"
   },
   "notificationNewCall": {
     "answer": "Принять",
