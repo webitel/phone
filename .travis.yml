@@ -20,9 +20,9 @@ matrix:
         - ELECTRON_BUILDER_CACHE=$HOME/.cache/electron-builder
 
 before_install:
-  - if [ ! -z "$TRAVIS_TAG" ]; then DO=stable; else DO=latest; fi
+  - if [ ! -z "$TRAVIS_TAG" ]; then DO=stable; else DO=latest; fi;
   - if [[ $TRAVIS_OS_NAME == linux ]]; then
-    if [ ! -z "$TRAVIS_TAG" ]; then sed -i 's/1.0.0/'${TRAVIS_TAG}'/g' package.json; else sed -i 's/1.0.0/2.'${TRAVIS_JOB_NUMBER}'/g' package.json; fi
+    if [ ! -z "$TRAVIS_TAG" ]; then sed -i 's/1.0.0/'${TRAVIS_TAG}'/g' package.json; else sed -i 's/1.0.0/2.'${TRAVIS_JOB_NUMBER}'/g' package.json; fi;
     sudo dpkg --add-architecture i386;
     wget -nc https://dl.winehq.org/wine-builds/Release.key;
     sudo apt-key add Release.key;
@@ -32,7 +32,7 @@ before_install:
     sudo apt-get update;
     sudo apt-get install -y --install-recommends winehq-devel mono-devel libstdc++6;
     elif [[ $TRAVIS_OS_NAME == osx ]]; then
-    if [ ! -z "$TRAVIS_TAG" ]; then sed -i '' 's/1.0.0/'${TRAVIS_TAG}'/g' package.json; else sed -i '' 's/1.0.0/2.'${TRAVIS_JOB_NUMBER}'/g' package.json; fi
+    if [ ! -z "$TRAVIS_TAG" ]; then sed -i '' 's/1.0.0/'${TRAVIS_TAG}'/g' package.json; else sed -i '' 's/1.0.0/2.'${TRAVIS_JOB_NUMBER}'/g' package.json; fi;
     fi;
 
 install:
