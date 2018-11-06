@@ -22,7 +22,7 @@ cache:
     - $HOME/.cache/electron-builder
 
 install:
-  - npm install --quiet
+  - sudo npm install --quiet
 
 script: ./ci-build.sh
 
