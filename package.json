@@ -48,19 +48,31 @@
     ],
     "mac": {
       "target": [
+        "dmg",
         "zip"
       ],
       "category": "public.app-category.productivity",
       "bundleVersion": "40",
-      "entitlements": "build/entitlements.mas.plist",
-      "entitlementsInherit": "build/entitlements.mas.inherit.plist",
       "helperBundleId": "webitel.phone.electron.helper",
       "type": "development",
       "icon": "static/img/icons/icon.icns"
     },
-    "pkg": {
-      "isRelocatable": false,
-      "overwriteAction": "upgrade"
+    "dmg": {
+      "background": "build/installer_background_osx.png",
+      "icon": "static/img/icons/icon.icns",
+      "contents": [
+        {
+          "type": "dir",
+          "x": 100,
+          "y": 211
+        },
+        {
+          "type": "link",
+          "path": "/Applications",
+          "x": 500,
+          "y": 211
+        }
+      ]
     },
     "mas": {
       "entitlements": "build/entitlements.mas.plist",
