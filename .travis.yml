@@ -22,14 +22,13 @@ before_install:
 #  - if [ ! -z "$TRAVIS_TAG" ]; then sed -i 's/1.0.0/'${TRAVIS_TAG}'/g' package.json; else sed -i 's/1.0.0/2.'${TRAVIS_JOB_NUMBER}'/g' package.json; fi
   - if [[ $TRAVIS_OS_NAME == linux ]]; then
     sudo dpkg --add-architecture i386;
-    sudo apt install apt-transport-https;
     wget -nc https://dl.winehq.org/wine-builds/Release.key;
     sudo apt-key add Release.key;
-    sudo apt-add-repository https://dl.winehq.org/wine-builds/ubuntu/;
     sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF;
     echo "deb https://download.mono-project.com/repo/ubuntu stable-trusty main" | sudo tee /etc/apt/sources.list.d/mono-official-stable.list;
+    sudo apt-add-repository https://dl.winehq.org/wine-builds/ubuntu/;
     sudo apt-get update;
-    sudo apt-get install -y --install-recommends winehq-devel mono-devel;
+    sudo apt-get install -y --install-recommends winehq-devel mono-devel libstdc++6;
     fi;
 
 install:
