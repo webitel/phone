@@ -1,17 +1,16 @@
-sudo: required
 matrix:
   include:
     - os: osx
       osx_image: xcode9.4
-      language: node_js
-      node_js: "10"
-      env:
-        - ELECTRON_CACHE=$HOME/.cache/electron
-        - ELECTRON_BUILDER_CACHE=$HOME/.cache/electron-builder
 
     - os: linux
-      language: generic
-      dist: bionic
+      sudo: required
+
+language: node_js
+node_js: "10"
+env:
+   - ELECTRON_CACHE=$HOME/.cache/electron
+   - ELECTRON_BUILDER_CACHE=$HOME/.cache/electron-builder
 
 before_install:
    - apt update && apt install -y  wine-development
@@ -19,7 +18,7 @@ before_install:
 
 install:
   - npm install
-  - npm run relese-latest
+  - npm run relese-latest -- --linux
 
 notifications:
   slack:
