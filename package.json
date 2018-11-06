@@ -52,10 +52,10 @@
       ],
       "category": "public.app-category.productivity",
       "bundleVersion": "40",
-      "entitlements": "build/entitlements.mac.plist",
-      "entitlementsInherit": "build/entitlements.mac.inherit.plist",
+      "entitlements": "build/entitlements.mas.plist",
+      "entitlementsInherit": "build/entitlements.mas.inherit.plist",
       "helperBundleId": "webitel.phone.electron.helper",
-      "type": "distribution",
+      "type": "development",
       "icon": "static/img/icons/icon.icns"
     },
     "pkg": {
