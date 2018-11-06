@@ -11,9 +11,11 @@ matrix:
 
     - os: linux
       language: generic
+      dist: bionic
 
 before_install:
-  - if [ ! -z "$TRAVIS_TAG" ]; then sed -i 's/1.0.0/'${TRAVIS_TAG}'/g' package.json; else sed -i 's/1.0.0/2.'${TRAVIS_JOB_NUMBER}'/g' package.json; fi
+   - apt update && apt install -y  wine-development
+#  - if [ ! -z "$TRAVIS_TAG" ]; then sed -i 's/1.0.0/'${TRAVIS_TAG}'/g' package.json; else sed -i 's/1.0.0/2.'${TRAVIS_JOB_NUMBER}'/g' package.json; fi
 
 install:
   - npm install
