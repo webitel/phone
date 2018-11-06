@@ -33,7 +33,7 @@ before_install:
 install:
   - npm install
   - if [[ $TRAVIS_OS_NAME == osx ]]; then
-    npm run relese-$DO -- --mac;
+    npm run relese-latest -- --mac;
     elif [[ $TRAVIS_OS_NAME == linux ]]; then
-    npm run relese-$DO -- --linux --win;
+    npm run relese-latest -- --linux --win;
     fi
