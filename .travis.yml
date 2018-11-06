@@ -21,9 +21,6 @@ cache:
     - $HOME/.cache/electron
     - $HOME/.cache/electron-builder
 
-install:
-  - sudo npm install --quiet
-
 script: ./ci-build.sh
 
 before_cache:
