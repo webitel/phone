@@ -27,6 +27,7 @@ matrix:
         - ELECTRON_BUILDER_CACHE=$HOME/.cache/electron-builder
 
 before_install:
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo snap install snapcraft --classic; fi;
   - if [ ! -z "$TRAVIS_TAG" ]; then DO=stable; else DO=latest; fi;
   - if [[ $TRAVIS_OS_NAME == linux ]]; then
     if [ ! -z "$TRAVIS_TAG" ]; then sed -i 's/1.0.0/'${TRAVIS_TAG}'/g' package.json; else sed -i 's/1.0.0/2.'${TRAVIS_JOB_NUMBER}'/g' package.json; fi;
