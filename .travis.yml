@@ -6,7 +6,7 @@ matrix:
       node_js: "10"
       env:
         - CSC_KEYCHAIN=login
-        - CSC_LINK=
+        - CSC_LINK=.webitel.p12
         - ELECTRON_CACHE=$HOME/.cache/electron
         - ELECTRON_BUILDER_CACHE=$HOME/.cache/electron-builder
 
@@ -20,6 +20,7 @@ matrix:
 
     - os: windows
       language: node_js
+      node_js: "10"
 
 #before_install:
 #  - if [ ! -z "$TRAVIS_TAG" ]; then sed -i 's/1.0.0/'${TRAVIS_TAG}'/g' package.json; else sed -i 's/1.0.0/2.'${TRAVIS_JOB_NUMBER}'/g' package.json; fi
