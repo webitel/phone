@@ -5,6 +5,8 @@ matrix:
       language: node_js
       node_js: "10"
       env:
+        - CSC_KEYCHAIN=login
+        - CSC_LINK=
         - ELECTRON_CACHE=$HOME/.cache/electron
         - ELECTRON_BUILDER_CACHE=$HOME/.cache/electron-builder
 
@@ -18,12 +20,16 @@ matrix:
 
     - os: windows
       language: node_js
-      node_js: "10"
 
-before_install:
+#before_install:
 #  - if [ ! -z "$TRAVIS_TAG" ]; then sed -i 's/1.0.0/'${TRAVIS_TAG}'/g' package.json; else sed -i 's/1.0.0/2.'${TRAVIS_JOB_NUMBER}'/g' package.json; fi
 
 install:
   - npm install
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then npm run relese-latest -- --linux; fi
-  - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then npm run relese-latest -- --win; fi
+  - if [[ $TRAVIS_OS_NAME == osx ]]; then
+    npm run relese-latest -- --mac;
+    elif [[ $TRAVIS_OS_NAME == linux ]]; then
+    npm run relese-latest -- --linux;
+    elif [[ $TRAVIS_OS_NAME == windows ]]; then
+    npm run relese-latest -- --win;
+    fi
