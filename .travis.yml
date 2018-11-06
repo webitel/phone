@@ -15,21 +15,25 @@ matrix:
       language: node_js
       node_js: "10"
       addons:
-      apt:
-        packages:
-          - wine
       env:
         - ELECTRON_CACHE=$HOME/.cache/electron
         - ELECTRON_BUILDER_CACHE=$HOME/.cache/electron-builder
 
-#before_install:
+before_install:
 #  - if [ ! -z "$TRAVIS_TAG" ]; then sed -i 's/1.0.0/'${TRAVIS_TAG}'/g' package.json; else sed -i 's/1.0.0/2.'${TRAVIS_JOB_NUMBER}'/g' package.json; fi
+  - if [[ $TRAVIS_OS_NAME == linux ]]; then
+    sudo dpkg --add-architecture i386;
+    wget -nc https://dl.winehq.org/wine-builds/Release.key;
+    sudo apt-key add Release.key;
+    sudo apt-add-repository https://dl.winehq.org/wine-builds/ubuntu/;
+    sudo apt-get update;
+    sudo apt-get install -y --install-recommends winehq-devel;
+    fi;
 
 install:
   - npm install
   - if [[ $TRAVIS_OS_NAME == osx ]]; then
     npm run relese-latest -- --mac;
     elif [[ $TRAVIS_OS_NAME == linux ]]; then
-    npm run relese-latest -- --linux;
-    npm run relese-latest -- --win;
+    npm run relese-latest -- --linux --win;
     fi
