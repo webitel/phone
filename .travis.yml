@@ -4,27 +4,26 @@ matrix:
       osx_image: xcode9.4
       language: node_js
       node_js: "10"
+      env:
+        - ELECTRON_CACHE=$HOME/.cache/electron
+        - ELECTRON_BUILDER_CACHE=$HOME/.cache/electron-builder
 
     - os: linux
       sudo: required
       language: node_js
       node_js: "10"
+      env:
+        - ELECTRON_CACHE=$HOME/.cache/electron
+        - ELECTRON_BUILDER_CACHE=$HOME/.cache/electron-builder
 
     - os: windows
       language: node_js
       node_js: "10"
-
-env:
-   - ELECTRON_CACHE=$HOME/.cache/electron
-   - ELECTRON_BUILDER_CACHE=$HOME/.cache/electron-builder
 
 before_install:
 #  - if [ ! -z "$TRAVIS_TAG" ]; then sed -i 's/1.0.0/'${TRAVIS_TAG}'/g' package.json; else sed -i 's/1.0.0/2.'${TRAVIS_JOB_NUMBER}'/g' package.json; fi
 
 install:
   - npm install
-  - npm run relese-latest -- --linux
-
-notifications:
-  slack:
-    secure: qSvzHsRwnTQmUSoasM4TWZ2B/bPvdpHvHAgIUjFy9/l3+zsJ01L5ho6IZbbLMoNBtsbwhtAZLFNcq9SffrWV6GBemijpWGP2x/KcTpaZDcoN7m+qnzA1zLjnchwEE8mi/z8uxwA0ouH4q6I4q5TJzK3lW7kWkhoQ4cCHMszwcTEUYpCk9SPoeuQZdPQd+EO4N+4ms99JB+aPajwFYrnVhOg/R5nchaR7f9lhccfCps4ZFCb21TcygjdvUHQP3rq+K4AU72O07bxPCoImDnTf3t3U+ZVXSgeqWIZee9rvqJ68fbWjJGAgZvhR2T4MII5UxGcgnX6VMnqKPrspvl+c/bJpb47daVt1fFlAkDmfQOb0N2SDqhDiEecR/fbAolgUQzqHpjCYNPwenkA4lW5wkfQ/T45kDENTA8UgnsXYSu70W1Ur9Lj0ko4x9KsX1m5b93PjN33viTQRVUPrFyIA2nBNsjzAjfPdP4UMC4BHdx26T9oaILul2WYgiU3fmPIijvgHasS+P5CFbDoTVfOvTGfqqadfO97gLX6FyZJNUAGGQ7sMKZoCAQF/g2Po1cFQc3Hnq6N0MBr+cMHLrjeWmkxF5ZTR4fCYI41yLgiRKBSdS8ly/Eom/zT4Kyo8vsLGtSIy8quI98AY34i1l2qzlIrkdZ3jWjShY8sIOjkpAy4=
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then npm run relese-latest -- --linux; fi
+  - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then npm run relese-latest -- --win; fi
