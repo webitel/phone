@@ -14,7 +14,7 @@ matrix:
       sudo: required
       language: node_js
       node_js: "10"
-      addons:
+      mono: latest
       env:
         - ELECTRON_CACHE=$HOME/.cache/electron
         - ELECTRON_BUILDER_CACHE=$HOME/.cache/electron-builder
