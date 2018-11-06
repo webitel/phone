@@ -29,11 +29,11 @@ matrix:
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-  sudo snap install snapcraft --classic;
-  sudo add-apt-repository -y ppa:ubuntu-wine/ppa;
-  sudo apt-get update;
-  sudo apt-get install --no-install-recommends -y icnsutils wine1.8;
-  fi;
+    sudo snap install snapcraft --classic;
+    sudo add-apt-repository -y ppa:ubuntu-wine/ppa;
+    sudo apt-get update;
+    sudo apt-get install --no-install-recommends -y icnsutils wine1.8;
+    fi;
 
 install:
   - npm install
