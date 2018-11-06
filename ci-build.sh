@@ -2,8 +2,6 @@
 
 set -ev
 
-npm install --quiet
-
 if [ "$TRAVIS_OS_NAME" == "linux" ]; then
         echo "-----> build for  linux"
         docker run --rm \
