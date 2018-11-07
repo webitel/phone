@@ -9,14 +9,13 @@
     "hide": "Hide",
     "show": "Show",
     "alwaysOnTop": "Always no top",
-    "version": "Ver: {version}"
+    "version": "Version: {version}"
   },
   "upgrade": {
     "title": "New version",
     "titleSuccess": "New version install success",
     "titleError": "New version install error",
     "titleDownload": "Download new version",
-
     "textAboutUpgrade": "Upgrade to version: {version} on {releaseDate}",
     "textError": "Error: {errorMsg}",
     "textSuccess": "Complete upgrade",

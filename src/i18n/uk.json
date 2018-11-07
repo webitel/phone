@@ -6,9 +6,22 @@
     "close": "Закрити",
     "cancel": "Відміна",
     "ok": "Гаразд",
-    "hide": "Заховати",
+    "hide": "Сховати",
     "show": "Показати",
-    "alwaysOnTop": "Поверх вікон"
+    "alwaysOnTop": "Поверх вікон",
+    "version": "Версія: {version}"
+  },
+  "upgrade": {
+    "title": "Новая версія",
+    "titleSuccess": "Нову версію успішно встановлено",
+    "titleError": "Помилка встановлення нової версії",
+    "titleDownload": "Завантажую нову версію",
+    "textAboutUpgrade": "Оновити до версії {version} від {releaseDate}",
+    "textError": "Помилка: {errorMsg}",
+    "textSuccess": "Завершення оновлення",
+    "later": "Пізніше",
+    "restart": "Перезапустити",
+    "install": "Встановити"
   },
   "notificationNewCall": {
     "answer": "Прийняти",

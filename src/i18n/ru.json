@@ -8,7 +8,20 @@
     "ok": "OK",
     "hide": "Спрятать",
     "show": "Показать",
-    "alwaysOnTop": "Поверх окон"
+    "alwaysOnTop": "Поверх окон",
+    "version": "Версия: {version}"
+  },
+  "upgrade": {
+    "title": "Новая версия",
+    "titleSuccess": "Новая версия установлена успешно",
+    "titleError": "Ошибка установки новой версии",
+    "titleDownload": "Загрузка новой версии",
+    "textAboutUpgrade": "Обновить до версии {version} от {releaseDate}",
+    "textError": "Ошибка: {errorMsg}",
+    "textSuccess": "Закончить обновление",
+    "later": "Позже",
+    "restart": "Перезапустить",
+    "install": "Установить"
   },
   "notificationNewCall": {
     "answer": "Принять",
