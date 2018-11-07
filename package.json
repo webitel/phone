@@ -2,15 +2,20 @@
   "name": "webitel-phone",
   "version": "1.0.0",
   "description": "Webitel Phone",
-  "author": "Navrotskyj Igor",
+  "author": {
+    "name": "Navrotskyj Igor",
+    "email": "navrotskyj@gmail.com"
+  },
+  "email": "navrotskyj@gmail.com",
+  "maintainer": "navrotskyj@gmail.com",
   "private": true,
-  "main": "dist/electron.js",
+  "main": "electron.js",
   "scripts": {
     "dev": "node build/dev-server.js",
     "start": "node build/dev-server.js",
     "build": "node build/build.js",
-    "relese-latest": "npm run build && electron-builder --config.publish.channel=latest --config.artifactName='${name}-${channel}_${os}_${arch}.${ext}' --publish always",
-    "relese-stable": "npm run build && build && electron-builder --config.publish.channel=stable --config.artifactName='${name}_${os}_${arch}.${ext}' --publish onTag",
+    "relese-alpha": "npm run build && electron-builder --config.publish.channel=alpha --config.artifactName='${name}-${channel}_${os}.${ext}' --publish always",
+    "relese-latest": "npm run build && build && electron-builder --config.publish.channel=latest --config.artifactName='${name}-${version}_${os}.${ext}' --publish onTag",
     "build-nw": "npm run build && node build/nw.js",
     "package-mac": "electron-packager ./dist webitel-phone --overwrite --asar --platform=darwin --arch=x64 --icon=static/img/icons/icon.icns --prune=true --out=release-builds",
     "package-win": "electron-packager ./dist webitel-phone --overwrite --asar --platform=win32 --arch=ia32 --icon=static/img/icons/icon.ico --prune --out=release-builds --version-string.CompanyName=CE --version-string.FileDescription=CE --version-string.ProductName=\"Webitel Phone App\"",
@@ -25,18 +30,21 @@
     "publish": [
       {
         "provider": "spaces",
-        "name": "webitel-phone",
-        "region": "ams3",
-        "acl": "public-read",
-        "channel": "stable"
+        "name": "wtel",
+        "region": "nyc3",
+        "acl": "public-read"
       }
     ],
     "directories": {
-      "buildResources": "static",
-      "output": "release-builds"
+      "output": "release-builds",
+      "app": "dist"
     },
+    "extraResources": [
+      "build/icon.ico"
+    ],
     "files": [
-      "dist/**"
+      "**/*",
+      "node_modules/**/*"
     ],
     "protocols": [
       {
@@ -83,11 +91,17 @@
       "icon": "static/img/icons/ico_256.ico"
     },
     "nsis": {
+      "perMachine": false,
       "oneClick": true
     },
     "linux": {
+      "target": [
+        "AppImage",
+        "deb",
+        "rpm",
+        "tar.gz"
+      ],
       "category": "GNOME;GTK;Network;InstantMessaging",
-      "icon": "static/img/icons/icon.png",
       "executableName": "webitel-phone",
       "desktop": {
         "StartupWMClass": "Webitel.Phone",
