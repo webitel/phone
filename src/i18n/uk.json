@@ -14,12 +14,12 @@
   },
   "upgrade": {
     "title": "Новая версія",
-    "titleSuccess": "Нову версію успішно встановлено",
+    "titleSuccess": "Успішно встановлено",
     "titleError": "Помилка встановлення нової версії",
     "titleDownload": "Завантажую нову версію",
-    "textAboutUpgrade": "Оновити до версії {version} від {releaseDate}",
+    "textAboutUpgrade": "Оновити до версії {version}",
     "textError": "Помилка: {errorMsg}",
-    "textSuccess": "Завершення оновлення",
+    "textSuccess": "Вітаю! У вас тепер нова версія :)",
     "later": "Пізніше",
     "restart": "Перезапустити",
     "install": "Встановити"

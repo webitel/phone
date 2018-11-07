@@ -14,12 +14,12 @@
   },
   "upgrade": {
     "title": "New version",
-    "titleSuccess": "New version install success",
+    "titleSuccess": "Successfully complete",
     "titleError": "New version install error",
     "titleDownload": "Download new version",
-    "textAboutUpgrade": "Upgrade to version: {version} on {releaseDate}",
+    "textAboutUpgrade": "Upgrade to version {version}",
     "textError": "Error: {errorMsg}",
-    "textSuccess": "Complete upgrade",
+    "textSuccess": "Yes! Now, you have the latest version :)",
     "later": "Later",
     "restart": "Restart",
     "install": "Install"
