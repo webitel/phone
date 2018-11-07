@@ -13,7 +13,7 @@ if [ "$TRAVIS_OS_NAME" == "linux" ]; then
         -v ~/.cache/electron:/root/.cache/electron \
         -v ~/.cache/electron-builder:/root/.cache/electron-builder \
         electronuserland/builder:wine-mono \
-        /bin/bash -c "npm install && npm run relese-$DO -- --win --linux"
+        /bin/bash -c "npm install && npm run relese-$DO -- --x64 -w --linux"
     else
         echo "-----> build for mac"
         if [ ! -z "$TRAVIS_TAG" ]; then sed -i '' 's/1.0.0/'${TRAVIS_TAG}'/g' package.json; else sed -i '' 's/1.0.0/1.'${TRAVIS_JOB_NUMBER}'/g' package.json; fi

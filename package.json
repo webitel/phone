@@ -9,7 +9,7 @@
     "dev": "node build/dev-server.js",
     "start": "node build/dev-server.js",
     "build": "node build/build.js",
-    "relese-latest": "npm run build && electron-builder --config.publish.channel=latest --config.artifactName='${name}_${channel}.${ext}'",
+    "relese-latest": "npm run build && electron-builder --config.publish.channel=latest --config.artifactName='${name}_${channel}.${ext}' --publish always",
     "relese-stable": "npm run build && build && electron-builder --config.publish.channel=stable --config.artifactName='${name}.${ext}' --publish onTag",
     "build-nw": "npm run build && node build/nw.js",
     "package-mac": "electron-packager ./dist webitel-phone --overwrite --asar --platform=darwin --arch=x64 --icon=static/img/icons/icon.icns --prune=true --out=release-builds",
@@ -74,10 +74,6 @@
         }
       ]
     },
-    "mas": {
-      "entitlements": "build/entitlements.mas.plist",
-      "entitlementsInherit": "build/entitlements.mas.inherit.plist"
-    },
     "win": {
       "target": [
         "nsis",
@@ -87,16 +83,6 @@
     },
     "nsis": {
       "oneClick": true
-    },
-    "appx": {
-      "displayName": "Webitel phone",
-      "publisherDisplayName": "Webitel phone",
-      "languages": [
-        "en-US",
-        "en-GB",
-        "pt-BR"
-      ],
-      "artifactName": "webitel-phone-${version}-${arch}.${ext}"
     },
     "linux": {
       "category": "GNOME;GTK;Network;InstantMessaging",
@@ -141,7 +127,7 @@
     "css-loader": "^0.28.7",
     "cssnano": "^3.10.0",
     "electron": "^3.0.5",
-    "electron-builder": "^20.6.2",
+    "electron-builder": "^20.31.2",
     "electron-installer-dmg": "^0.1.2",
     "electron-packager": "^12.2.0",
     "electron-winstaller": "=2.4.1",
