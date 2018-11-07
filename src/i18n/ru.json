@@ -91,7 +91,6 @@
     "password": "Password",
     "server": "Server",
     "authBtn": "Login",
-
     "errRequiredAccount": "Login is required",
     "errRequiredOauthServer": "OAuth url is required",
     "errRequiredOauthDomain": "Domain is required",
@@ -143,6 +142,7 @@
     "audioOutDevices": "Устройство воспроизведения",
     "ringInboundSinkId": "Устройство для звуковых оповещений",
     "refreshDevices": "Очистить",
+    "disableAutoUpdate": "Отключить автообновление",
     "logout": "Выйти"
   }
 }

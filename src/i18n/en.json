@@ -91,7 +91,6 @@
     "password": "Password",
     "server": "Server",
     "authBtn": "Login",
-
     "errRequiredAccount": "Login is required",
     "errRequiredOauthServer": "OAuth url is required",
     "errRequiredOauthDomain": "Domain is required",
@@ -138,12 +137,12 @@
     "usePostProcess": "Use post process",
     "ringInboundCall": "Ring inbound call",
     "notifyNewCall": "Notify new call",
-    "disableAutoUpdate": "Disable auto update",
     "notifyMissedCall": "Notify missed call",
     "audioInDevice": "Microphone",
     "audioOutDevices": "Output device",
     "ringInboundSinkId": "Ring device",
     "refreshDevices": "Refresh devices",
+    "disableAutoUpdate": "Disable auto update",
     "logout": "Logout"
   }
 }
