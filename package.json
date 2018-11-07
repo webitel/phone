@@ -83,7 +83,7 @@
         "nsis",
         "msi"
       ],
-      "icon": "static/img/icons/icon48x48.ico"
+      "icon": "static/img/icons/ico_256.ico"
     },
     "nsis": {
       "oneClick": true
