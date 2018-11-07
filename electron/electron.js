@@ -39,7 +39,7 @@ function sendMakeCall(number = '') {
 }
 
 app.on('open-url', (event, number) => {
-  sendMakeCall({number});
+  sendMakeCall(number);
 });
 
 function createWindow () {
