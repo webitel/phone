@@ -90,8 +90,9 @@
       "icon": "static/img/icons/ico_256.ico"
     },
     "nsis": {
-      "perMachine": false,
-      "oneClick": true
+      "perMachine": true,
+      "oneClick": true,
+      "menuCategory": "Webitel"
     },
     "linux": {
       "target": [
