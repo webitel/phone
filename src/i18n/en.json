@@ -9,6 +9,7 @@
     "hide": "Hide",
     "show": "Show",
     "alwaysOnTop": "Always no top",
+    "links": "Links",
     "version": "Version: {version}"
   },
   "upgrade": {
