@@ -14,8 +14,6 @@ matrix:
       sudo: required
       services: docker
       language: generic
-      env:
-        - DEBUG=electron-builder
 
 cache:
   directories:

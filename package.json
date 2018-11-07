@@ -9,8 +9,8 @@
     "dev": "node build/dev-server.js",
     "start": "node build/dev-server.js",
     "build": "node build/build.js",
-    "relese-latest": "npm run build && electron-builder --config.publish.channel=latest --config.artifactName='${name}_${channel}.${ext}' --publish always",
-    "relese-stable": "npm run build && build && electron-builder --config.publish.channel=stable --config.artifactName='${name}.${ext}' --publish onTag",
+    "relese-latest": "npm run build && electron-builder --config.publish.channel=latest --config.artifactName='${name}-${channel}_${os}_${arch}.${ext}' --publish always",
+    "relese-stable": "npm run build && build && electron-builder --config.publish.channel=stable --config.artifactName='${name}_${os}_${arch}.${ext}' --publish onTag",
     "build-nw": "npm run build && node build/nw.js",
     "package-mac": "electron-packager ./dist webitel-phone --overwrite --asar --platform=darwin --arch=x64 --icon=static/img/icons/icon.icns --prune=true --out=release-builds",
     "package-win": "electron-packager ./dist webitel-phone --overwrite --asar --platform=win32 --arch=ia32 --icon=static/img/icons/icon.ico --prune --out=release-builds --version-string.CompanyName=CE --version-string.FileDescription=CE --version-string.ProductName=\"Webitel Phone App\"",
@@ -27,7 +27,8 @@
         "provider": "spaces",
         "name": "webitel-phone",
         "region": "ams3",
-        "acl": "public-read"
+        "acl": "public-read",
+        "channel": "stable"
       }
     ],
     "directories": {
@@ -77,7 +78,7 @@
     "win": {
       "target": [
         "nsis",
-        "msi"
+        "zip"
       ],
       "icon": "static/img/icons/ico_256.ico"
     },
