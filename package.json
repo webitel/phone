@@ -97,8 +97,6 @@
     "linux": {
       "target": [
         "AppImage",
-        "deb",
-        "rpm",
         "tar.gz"
       ],
       "category": "GNOME;GTK;Network;InstantMessaging",
