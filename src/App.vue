@@ -631,6 +631,13 @@
     overflow-y: auto;
   }
 
+  .theme--light.application {
+    background: #f5f5f5;
+  }
+  .theme--light.v-bottom-nav {
+    background-color: #f5f5f5;
+  }
+
   .input-or-search-number.v-text-field.v-text-field--solo .v-input__control {
     min-height: 42px;
   }

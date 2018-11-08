@@ -150,7 +150,6 @@
           showErrorDialog: false,
           anchorAttrs: {
             target: '_blank',
-            // onclick: `typeof WEBITEL_LINK === 'function' ? WEBITEL_LINK(this, event): null`,
             rel: 'noopener noreferrer nofollow'
           }
         }

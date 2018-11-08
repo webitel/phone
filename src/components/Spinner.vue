@@ -47,7 +47,7 @@
     z-index: 7;
     background: #303030;
     width: 100%;
-    height: calc(100% - 143px);
+    height: calc(100% - 134px);
     transition: .5s cubic-bezier(.25,.8,.5,1);
     opacity: .46;
   }
