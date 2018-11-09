@@ -159,7 +159,7 @@ class App {
     });
 
     tray.on('open-documentation', () => {
-      remote.shell.openItem("https://docs.webitel.com/display/PHONE")
+      remote.shell.openExternal("https://docs.webitel.com/display/PHONE")
     });
 
     tray.on('quit', this.close);
