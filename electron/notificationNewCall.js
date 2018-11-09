@@ -48,7 +48,7 @@ class NotificationNewCall extends EventEmitter {
 
     win.webContents.on('new-window', function(event, url){
       event.preventDefault();
-      shell.openItem(url)
+      shell.openExternal(url);
     });
 
     win.once('set-show', ({mh = 150}) => {

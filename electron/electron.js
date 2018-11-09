@@ -143,7 +143,7 @@ function createWindow () {
 
   mainWindow.webContents.on('new-window', function(event, url){
     event.preventDefault();
-    shell.openItem(url)
+    shell.openExternal(url);
   });
 
   // Emitted when the window is closed.
