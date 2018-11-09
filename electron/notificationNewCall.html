@@ -94,8 +94,7 @@
     }
 
     .call-btn {
-      height: 30px;
-      line-height: 30px;
+      height: 35px;
       text-align: center;
       flex-grow: 1;
       background-color: transparent;
@@ -130,6 +129,7 @@
 
     .call-data {
       margin: 5px;
+      font-size: 12px;
       word-break: break-all;
       -webkit-app-region: no-drag;
     }
@@ -293,7 +293,7 @@
 
       if (callInfo && callInfo.length) {
         const md = getMd();
-        let html = '';
+        let html = '<div style="height: 5px"></div>';
         for (let row of callInfo) {
           html += '<p>' + md.renderInline(`**${row.title}**: ${row.content}`) + '</p>'
         }
