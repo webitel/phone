@@ -16,11 +16,20 @@
   </style>
   <style>
 
+    @font-face {
+      font-family: Material Icons;
+      font-style: normal;
+      font-weight: 400;
+      src: url(/static/fonts/MaterialIcons-Regular.eot);
+      src: local("Material Icons"),local("MaterialIcons-Regular"),url(/static/fonts/MaterialIcons-Regular.woff2) format("woff2"),url(/static/fonts/MaterialIcons-Regular.woff) format("woff"),url(/static/fonts/MaterialIcons-Regular.ttf) format("truetype")
+    }
+
     body {
       margin: 0;
-      font-family: Verdana, Arial, Helvetica, sans-serif;
+      font-family: 'Roboto',sans-serif;
       font-size: 16px;
       font-weight: 500;
+      overflow: hidden;
     }
 
     p {
@@ -93,7 +102,6 @@
       border: 1px solid #ffffff29;
       display: inline-block;
       cursor: pointer;
-      font-size: 14px;
       color: #CDCECE;
       font-weight: 800;
       width: 100%;
@@ -292,11 +300,13 @@
 
         const div = document.createElement('div');
         div.classList.add('call-data');
+        html += '<div style="height: 10px"></div>';
         div.innerHTML = html;
         document.getElementById('callData').appendChild(div);
+
       }
 
-      let mh = document.body.offsetHeight + 16;
+      let mh = document.body.offsetHeight ;
       remote.getCurrentWindow().emit('set-show', {mh});
     }
 
