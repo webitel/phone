@@ -54,7 +54,7 @@
               </v-list-tile-action>
 
               <v-list-tile-content>
-                <v-list-tile-title>
+                <v-list-tile-title style="user-select:text;">
                   <a @click="makeCall(i.displayNumber)">{{ i.displayNumber }}</a>
                 </v-list-tile-title>
 

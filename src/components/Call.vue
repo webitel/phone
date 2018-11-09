@@ -11,7 +11,10 @@
                 <h5>{{call.state ? $t('call.' + call.state.toLowerCase()) : ''}}</h5>
               </v-flex>
               <v-flex xs6 class="text-xs-center">
-                <h2 @click="copyClipboard(call.number)" class="copy-to-clipboard text-xs-center">{{call.name}}</h2>
+                <v-tooltip v-model="showTooltipCopy" top nudge-top="0">
+                  <h2 slot="activator" @click="copyClipboard(call.number)" class="copy-to-clipboard text-xs-center">{{call.name}}</h2>
+                  <span>{{$t('call.copied')}}</span>
+                </v-tooltip>
               </v-flex>
               <v-flex xs3 class="text-xs-right">
                 <h5>
@@ -453,6 +456,8 @@
         return {
           modalTime: false,
           modalDate: false,
+          showTooltipCopy: false,
+          showTooltipTimer: null,
           panel: [true, true],
 
           dtmfPanel: false,
@@ -469,8 +474,17 @@
         }
       },
       methods: {
-        copyClipboard: (data) => {
+        copyClipboard(data) {
           copyToClipboard(data);
+
+          if (this.showTooltipCopy) {
+            return;
+          }
+          this.showTooltipCopy = true;
+          this.showTooltipTimer = setTimeout(() => {
+            this.showTooltipCopy = false;
+            this.showTooltipTimer = null;
+          }, 2000)
         },
         allowedDates: val => new Date(val).getTime() >= new Date(new  Date().toLocaleDateString()).getTime(),
         sendPostProcess() {
@@ -485,6 +499,11 @@
             }
 
           })
+        }
+      },
+      destroyed() {
+        if (this.showTooltipTimer) {
+          clearTimeout(this.showTooltipTimer)
         }
       }
     }

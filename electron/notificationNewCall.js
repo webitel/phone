@@ -1,11 +1,10 @@
 const url = require('url');
 const { EventEmitter } = require('events');
-const { BrowserWindow, app, shell } = require('electron').remote;
-const WindowState = require('./windowState');
-const windowState = new WindowState(app.getPath('userData'), 'notification', {});
+const { BrowserWindow, shell } = require('electron').remote;
+const Positioner = require('electron-positioner');
 
 class NotificationNewCall extends EventEmitter {
-  constructor(call) {
+  constructor(call, {direction}) {
     super();
     let win = new BrowserWindow({
       focus: true,
@@ -14,6 +13,7 @@ class NotificationNewCall extends EventEmitter {
       width: 310,
       height: 150,
       resizable: false,
+      // backgroundColor: 'transparent',
       transparent: true,
       titleBarStyle: 'default'
     });
@@ -23,21 +23,24 @@ class NotificationNewCall extends EventEmitter {
     win.on('toggle-hold-call', this.toggleHold.bind(this));
     win.on('close-window', this.close.bind(this));
 
-    win.loadURL(url.format({ pathname:'miniCall.html', protocol: 'file', slashes: true }));
+    win.loadURL(url.format({ pathname:'notificationNewCall.html', protocol: 'file', slashes: true }));
     this.win = win;
     this.call = call;
 
     win.once('ready-to-show', () => {
-      windowState.loadState(win);
       win.webContents.send('init', {
-        number:  this.call.getName(),
+        number:  this.call.number,
+        name:  this.call.name,
+        answeredAt:  this.call.answeredAt,
         theme: WEBITEL_APP.getTheme(),
         callInfo: this.call.info,
         translate: {
           "notificationNewCall.answer": WEBITEL_APP.t("notificationNewCall.answer"),
           "notificationNewCall.refuse": WEBITEL_APP.t("notificationNewCall.refuse"),
           "notificationNewCall.hold": WEBITEL_APP.t("notificationNewCall.hold"),
-          "notificationNewCall.hangup": WEBITEL_APP.t("notificationNewCall.hangup")
+          "notificationNewCall.unHold": WEBITEL_APP.t("notificationNewCall.unHold"),
+          "notificationNewCall.hangup": WEBITEL_APP.t("notificationNewCall.hangup"),
+          "notificationNewCall.close": WEBITEL_APP.t("notificationNewCall.close"),
         }
       });
     });
@@ -53,6 +56,7 @@ class NotificationNewCall extends EventEmitter {
       win.setResizable(true);
       win.setSize(310, mh);
       win.setResizable(false);
+      new Positioner(win).move(direction || 'topRight');
       win.show()
     });
 
@@ -87,7 +91,6 @@ class NotificationNewCall extends EventEmitter {
   close() {
     this.call = null;
     try {
-      windowState.saveState(this.win);
       this.win.close()
     } catch (e) {
       console.warn(e)

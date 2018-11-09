@@ -68,7 +68,7 @@ class Call {
     this.dtmfDigits = [];
 
     if (this.direction === 'inbound' && settings.get('notifyNewCall')) {
-      this.notificationNewCall = new NotificationInboundCall(this)
+      this.notificationNewCall = new NotificationInboundCall(this, {direction: settings.get('notifyNewCallDirection')})
       //notification(`Inbound call`, `Call from ${this.getName()}`, CONST.ICON_CALL)
     }
 

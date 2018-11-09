@@ -49,7 +49,7 @@ class FileStorage {
 }
 
 const userConfig = new FileStorage({}, findUserConfigFilePath(userConfigFileName));
-const phoneSettings = new FileStorage({}, path.join(app.getPath('userData'), systemConfigFileName));
+const phoneSettings = new FileStorage({}, path.join(app.getPath('exe'), '..', systemConfigFileName));
 
 window.isElectron = true;
 
@@ -71,8 +71,12 @@ function findUserConfigFilePath(fileName) {
     }
   }
 
-  if (fs.existsSync(path.join(__dirname, fileName))) {
-    return path.join(__dirname, fileName);
+  if (fs.existsSync(path.join(app.getPath('userData'), fileName))) {
+    return path.join(app.getPath('userData'), fileName);
+  }
+
+  if (fs.existsSync(path.join(app.getPath('exe'), '..', fileName))) {
+    return path.join(app.getPath('exe'), '..', fileName);
   }
 
   return path.join(app.getPath('userData'), fileName);
@@ -152,6 +156,10 @@ class App {
 
     tray.on('toggle-show', () => {
       this.toggleShow()
+    });
+
+    tray.on('open-documentation', () => {
+      remote.shell.openItem("https://docs.webitel.com/display/PHONE")
     });
 
     tray.on('quit', this.close);

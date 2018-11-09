@@ -10,6 +10,7 @@
     "show": "Показать",
     "alwaysOnTop": "Поверх окон",
     "links": "Ссылки",
+    "documentation": "Документация",
     "version": "Версия: {version}"
   },
   "upgrade": {
@@ -28,7 +29,9 @@
     "answer": "Принять",
     "refuse": "Отклонить",
     "hold": "Удержание",
-    "hangup": "Завершить"
+    "unHold": "Возврат",
+    "hangup": "Завершить",
+    "close": "Спрятать"
   },
   "user": {
     "statusReady": "Готов",
@@ -66,7 +69,8 @@
     "ringing": "Звонит",
     "active": "Активен",
     "hold": "Удержание",
-    "down": "DOWN"
+    "down": "DOWN",
+    "copied": "Скопировано"
   },
   "changeStatus": {
     "title": "Сменить статус",

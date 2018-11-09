@@ -91,6 +91,10 @@ const getContextMenu = (state = {}, tray) => {
       }
     },
     {
+      label: tray.i18n.t('app.documentation'),
+      click: () => tray.emit('open-documentation')
+    },
+    {
       label: tray.i18n.t('app.close'),
       click: () => tray.emit('quit')
     }

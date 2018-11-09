@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+  <style>
+    :root {
+      --white: #FEFEFE;
+      --genoa: #387E75;
+      --chetwode-blue: #627AAD;
+      --hit-grey: #A9AFAF;
+      --zircon: #DCE4E6;
+      --iron: #CDCECE;
+    }
+  </style>
+  <style>
+
+    body {
+      margin: 0;
+      font-family: Verdana, Arial, Helvetica, sans-serif;
+      font-size: 16px;
+      font-weight: 500;
+    }
+
+    .wrapper {
+      -webkit-app-region: drag;
+      background-color: #627AAD;
+      color: #FEFEFE;
+      /*min-height: 100px;*/
+      border-radius: 5px;
+      display: block;
+      opacity: .95;
+      position: relative;
+    }
+
+    .wrapper.dark {
+      background-color: #303030;
+    }
+
+    .header {
+      padding: 10px ;
+      display: inline-flex;
+    }
+
+    .icon {
+      padding-top: 10px;
+    }
+
+    .header-info {
+      overflow: hidden;
+    }
+
+    .call-info > * {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .call-info {
+      margin-left: 10px;
+    }
+    .call-info .call-number {
+      margin-top: 2px;
+      color: #DCE4E6;
+      cursor: pointer;
+      -webkit-app-region: no-drag;
+    }
+
+    .header-info .call-time {
+      position: absolute;
+      right: 10px;
+      top: 10px;
+    }
+
+    .call-controls {
+      width: 100%;
+      display: flex;
+      -webkit-app-region: no-drag;
+    }
+
+    .call-btn {
+      height: 30px;
+      line-height: 30px;
+      text-align: center;
+      flex-grow: 1;
+      background-color: transparent;
+      border: 1px solid #ffffff29;
+      display: inline-block;
+      cursor: pointer;
+      font-size: 14px;
+      color: #CDCECE;
+      font-weight: 800;
+      width: 100%;
+    }
+    .call-btn:hover {
+      background-color:transparent;
+    }
+    .call-btn:active {
+      position:relative;
+      top:1px;
+    }
+
+    .text-danger {
+      color: #ff5252 !important;
+    }
+    .text-accept {
+      color: #4caf50 !important;
+    }
+    .text-warn {
+      color: #ffc107 !important;
+    }
+
+    a {
+      color: #82b1ff;
+    }
+
+    .call-data {
+      margin: 5px;
+      word-break: break-all;
+      -webkit-app-region: no-drag;
+    }
+
+  </style>
+</head>
+<body>
+<div id="wrapperId" class="wrapper">
+  <div class="header">
+    <div class="icon">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#CDCECE" viewBox="0 0 24 24"><path d="M0 0h24v24H0z" fill="none"/><path d="M20 5.41L18.59 4 7 15.59V9H5v10h10v-2H8.41z"/></svg>
+    </div>
+    <div class="header-info">
+      <div class="call-info">
+        <div id="callName"></div>
+        <div id="callNumber" class="call-number" onclick="copyNumber()"></div>
+      </div>
+
+      <div class="call-time">
+        <span id="idMin">00</span>:<span id="idSec">00</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="call-controls">
+    <button id="closeBtn" onclick="notification.close()" class="call-btn">Hide</button>
+    <button id="activeOrHoldBtn" onclick="notification.setAnswerOrHold()" class="call-btn text-accept">Answer</button>
+    <button id="hangupBtn" onclick="notification.setHangupCall()" class="call-btn text-danger">Hangup</button>
+  </div>
+
+  <div id="callData">
+
+  </div>
+
+</div>
+</body>
+
+<script src="/static/lib/markdown-it.min.js"></script>
+<script type="application/javascript">
+  const remote = require('electron').remote;
+  const ipc = require('electron').ipcRenderer;
+  let notification = null;
+
+  function pad(val) {
+    const valString = val + "";
+    if (valString.length < 2) {
+      return "0" + valString;
+    } else {
+      return valString;
+    }
+  }
+
+  function getMd() {
+    const md = markdownit();
+    // Remember old renderer, if overriden, or proxy to default renderer
+    const defaultRender = md.renderer.rules.link_open || function(tokens, idx, options, env, self) {
+      return self.renderToken(tokens, idx, options);
+    };
+
+    md.renderer.rules.link_open = function (tokens, idx, options, env, self) {
+      // If you are sure other plugins can't add `target` - drop check below
+      const aIndex = tokens[idx].attrIndex('target');
+
+      if (aIndex < 0) {
+        tokens[idx].attrPush(['target', '_blank']); // add new attribute
+      } else {
+        tokens[idx].attrs[aIndex][1] = '_blank';    // replace value of existing attr
+      }
+
+      // pass token to default renderer.
+      return defaultRender(tokens, idx, options, env, self);
+    };
+
+    return md;
+  }
+
+  class Timer {
+    constructor(idSec, idMin, startTime = null) {
+      this.timer = null;
+      if (startTime) {
+        this.totalSeconds = parseInt( (Date.now() - startTime) / 1000);
+      } else {
+        this.totalSeconds = 0;
+      }
+      this.secLabel = document.getElementById(idSec);
+      this.minLabel = document.getElementById(idMin);
+      this.setTime();
+
+      if (startTime) {
+        this.start();
+      }
+    }
+    clearTimer() {
+      if (this.timer) {
+        clearInterval(this.timer);
+        this.timer = null;
+        return true
+      }
+      return false
+    }
+    setTime() {
+      this.secLabel.innerHTML = pad(this.totalSeconds % 60);
+      this.minLabel.innerHTML = pad(parseInt(this.totalSeconds / 60));
+    }
+    tick() {
+      ++this.totalSeconds;
+      this.setTime();
+    }
+    start() {
+      this.clearTimer();
+      this.timer = setInterval(this.tick.bind(this), 1000)
+    }
+
+    stop() {
+      this.clearTimer();
+    }
+
+    reset() {
+      this.stop();
+      this.totalSeconds = 0;
+    }
+  }
+
+  class NotificationCall {
+    constructor({number, name, theme, answeredAt = null, translate = {}, callInfo}) {
+      this.activeOrHoldBtn = document.getElementById("activeOrHoldBtn");
+      this.answered = answeredAt > 0;
+      this.translate = translate;
+
+      if (number) {
+        document.getElementById('callNumber').textContent = number;
+      }
+
+      if (name) {
+        document.getElementById('callName').textContent = name;
+      }
+
+      if ("notificationNewCall.hangup" in this.translate) {
+        document.getElementById('hangupBtn').textContent = this.translate["notificationNewCall.hangup"];
+      }
+
+      if ("notificationNewCall.close" in this.translate) {
+        document.getElementById('closeBtn').textContent = this.translate["notificationNewCall.close"];
+      }
+
+      if (this.answered) {
+        this.onActive();
+      } else {
+        if ("notificationNewCall.answer" in this.translate) {
+          this.activeOrHoldBtn.textContent = this.translate["notificationNewCall.answer"];
+        } else {
+          this.activeOrHoldBtn.textContent = "Answer"
+        }
+      }
+
+      if (theme) {
+        document.getElementById('wrapperId').classList.add(theme)
+      }
+
+      this.time = new Timer("idSec", "idMin", answeredAt);
+
+      if (callInfo && callInfo.length) {
+        const md = getMd();
+        let html = '';
+        for (let row of callInfo) {
+          html += `<p>${row.title}: ${md.renderInline(row.content)}</p>`
+        }
+
+        const div = document.createElement('div');
+        div.classList.add('call-data');
+        div.innerHTML = html;
+        document.getElementById('callData').appendChild(div);
+      }
+
+      let mh = document.body.offsetHeight + 16;
+      remote.getCurrentWindow().emit('set-show', {mh});
+    }
+
+    onAnswer() {
+      this.time.start();
+      this.answered = true;
+      this.onActive();
+    }
+
+    onHold() {
+      if ("notificationNewCall.unHold" in this.translate) {
+        this.activeOrHoldBtn.textContent = this.translate["notificationNewCall.unHold"];
+      } else {
+        this.activeOrHoldBtn.textContent = 'Un Hold'
+      }
+      this.activeOrHoldBtn.classList.add('text-warn');
+      this.activeOrHoldBtn.classList.remove('text-accept');
+    }
+
+    onActive() {
+      if ("notificationNewCall.hold" in this.translate) {
+        this.activeOrHoldBtn.textContent = this.translate["notificationNewCall.hold"];
+      } else {
+        this.activeOrHoldBtn.textContent = 'Hold'
+      }
+      this.activeOrHoldBtn.classList.remove('text-accept');
+      this.activeOrHoldBtn.classList.remove('text-warn');
+    }
+
+    setAnswerOrHold() {
+      if (this.answered) {
+        remote.getCurrentWindow().emit('toggle-hold-call');
+      } else {
+        remote.getCurrentWindow().emit('answer-call');
+      }
+    }
+
+    setHangupCall() {
+      remote.getCurrentWindow().emit('hangup-call');
+    }
+
+    close() {
+      remote.getCurrentWindow().emit('close-window');
+    }
+
+  }
+
+
+  ipc.on('init', (event, params) => {
+    notification = new NotificationCall(params);
+  });
+
+  ipc.on('answer', (event, message) => {
+    notification.onAnswer();
+  });
+
+  ipc.on('hold', (event, message) => {
+    notification.onHold();
+  });
+
+  ipc.on('active', (event, message) => {
+    notification.onActive();
+  });
+
+  function copyNumber() {
+    remote.clipboard.writeText(document.getElementById('callNumber').textContent);
+  }
+
+</script>
+</html>

@@ -10,6 +10,7 @@
     "show": "Show",
     "alwaysOnTop": "Always no top",
     "links": "Links",
+    "documentation": "Documentation",
     "version": "Version: {version}"
   },
   "upgrade": {
@@ -28,7 +29,9 @@
     "answer": "Answer",
     "refuse": "Refuse",
     "hold": "Hold",
-    "hangup": "Hangup"
+    "unHold": "Resume",
+    "hangup": "Hangup",
+    "close": "Hide"
   },
   "user": {
     "statusReady": "Ready",
@@ -66,7 +69,8 @@
     "ringing": "RINGING",
     "active": "ACTIVE",
     "hold": "HOLD",
-    "down": "DOWN"
+    "down": "DOWN",
+    "copied": "Copied"
   },
   "changeStatus": {
     "title": "Change status",

@@ -10,6 +10,7 @@
     "show": "Показати",
     "alwaysOnTop": "Поверх вікон",
     "links": "Посилання",
+    "documentation": "Документація",
     "version": "Версія: {version}"
   },
   "upgrade": {
@@ -28,7 +29,9 @@
     "answer": "Прийняти",
     "refuse": "Відхилити",
     "hold": "Утримання",
-    "hangup": "Завершити"
+    "unHold": "Повернути",
+    "hangup": "Завершити",
+    "close": "Сховати"
   },
   "user": {
     "statusReady": "Готовий",
@@ -66,7 +69,8 @@
     "ringing": "RINGING",
     "active": "ACTIVE",
     "hold": "HOLD",
-    "down": "DOWN"
+    "down": "DOWN",
+    "copied": "Скопійовано"
   },
   "changeStatus": {
     "title": "Змінити статус",

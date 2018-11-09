@@ -71,7 +71,7 @@
                 </v-list-tile-action>
 
                 <v-list-tile-content  class="body-1">
-                  <v-list-tile-title>
+                  <v-list-tile-title style="user-select:text;">
                     <i18n path="callback.rowTile" tag="span">
                       <a @click="makeCall(i.number)" place="number">{{i.number}}</a>
                       <span place="queue">{{i.queue_name}}</span>

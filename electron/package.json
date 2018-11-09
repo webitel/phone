@@ -10,7 +10,7 @@
   "main": "electron.js",
   "dependencies": {
     "@xkeshi/vue-countdown": "^1.0.1",
-    "electron-prompt": "^1.2.0",
+    "electron-positioner": "^4.1.0",
     "electron-updater": "^3.1.6",
     "plyr": "^3.4.3",
     "readline-sync": "^1.4.9",
