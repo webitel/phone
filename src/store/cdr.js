@@ -138,9 +138,10 @@ function getRequestBody(userId, query, page) {
       "duration",
       "variables.webitel_data",
       "created_time",
-      "hangup_cause"
+      "hangup_cause",
+      "variables.webitel_record_file_name"
     ],
-    "includes": ["recordings"],
+    // "includes": ["recordings"],
     "columnsDate": [],
     "pageNumber": page,
     "limit": FETCH_COUNT,
@@ -185,8 +186,8 @@ function responseToRow(user, item) {
       item.fields.caller_id_number.toString().indexOf('@'));
   }
 
-  if (item._source.hasOwnProperty('recordings') && item._source.recordings.length) {
-    row._uri = getCdrFileUri(user, item._source.recordings[0])
+  if (row.hasOwnProperty('variables.webitel_record_file_name') && row.billsec > 2) {
+    row._uri = getCdrFileUri(user, row['variables.webitel_record_file_name'].toString())
   }
 
   if (user.number === row.caller_id_number) {
@@ -234,14 +235,17 @@ function fillGroups(user, groups, res) {
   return groups;
 }
 
-function getCdrFileUri (user, recording) {
-  //"36bac292-44ea-49b8-bc98-496d5bbfd213_recordSession.mp3"
-
+function getCdrFileUri (user, id) {
+  const idx = id.indexOf('_');
+  if (!~idx) {
+    return null;
+  }
+  const name = id.substring(idx + 1);
   let uri = user.cdrServer + "/api/v2/files/" +
-    recording.uuid + "?access_token=" + user.getToken() +
+    id.substring(0, idx) + "?access_token=" + user.getToken() +
     "&x_key=" + user.getKey();
-  if (recording.name)
-    uri += "&name=" + recording.name + "&file_name=" + recording.name;
+  if (name)
+    uri += "&name=" + name.substring(0, name.indexOf('.')) + "&file_name=" + name;
   return uri;
 }
 
