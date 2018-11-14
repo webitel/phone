@@ -19,7 +19,7 @@ cache:
   - "$HOME/.cache/electron"
   - "$HOME/.cache/electron-builder"
 addons:
-  ssh_known_hosts: cloud-ams1.webitel.com
+  ssh_known_hosts: "[cloud-ams1.webitel.com]:44022"
 before_cache:
 - rm -rf $HOME/.cache/electron-builder
 before_install:
