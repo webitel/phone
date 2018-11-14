@@ -412,7 +412,7 @@ var Webitel = function(parameters) {
     }
   };
 
-  var version = '3.1';
+  var version = parameters.remoteVersion || '3.1';
 
   var WebitelCallChanelVariables = {
     UUID: 'Unique-ID',
@@ -1617,7 +1617,7 @@ var Webitel = function(parameters) {
       videoParams: jssipConfiguration['videoParams'],
       deviceParams: option.deviceParams || {},
       userVariables: {
-        "verto_user_agent": "Webitel-Phone/1.0.0"
+        "verto_user_agent": "Webitel-Phone/" + version
       },
       //audioParams: {
       //    googAutoGainControl: false,

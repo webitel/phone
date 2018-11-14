@@ -46,7 +46,8 @@ class User extends InternalUser {
       key: this.getKey(),
       token: this.getToken(),
       debug  : true,
-      reconnect: -1
+      reconnect: -1,
+      remoteVersion: store.getters['version/current']
     });
 
     this.webPhone = null;
