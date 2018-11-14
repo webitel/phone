@@ -195,7 +195,9 @@ app.on('window-all-closed', function () {
   }
 });
 
-app.setAsDefaultProtocolClient('sip');
+if (!app.isDefaultProtocolClient("wtel")) {
+  app.setAsDefaultProtocolClient("wtel");
+}
 
 app.on('activate', function () {
   // On OS X it's common to re-create a window in the app when the

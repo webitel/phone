@@ -646,6 +646,7 @@
     -webkit-app-region: drag;
     cursor: pointer;
     width: 100%;
+    min-height: 20px;
   }
 
   .badge-call-count .v-badge__badge {

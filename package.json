@@ -28,6 +28,10 @@
     "appId": "org.webitel.phone",
     "publish": [
       {
+        "provider": "generic",
+        "url": "http://phone.webitel.com/builds/"
+      },
+      {
         "provider": "spaces",
         "name": "wtel",
         "region": "nyc3",
@@ -93,6 +97,7 @@
     "nsis": {
       "perMachine": true,
       "oneClick": true,
+      "include": "build/installer.nsh",
       "menuCategory": "Webitel"
     },
     "linux": {
