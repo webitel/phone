@@ -55,8 +55,7 @@
     ],
     "mac": {
       "target": [
-        "dmg",
-        "zip"
+        "dmg"
       ],
       "category": "public.app-category.productivity",
       "bundleVersion": "40",
@@ -96,8 +95,7 @@
     },
     "linux": {
       "target": [
-        "AppImage",
-        "tar.gz"
+        "AppImage"
       ],
       "category": "GNOME;GTK;Network;InstantMessaging",
       "executableName": "webitel-phone",
