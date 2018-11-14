@@ -274,6 +274,9 @@ class User extends InternalUser {
   }
 
   makeCall(number) {
+    if (!number)
+      return;
+
     this.webitel.call(number, null, settings.get('sipAutoAnswer'))
   }
 
