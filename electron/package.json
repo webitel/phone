@@ -4,7 +4,7 @@
   "description": "Webitel Phone",
   "author": {
     "name": "Navrotskyj Igor",
-    "email": "navrotskyj@gmail.com"
+    "email": "cloud@webitel.com"
   },
   "private": true,
   "main": "electron.js",
