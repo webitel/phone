@@ -51,6 +51,10 @@ class FileStorage {
 const userConfig = new FileStorage({}, findUserConfigFilePath(userConfigFileName));
 const phoneSettings = new FileStorage({}, path.join(app.getPath('exe'), '..', systemConfigFileName));
 
+if (userConfig.get("useHotdesk") && !userConfig.get("hotdeskId")) {
+  userConfig.set("hotdeskId", process.env.COMPUTERNAME);
+}
+
 window.isElectron = true;
 
 window.WEBITEL_NOTIFICATION_NEW_CALL = NotificationNewCall;
