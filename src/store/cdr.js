@@ -32,6 +32,7 @@ export default {
     RESET_PAGINATION(state, payload) {
       state.filter = payload;
       state.page = 0;
+      state.total = 0;
       state.end = false;
       state.groups= [];
     },

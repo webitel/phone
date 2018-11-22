@@ -69,7 +69,7 @@
           this.count++;
         },
         cancelReconnect() {
-          this.$store.commit('LOGOUT')
+          this.$store.dispatch("logout");
         }
       }
 

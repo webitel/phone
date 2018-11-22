@@ -186,6 +186,11 @@ const store = new Vuex.Store({
       commit("VIEW_SPINNER", view)
     },
 
+    logout({ commit }) {
+      commit("LOGOUT");
+      commit("cdr/RESET_PAGINATION");
+    },
+
     publish({ state }, event = {}) {
       state.emitter.$emit(event.name, event.data)
     },

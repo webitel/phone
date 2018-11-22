@@ -55,7 +55,7 @@ class User extends InternalUser {
     this.webitel.onError((e) => {
       switch (e.errorType) {
         case "AUTH-ERROR":
-          store.commit('LOGOUT');
+          store.dispatch("logout");
           break;
       }
       console.error(e)

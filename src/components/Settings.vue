@@ -162,7 +162,7 @@
 
       methods: {
         logout() {
-          this.$store.commit("LOGOUT");
+          this.$store.dispatch("logout");
           this.$router.push("/login");
           this.$localStorage.set('token', '');
           this.$localStorage.set('xkey', '');
