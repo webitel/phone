@@ -109,6 +109,8 @@ class App {
     this.tray = null;
     this.hide = false;
 
+    this.versions = process.versions;
+
     if (~["win32", "win64"].indexOf(process.platform) && phoneSettings.get('disableOAuth') !== true) {
       localStorage.setItem("oauthName", phoneSettings.get('oauthName') || process.env.COMPUTERNAME)
     }
