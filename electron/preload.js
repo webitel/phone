@@ -8,6 +8,7 @@ const clipboard = remote.clipboard;
 const {ipcRenderer} = require('electron');
 const Tray = require('./tray');
 const NotificationNewCall = require('./notificationNewCall');
+const os = require('os');
 
 class FileStorage {
   constructor(defaultData = {}, pathFile) {
@@ -52,7 +53,7 @@ const userConfig = new FileStorage({}, findUserConfigFilePath(userConfigFileName
 const phoneSettings = new FileStorage({}, path.join(app.getPath('exe'), '..', systemConfigFileName));
 
 if (userConfig.get("useHotdesk") && !userConfig.get("hotdeskId")) {
-  userConfig.set("hotdeskId", process.env.COMPUTERNAME);
+  userConfig.set("hotdeskId", os.hostname());
 }
 
 window.isElectron = true;
@@ -112,7 +113,7 @@ class App {
     this.versions = process.versions;
 
     if (~["win32", "win64"].indexOf(process.platform) && phoneSettings.get('disableOAuth') !== true) {
-      localStorage.setItem("oauthName", phoneSettings.get('oauthName') || process.env.COMPUTERNAME)
+      localStorage.setItem("oauthName", phoneSettings.get('oauthName') || os.hostname())
     }
 
     this.initWindow(win);
@@ -130,7 +131,7 @@ class App {
   }
 
   makeTray(store) {
-    const links = this.config.get('hotLinks') || this.config.get('hot_links');
+    const links = this.config.get('hotLinks') || this.config.get('hot_links'); //TODO hot_links deprecated
     const tray = this.tray = new Tray(store.getters.i18n(), links, {alwaysOnTop: this.alwaysOnTop});
     tray.on('set-status', (params = {}) => {
       const user = store.getters.user();
