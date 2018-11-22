@@ -132,6 +132,7 @@ function getRequestBody(userId, query, page) {
       "uuid",
       // "direction",
       "variables.effective_callee_id_name",
+      "variables.last_sent_callee_id_name",
       "caller_id_name",
       "caller_id_number",
       "destination_number",
@@ -194,7 +195,7 @@ function responseToRow(user, item) {
   if (user.number === row.caller_id_number) {
     row.direction = "outbound";
     row.displayNumber = row.destination_number;
-    row.displayName = row['variables.effective_callee_id_name']
+    row.displayName =  row['variables.last_sent_callee_id_name'] || row['variables.effective_callee_id_name']
   } else {
     row.direction = "inbound";
     row.displayNumber = row.caller_id_number;
