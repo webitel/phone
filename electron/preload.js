@@ -251,6 +251,21 @@ class App {
       this.checkUpdate();
     }
 
+    ipcRenderer.on('power-resume', (e) => {
+      const user = store.getters['user']();
+      if (user && user.useHotdesk()) {
+        user.signHotdesk(this.config.get('hotdeskId'));
+      }
+      console.warn('Receive power-resume');
+    });
+
+    ipcRenderer.on('power-suspend', (e) => {
+      console.warn('Receive power-suspend');
+    });
+    ipcRenderer.on('power-unlock-screen', (e) => {
+      console.warn('Receive power-unlock-screen');
+    });
+
 
     store.watch(store.getters.countInboundNoAnswerCall, count => {
       if (count > 0) {

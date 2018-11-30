@@ -312,9 +312,13 @@ class User extends InternalUser {
     this.webitel.busy("ONBREAK", "");
   }
 
+  useHotdesk() {
+    return `${settings.get('useHotdesk')}` === 'true' && settings.get('hotdeskId')
+  }
+
   signHotdesk(name) {
     this.webitel.hotdeskSignIn(name, (res) => {
-      if (res.status === 1) {
+      if (res.status === 1 && res.response !== "You connected") {
         notification(`Hot desk ${name} error:`, res.response.trim(), CONST.HOT_DESK_ERROR);
       }
     })

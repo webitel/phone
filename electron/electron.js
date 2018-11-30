@@ -182,6 +182,7 @@ app.on('ready', () => {
   });
 
   createWindow();
+  subscribePowerMonitor();
 
   Menu.setApplicationMenu(Menu.buildFromTemplate(templateApplicationMenu()));
 });
@@ -197,6 +198,30 @@ app.on('window-all-closed', function () {
 
 if (!app.isDefaultProtocolClient("wtel")) {
   app.setAsDefaultProtocolClient("wtel");
+}
+
+function subscribePowerMonitor() {
+  electron.powerMonitor.on('resume', () => {
+    console.log('The system is going to ready', new Date());
+    if (mainWindow) {
+      mainWindow.send('power-resume');
+    }
+  });
+
+  electron.powerMonitor.on('suspend', () => {
+    console.log('The system is going to sleep', new Date());
+    if (mainWindow) {
+      mainWindow.send('power-suspend');
+    }
+  });
+
+  electron.powerMonitor.on('unlock-screen', () => {
+    console.log('The unlock-screen');
+    if (mainWindow) {
+      mainWindow.send('power-unlock-screen');
+    }
+  });
+
 }
 
 app.on('activate', function () {
