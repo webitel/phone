@@ -19,7 +19,7 @@ class Call {
     const date = new Date();
     this.uuid = data.uuid;
     this.direction = data.direction;
-    this.createdAt = date.getTime();
+    this.createdAt = new Date(Math.round(+data['call-created-time'] / 1000)).getTime();
     this.hangupAt = null;
     this.answeredAt = null;
     this.bridgedAt = null;
@@ -56,8 +56,29 @@ class Call {
 
     this.updateCallInfo(data.data);
 
-    if (this.infoProtectedVariables.dlr_wrap > 0) {
+    if (this.infoProtectedVariables.dlr_wrap > 0 || settings.get('usePostProcess')) {
       this.postProcessing = true;
+
+      this.postDataFields = [
+        {
+          id: 'Status',
+          type: 'v-select',
+          value: null,
+          propsData: { label: 'Status', items: ['success', 'un success']}
+        },
+        {
+          id: 'Description',
+          type: 'v-textarea',
+          value: null,
+          propsData: { label: 'Description'}
+        },
+        {
+          id: 'Raiting',
+          type: 'v-rating',
+          propsData: { label: 'Raiting'},
+          value: null
+        }
+      ];
     }
 
     this.state = STATES.NEW;
@@ -131,6 +152,10 @@ class Call {
 
   setPostProcessField(field, value) {
     this.postProcessData[field] = value;
+  }
+
+  getPostDataFields() {
+    return this.postDataFields || [];
   }
 
   getName() {
@@ -207,7 +232,7 @@ class Call {
     return !this.hangupAt
   }
 
-  sendPostProcess(cb) {
+  sendPostProcess(data, cb) {
     const body = {};
 
     const user = store.getters.user();
@@ -269,17 +294,20 @@ class Call {
         }
       )
     } else {
-      //TODO
-      this.destroy();
-      return;
-
       for (let key in data) {
-        if (data.hasOwnProperty(key)) {
+        if (data.hasOwnProperty(key) && data[key]) {
           body[key] = data[key]
         }
       }
-      //TODO
-      user.storageRequest('post', `/api/v2/cdr/${this.dbUuid}/post`, body).then(
+
+      if (Object.keys(body).length === 0) {
+        this.requestPostProcess = false;
+        cb(null);
+        this.destroy();
+        return;
+      }
+
+      user.storageRequest('post', `/api/v2/cdr/${this.dbUuid}/post?createdAt=${this.createdAt}`, body).then(
         () => {
           this.requestPostProcess = false;
           cb(null);
@@ -291,8 +319,6 @@ class Call {
         }
       );
     }
-
-    console.error(body);
 
   }
 

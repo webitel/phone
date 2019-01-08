@@ -168,7 +168,7 @@
 
                   </v-expansion-panel-content>
 
-                  <v-expansion-panel-content key="1" @keyup.native.enter="call.state === 'DOWN' && sendPostProcess()" v-show="call.postProcessing && call.dbUuid && call.bridgedAt">
+                  <v-expansion-panel-content key="1" @keyup.native.enter="call.state === 'DOWN' && sendPostProcess()" v-show="call.postProcessing && call.dbUuid && call.bridgedAt && call.infoProtectedVariables.dlr_id">
                     <div slot="header">{{$t('call.postProcessPanel')}}
                       <countdownWrap @countdownend="() => call.destroy()" :leading-zero="true" v-if="call.state === 'DOWN' && call.infoProtectedVariables.dlr_wrap > 0"  :time="call.infoProtectedVariables.dlr_wrap * 1000">
                         <template slot-scope="props">{{ props.minutes }}:{{ props.seconds }}</template>
@@ -292,6 +292,19 @@
                     </v-card>
 
                   </v-expansion-panel-content>
+
+                  <v-expansion-panel-content key="3"  @keyup.native.enter="call.state === 'DOWN' && sendPostProcess()" v-show="call.postProcessing && call.dbUuid && !call.infoProtectedVariables.dlr_id">
+                    <div slot="header">
+                      Call details
+                    </div>
+
+                    <v-card-text align-content-start>
+                      <component :is="option.type" v-for="option in postDataFields" v-model="option.value" v-bind="option.propsData">{{option.text}}</component>
+                    </v-card-text>
+
+
+                  </v-expansion-panel-content>
+
                 </v-expansion-panel>
               </v-card-text>
             </v-layout>
@@ -344,6 +357,10 @@
         },
         otherCalls() {
           return this.$store.getters.otherCalls(this.$route.params.id);
+        },
+
+        postDataFields() {
+          return this.call ? this.call.getPostDataFields() : []
         },
 
         descriptionsAutocomplete() {
@@ -458,7 +475,7 @@
           modalDate: false,
           showTooltipCopy: false,
           showTooltipTimer: null,
-          panel: [true, true],
+          panel: [true, true, true],
 
           dtmfPanel: false,
           blindTransferNumber: '',
@@ -488,7 +505,14 @@
         },
         allowedDates: val => new Date(val).getTime() >= new Date(new  Date().toLocaleDateString()).getTime(),
         sendPostProcess() {
-          this.call.sendPostProcess((err, result) => {
+          let data = null;
+          if (!this.call.infoProtectedVariables.dlr_id && this.postDataFields instanceof Array) {
+            data = {};
+            for (let item of this.postDataFields) {
+              data[item.id] = item.value;
+            }
+          }
+          this.call.sendPostProcess(data, (err, result) => {
             if (err) {
               if (!err.status) {
                 this.errorDialogText = `Server shutdown`

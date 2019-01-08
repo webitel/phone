@@ -144,7 +144,7 @@ function getRequestBody(userId, query, page) {
       "hangup_cause",
       "variables.webitel_record_file_name"
     ],
-    // "includes": ["recordings"],
+    "includes": ["post_data"],
     "columnsDate": [],
     "pageNumber": page,
     "limit": FETCH_COUNT,
@@ -177,7 +177,8 @@ function getRequestBody(userId, query, page) {
 
 function responseToRow(user, item) {
   let row = {
-    activeDetail: false
+    activeDetail: false,
+    post_data: {}
   };
 
   for (let key in item.fields) {
@@ -191,6 +192,10 @@ function responseToRow(user, item) {
 
   if (row.hasOwnProperty('variables.webitel_record_file_name') && row.billsec > 2) {
     row._uri = getCdrFileUri(user, row['variables.webitel_record_file_name'].toString())
+  }
+
+  if (item._source && item._source.post_data) {
+    row.post_data = item._source.post_data;
   }
 
   if (user.number === row.caller_id_number) {
@@ -230,6 +235,11 @@ function fillGroups(user, groups, res) {
       for (let name in data) {
         if (data[name] && !~PROTECTED_WEBITEL_DATA.indexOf(name))
           row.webitelData.push({name, value: data[name]})
+      }
+    }
+    if (row.post_data) {
+      for (let name in row.post_data) {
+        row.webitelData.push({name, value: row.post_data[name]})
       }
     }
 
