@@ -661,7 +661,10 @@
   }
 
   .system-bar-icons {
-    display: contents;
+    display: flex;
+    align-items: center;
+    align-content: center;
+    text-align: right;
     -webkit-touch-callout: none; /* iOS Safari */
     -webkit-user-select: none; /* Safari */
     -khtml-user-select: none; /* Konqueror HTML */
