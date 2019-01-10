@@ -168,22 +168,19 @@
           </div>
         </v-list>
 
-
         <!--Refresh btn-->
-        <v-layout justify-end>
-          <v-fab-transition>
-            <v-btn
-              small
-              dark
-              fixed
-              bottom
-              fab
-              @click="refreshData(true)"
-              style="margin-bottom: 50px; margin-left: -10px;"
-            >
-              <v-icon>refresh</v-icon>
-            </v-btn>
-          </v-fab-transition>
+        <v-layout align-end justify-end>
+          <v-btn
+            small
+            dark
+            fixed
+            fab
+            :disabled="busy"
+            @click="refreshData(true)"
+            style="bottom: 65px; margin-left: -10px;"
+          >
+            <v-icon>refresh</v-icon>
+          </v-btn>
         </v-layout>
 
       </v-flex>

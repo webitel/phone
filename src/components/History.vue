@@ -87,21 +87,19 @@
         </div>
       </v-list>
 
-      <v-layout justify-end>
-        <v-fab-transition>
+      <!--Refresh btn-->
+      <v-layout align-end justify-end>
         <v-btn
           small
           dark
           fixed
-          bottom
           fab
-          @click="refreshData()"
           :disabled="loading"
-          style="margin-bottom: 50px; margin-left: -10px;"
+          @click="refreshData(true)"
+          style="bottom: 65px; margin-left: -10px;"
         >
           <v-icon>refresh</v-icon>
         </v-btn>
-      </v-fab-transition>
       </v-layout>
     </v-flex>
 
