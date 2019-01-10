@@ -48,6 +48,18 @@
           </v-card>
         </v-flex>
 
+        <v-dialog :value="!!dialogConfirmDone" persistent max-width="290">
+          <v-card >
+            <v-card-title class="headline">{{$t('callback.dialogDoneTitle')}}</v-card-title>
+            <v-card-text>{{$t('callback.dialogDoneContent')}}</v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="green darken-1" flat @click.native="dialogConfirmDone = null">{{$t('app.cancel')}}</v-btn>
+              <v-btn color="green darken-1" flat @click.native="setDone()">{{$t('app.ok')}}</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+
         <!--Grid data-->
         <v-list style="margin-bottom: 30px" two-line subheader expand v-infinite-scroll="loadMore" infinite-scroll-disabled="busy">
           <div v-for="item in data">
@@ -56,18 +68,7 @@
               <v-list-tile @click="" avatar class="callback-row">
 
                 <v-list-tile-action class="callback-done-btn">
-                  <v-dialog v-model="i._dialog" persistent max-width="290">
-                    <v-checkbox slot="activator" @click.stop.prevent="!i.done && confirmDone(i)" :input-value="i.done === true"></v-checkbox>
-                    <v-card >
-                      <v-card-title class="headline">{{$t('callback.dialogDoneTitle')}}</v-card-title>
-                      <v-card-text>{{$t('callback.dialogDoneContent')}}</v-card-text>
-                      <v-card-actions>
-                        <v-spacer></v-spacer>
-                        <v-btn color="green darken-1" flat @click.native="i._dialog = false">{{$t('app.cancel')}}</v-btn>
-                        <v-btn color="green darken-1" flat @click.native="setDone(i)">{{$t('app.ok')}}</v-btn>
-                      </v-card-actions>
-                    </v-card>
-                  </v-dialog>
+                  <v-checkbox @click.stop.prevent="!i.done && confirmDone(i)" :input-value="i.done === true"></v-checkbox>
                 </v-list-tile-action>
 
                 <v-list-tile-content  class="body-1">
@@ -200,6 +201,7 @@
     data() {
       return {
         busy: true,
+        dialogConfirmDone: null,
         select: localStorage.getItem('callback_view') || "overdue",
         items: [
           {
@@ -315,13 +317,16 @@
         this.user.makeCallbackQueueCall(queue_id, id);
       },
       confirmDone(item) {
-        item._dialog = true;
+        this.dialogConfirmDone = item;
       },
-      setDone(item) {
+      setDone() {
+        if (!this.dialogConfirmDone) {
+          throw `Not selected confirm done record`;
+        }
         this.busy = true;
-        this.callback.setDone(item.queue_id, item.id, (err, res) => {
+        this.callback.setDone(this.dialogConfirmDone.queue_id, this.dialogConfirmDone.id, (err, res) => {
           this.busy = false;
-          item._dialog = false;
+          this.dialogConfirmDone = null;
           if (err)
             throw err;
 
