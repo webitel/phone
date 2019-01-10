@@ -7,16 +7,16 @@
         <v-card >
           <v-card-title >
             <v-layout row>
-              <v-flex xs3 class="text-xs-left">
+              <v-flex xs2 class="text-xs-left">
                 <h5>{{call.state ? $t('call.' + call.state.toLowerCase()) : ''}}</h5>
               </v-flex>
-              <v-flex xs6 class="text-xs-center">
+              <v-flex xs8 class="text-xs-center">
                 <v-tooltip v-model="showTooltipCopy" top nudge-top="0">
-                  <h2 slot="activator" @click="copyClipboard(call.number)" class="copy-to-clipboard text-xs-center">{{call.name}}</h2>
+                  <h2 slot="activator" @click="copyClipboard(call.number)" class="copy-to-clipboard text-xs-center text-truncate">{{call.name}}</h2>
                   <span>{{$t('call.copied')}}</span>
                 </v-tooltip>
               </v-flex>
-              <v-flex xs3 class="text-xs-right">
+              <v-flex xs2 class="text-xs-right">
                 <h5>
                   <v-icon v-if="call.direction === 'inbound'">call_received</v-icon>
                   <v-icon v-else>call_made</v-icon>
