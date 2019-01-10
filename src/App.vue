@@ -628,6 +628,13 @@
 
 <style>
   html {
+    overflow-y: hidden;
+  }
+  body {
+    overflow-y: hidden;
+  }
+
+  .app-content .v-content__wrap {
     overflow-y: auto;
   }
 
@@ -673,7 +680,7 @@
 
   .app-view {
     height: 100%;
-    overflow-y: auto;
+    /*overflow-y: auto;*/
     backface-visibility: hidden;
   }
 

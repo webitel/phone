@@ -73,7 +73,7 @@
                 <v-list-tile-content  class="body-1">
                   <v-list-tile-title style="user-select:text;">
                     <i18n path="callback.rowTile" tag="span">
-                      <a @click="makeCall(i.number)" place="number">{{i.number}}</a>
+                      <a @click="makeCall(i)" place="number">{{i.number}}</a>
                       <span place="queue">{{i.queue_name}}</span>
                     </i18n>
                   </v-list-tile-title>
@@ -126,6 +126,13 @@
                   </v-flex>
                   <v-flex class="callback-detail-field" xs12 v-show="i._record.location.time_zone">
                     {{$t('callback.timeZone')}}: {{i._record.location.time_zone}}
+                  </v-flex>
+                </div>
+                <div class="callback-history-call" v-show="i._record.calls && i._record.calls.length">
+                  History:
+                  <v-flex class="callback-detail-field-hestory" xs12 v-for="call in i._record.calls">
+                    {{new Date(call.created_at).toLocaleString()}} {{call.created_by}}
+                    <v-divider></v-divider>
                   </v-flex>
                 </div>
               </v-container>
@@ -307,8 +314,8 @@
 
         });
       },
-      makeCall(number) {
-        this.user.makeCall(number);
+      makeCall({id, queue_id}) {
+        this.user.makeCallbackQueueCall(queue_id, id);
       },
       confirmDone(item) {
         item._dialog = true;
@@ -356,7 +363,10 @@
 
 <style scoped>
   .callback-detail-field {
-    padding: 18px 0 0;
+    padding: 10px 0 0;
+  }
+  .callback-detail-field-hestory {
+    padding: 8px 0 0;
   }
   .callback-done-btn {
     min-width: 35px;
@@ -368,6 +378,10 @@
 
   .callback-actions {
     min-width: 30px;
+  }
+
+  .callback-history-call {
+    padding-top: 8px;
   }
 </style>
 

@@ -71,12 +71,6 @@ class Call {
           type: 'v-textarea',
           value: null,
           propsData: { label: 'Description'}
-        },
-        {
-          id: 'Raiting',
-          type: 'v-rating',
-          propsData: { label: 'Raiting'},
-          value: null
         }
       ];
     }

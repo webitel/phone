@@ -280,6 +280,10 @@ class User extends InternalUser {
     this.webitel.call(number, null, settings.get('sipAutoAnswer'))
   }
 
+  makeCallbackQueueCall(queueId, memberId) {
+    return this.apiRequest('POST', `/api/v2/callback/${queueId}/members/${memberId}/call`, {})
+  }
+
   loginCC(reset) {
     //TODO bug server
     // if (this.loggedCC && !reset) {
