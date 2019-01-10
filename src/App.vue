@@ -10,9 +10,11 @@
 
       <v-spacer></v-spacer>
 
-      <div class="system-bar-icons">
+      <div class="system-bar-icons text-xs-center">
 
-        <i v-show="user && user.loggedCC" class="in-queue"></i>
+        <i v-show="user && user.loggedCC" class="in-queue">
+          <span>Q</span>
+        </i>
 
         <v-icon v-show="user && user.webPhoneRegister">headset_mic</v-icon>
 
@@ -608,20 +610,10 @@
 
 <style scoped>
   .in-queue {
-    display: inline-block;
-    width: 20px;
-    height: 17px;
-    min-width: 16px;
-    min-height: 16px;
-    -webkit-mask: url(/static/img/in_queue.svg) no-repeat 100% 100%;
-    mask: url(/static/img/in_queue.svg) no-repeat 100% 100%;
-    -webkit-mask-size: cover;
-    mask-size: cover;
-    background-color: #767676;
-  }
-
-  .theme--dark .in-queue {
-    background-color: hsla(0,0%,100%,.7);
+    font-weight: 500;
+    font-size: 17px;
+    font-style: normal;
+    width: 23px;
   }
 
 </style>
