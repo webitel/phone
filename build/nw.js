@@ -4,13 +4,13 @@ var nw = new NwBuilder({
     zip: false,
     appVersion: '2.0.0',
     macIcns: './static/img/icons/icon.icns',
-    winIco: './static/img/icons/icon.ico',
+    winIco: './build/icon.ico',
     files: './dist/**', // use the glob format',
     flavor: 'normal',
     buildDir: './desktop',
     cacheDir: './desktop/.cache',
-    platforms: ['win64', 'osx64', 'linux64'],
-    version: '0.33.4'
+    platforms: ['win32'],
+    version: '0.14.0'
 });
 
 //Log stuff you want

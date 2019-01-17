@@ -168,7 +168,7 @@
 
                   </v-expansion-panel-content>
 
-                  <v-expansion-panel-content key="1" @keyup.native.enter="call.state === 'DOWN' && sendPostProcess()" v-show="call.postProcessing && call.dbUuid && call.bridgedAt && call.infoProtectedVariables.dlr_id">
+                  <v-expansion-panel-content key="1" @keyup.native.enter="call.state === 'DOWN' && sendPostProcess()" v-if="call.postProcessing && call.dbUuid && call.bridgedAt && call.infoProtectedVariables.dlr_id">
                     <div slot="header">{{$t('call.postProcessPanel')}}
                       <countdownWrap @countdownend="() => call.destroy()" :leading-zero="true" v-if="call.state === 'DOWN' && call.infoProtectedVariables.dlr_wrap > 0"  :time="call.infoProtectedVariables.dlr_wrap * 1000">
                         <template slot-scope="props">{{ props.minutes }}:{{ props.seconds }}</template>
@@ -293,7 +293,7 @@
 
                   </v-expansion-panel-content>
 
-                  <v-expansion-panel-content key="3"  @keyup.native.enter="call.state === 'DOWN' && sendPostProcess()" v-show="call.postProcessing && call.dbUuid && !call.infoProtectedVariables.dlr_id">
+                  <v-expansion-panel-content key="3" v-if="call.postProcessing && call.dbUuid && !call.infoProtectedVariables.dlr_id">
                     <div slot="header">
                       Call details
                     </div>

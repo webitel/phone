@@ -73,14 +73,16 @@
       hangupCall() {
         this.call.hangup();
       }
+
       toggleHold() {
         this.call.toggleHold();
       }
+
       answerCall() {
         this.call.answer();
       }
 
-      onAnswer () {
+      onAnswer() {
         this.win.window.onStart();
       }
 
@@ -177,13 +179,15 @@
     var menu = new nw.Menu();
     menu.append(GUI_TRAY_EXIT());
     menu.append(GUI_TRAY_SEPARATOR());
+
     trayGUI.menu = menu;
 
     function createWindow() {
       gui.Window.open('./index.html', {
-        focus: true,
-        show: false,
         id: "webitelPhone",
+        focus: true,
+        frame: false,
+        show: false,
         width: GUI_MIN_WIDTH,
         height: GUI_MIN_HEIGHT
       }, function (win) {
@@ -198,6 +202,33 @@
         win.window.WEBITEL_NOTIFICATION_NEW_CALL = MiniCall;
         win.window.WEBITEL_COPY_TO_CLIPBOARD = (text) => {
           gui.Clipboard.get().set(text, 'text')
+        };
+        var alwaysOnTopMenu = new gui.MenuItem({
+          type: 'checkbox',
+          label: 'Always On Top',
+          checked: phoneSettings.get('alwaysOnTop') || false,
+          click: function () {
+            win.setAlwaysOnTop(this.checked);
+            phoneSettings.set('alwaysOnTop', this.checked)
+          }
+        });
+        var showMenu = new gui.MenuItem({
+          label: 'Open phone',
+          click: function () {
+            win.show();
+            win.focus();
+          }
+        });
+
+        menu.append(alwaysOnTopMenu);
+        menu.append(showMenu);
+
+        win.window.WEBITEL_MINIMALIZE = () => {
+          win.minimize();
+        };
+
+        win.window.WEBITEL_HIDE = () => {
+          win.hide();
         };
 
         win.on('close', () => {
@@ -216,31 +247,12 @@
         });
 
         win.on('loaded', () => {
-          var alwaysOnTopMenu = new gui.MenuItem({
-            type: 'checkbox',
-            label: 'Always On Top',
-            checked: phoneSettings.get('alwaysOnTop') || false,
-            click: function () {
-              win.setAlwaysOnTop(this.checked);
-              phoneSettings.set('alwaysOnTop', this.checked)
-            }
-          });
-          var showMenu = new gui.MenuItem({
-            label: 'Open phone',
-            click: function () {
-              win.focus();
-            }
-          });
           win.setAlwaysOnTop(phoneSettings.get('alwaysOnTop') || false);
 
           translate = win.window.phoneStore.getters.i18n();
           if (phoneSettings.get('callAlwaysOnTop')) {
             listenerCallCount(win, alwaysOnTopMenu)
           }
-
-          menu.append(alwaysOnTopMenu);
-          menu.append(showMenu);
-          trayGUI.menu = menu;
           win.show();
         });
 

@@ -59,20 +59,26 @@ class Call {
     if (this.infoProtectedVariables.dlr_wrap > 0 || settings.get('usePostProcess')) {
       this.postProcessing = true;
 
-      this.postDataFields = [
-        {
-          id: 'Status',
-          type: 'v-select',
-          value: null,
-          propsData: { label: 'Status', items: ['success', 'un success']}
-        },
-        {
-          id: 'Description',
-          type: 'v-textarea',
-          value: null,
-          propsData: { label: 'Description'}
+      if (!this.infoProtectedVariables.dlr_id) {
+        let postDataFields = [
+          {
+            "id": "Description",
+            "type": "v-textarea",
+            "value": null,
+            "propsData": { "label": "Description"}
+          }
+        ];
+        //TODO NW for 2003 not working instanceof Array ( && settings.get('postProcessDataFields').length)
+        if (settings.get('postProcessDataFields') instanceof Array) {
+          postDataFields = settings.get('postProcessDataFields');
         }
-      ];
+        
+        if (postDataFields.length > 0) {
+          this.postDataFields = postDataFields;
+        } else {
+          this.postProcessing = false;
+        }
+      }
     }
 
     this.state = STATES.NEW;
