@@ -55,6 +55,10 @@ class Call {
     }
 
     this.updateCallInfo(data.data);
+    this.dlrCallbackUuid = null;
+    if (data['dlr_session_id']) {
+      this.dlrCallbackUuid = data['dlr_session_id'];
+    }
 
     if (this.infoProtectedVariables.dlr_wrap > 0 || settings.get('usePostProcess')) {
       this.postProcessing = true;
@@ -72,7 +76,7 @@ class Call {
         if (settings.get('postProcessDataFields') instanceof Array) {
           postDataFields = settings.get('postProcessDataFields');
         }
-        
+
         if (postDataFields.length > 0) {
           this.postDataFields = postDataFields;
         } else {
@@ -277,6 +281,8 @@ class Call {
           body.description = this.postProcessData.callResult.name
         }
       }
+
+      body.session_id = this.dlrCallbackUuid;
 
       user.apiRequest(
         'put',

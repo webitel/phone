@@ -862,6 +862,10 @@ var Webitel = function(parameters) {
       result['bridge-A-Unique-ID'] = channel['Bridge-A-Unique-ID'];
       result['bridge-B-Unique-ID'] = channel['Bridge-B-Unique-ID'];
       result['my-uuid'] = channel[WebitelCallChanelVariables.UUID];
+
+      if (channel['variable_dlr_session_id']) {
+        result['dlr_session_id'] = channel['variable_dlr_session_id']
+      }
     };
 
     this.getJSONObject = function() {
