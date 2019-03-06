@@ -360,7 +360,7 @@
 
     computed: {
       hotLinks() {
-        const links = settings.get('hot_links');
+        const links = settings.get('hotLinks') || settings.get('hot_links');
         if (links && links.length > 0) {
           return links
         }
