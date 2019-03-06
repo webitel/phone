@@ -12,7 +12,7 @@ if [ "$TRAVIS_OS_NAME" == "linux" ]; then
         -v ${PWD}:/project \
         -v ~/.cache/electron:/root/.cache/electron \
         -v ~/.cache/electron-builder:/root/.cache/electron-builder \
-        electronuserland/builder:wine-mono \
+        electronuserland/builder:wine-mono-05.18 \
         /bin/bash -c "npm install && npm run relese-$DO -- --x64 -w --linux"
     else
         echo "-----> build for mac"

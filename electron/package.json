@@ -11,7 +11,7 @@
   "dependencies": {
     "@xkeshi/vue-countdown": "^1.0.1",
     "electron-positioner": "^4.1.0",
-    "electron-updater": "^3.1.6",
+    "electron-updater": "^4.0.0",
     "plyr": "^3.4.3",
     "readline-sync": "^1.4.9",
     "vue": "^2.5.17",
