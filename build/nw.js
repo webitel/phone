@@ -1,3 +1,10 @@
+/*
+1. add main.js import 'babel-polyfill'
+2. fixed refresh btp position(-50px) History.vue & Callback.vue
+3. webpack.prod.conf.js add nw copy
+ */
+
+
 var NwBuilder = require('nw-builder');
 var nw = new NwBuilder({
     appName: 'webitel-phone',

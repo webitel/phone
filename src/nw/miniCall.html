@@ -376,21 +376,31 @@
   /* init */
 
   if (typeof WEBITEL_NUMBER === "string") {
-    for (let elem of document.getElementsByClassName('number')) {
+    Array.from(document.getElementsByClassName('number')).forEach(elem => {
       elem.textContent = WEBITEL_NUMBER || "Unknown";
-    }
+    });
+    // for (let elem of document.getElementsByClassName('number')) {
+    //   elem.textContent = WEBITEL_NUMBER || "Unknown";
+    // }
   }
 
   if (typeof WEBITEL_CALL_INFO === "object") {
     var md = markdownit();
     var html = '';
-    for (let row of WEBITEL_CALL_INFO) {
-      html += `<p>${row.title}: ${md.renderInline(row.content)}</p>`
-    }
 
-    for (let elem of document.getElementsByClassName('call-info')) {
+    Array.from(WEBITEL_CALL_INFO).forEach(row => {
+      html += `<p>${row.title}: ${md.renderInline(row.content)}</p>`
+    });
+    // for (let row of WEBITEL_CALL_INFO) {
+    //   html += `<p>${row.title}: ${md.renderInline(row.content)}</p>`
+    // }
+
+    Array.from(document.getElementsByClassName('call-info')).forEach(elem => {
       elem.innerHTML = html;
-    }
+    });
+    // for (let elem of document.getElementsByClassName('call-info')) {
+    //   elem.innerHTML = html;
+    // }
   }
 
   function addClass(elem, className) {
