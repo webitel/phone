@@ -2,6 +2,7 @@
 1. add main.js import 'babel-polyfill'
 2. fixed refresh btp position(-50px) History.vue & Callback.vue
 3. webpack.prod.conf.js add nw copy
+4. call.js look TODO NW
  */
 
 
