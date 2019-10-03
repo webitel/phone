@@ -271,17 +271,17 @@
                         <div >
                           <v-select
                             :items="descriptionsAutocomplete"
-                            v-model="callResult"
+                            v-model="callResult.name"
                             :item-text="'name'"
                             :label="$t('call.dlrCallResult')"
                             dont-fill-mask-blanks
                           ></v-select>
 
                           <v-select
-                            v-if="callResult && callResult.items"
+                            v-show="callResult && subTextItems.length > 0"
                             v-model="callResult.subText"
-                            :items="callResult.items"
-                            :label="$t('call.Description')"
+                            :items="subTextItems"
+                            :label="$t('call.dlrDescription')"
                             combobox
                             clearable
                             dont-fill-mask-blanks
@@ -361,6 +361,20 @@
 
         postDataFields() {
           return this.call ? this.call.getPostDataFields() : []
+        },
+
+        subTextItems() {
+          if (this.callResult && this.callResult.name ) {
+            const selected = this.call.postProcessDescriptionMetadata.filter(
+              item => item.name === this.callResult.name
+            )[0];
+
+            if (selected && selected.items ) {
+              return selected.items
+            }
+          }
+
+          return []
         },
 
         descriptionsAutocomplete() {

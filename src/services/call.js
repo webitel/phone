@@ -12,7 +12,7 @@ const STATES = {
   DOWN: "DOWN"
 };
 
-const PROTECTED_WEBITEL_DATA = ["dlr_member_id", "dlr_id", "domain_name", "dlr_dsc_s", "dlr_wrap"];
+const PROTECTED_WEBITEL_DATA = ["dlr_member_id", "dlr_id", "domain_name", "dlr_dsc_s", "dlr_wrap", "callResult"];
 
 class Call {
   constructor(data = {}) {
@@ -33,7 +33,7 @@ class Call {
     this.postProcessData = {
       success: false,
       next_after_enabled: false,
-      callResult: null,
+      callResult: {},
       next_after_time: null,
       next_after_date: `${twoDigits(date.getFullYear())}-${twoDigits(date.getMonth() + 1)}-${twoDigits(date.getDate())}`,
       next_after_sec: 0,
