@@ -236,94 +236,119 @@ class Call {
     return !this.hangupAt
   }
 
-  sendPostProcess(data, cb) {
+  sendQueueCallResult(user, data, cb) {
     const body = {};
+    this.requestPostProcess = true;
+
+    if (this.postProcessData.success) {
+      body.success = true;
+    } else {
+      body.success = false;
+
+      if (this.postProcessData.next_after_date && this.postProcessData.next_after_time) {
+        const date = this.postProcessData.next_after_date.split('-');
+        const time = this.postProcessData.next_after_time.split(':');
+        if (date.length === 3 && time.length === 2) {
+          body.next_after_sec = Math.trunc((new Date(+date[0], +date[1], +date[2], +time[0], +time[1]).getTime()
+            - Date.now()) / 1000);
+
+          if ( !(body.next_after_sec > 0) ) {
+            delete body.next_after_sec;
+          }
+        }
+      }
+
+      // if (+this.postProcessData.next_after_sec > 0) {
+      //   body.next_after_sec = +this.postProcessData.next_after_sec;
+      // }
+
+      if (this.postProcessData.next_communication) {
+        body.next_communication = this.postProcessData.next_communication;
+      }
+
+      if (this.postProcessData.stop_communications) {
+        body.stop_communications = this.number;
+      }
+    }
+
+    if (this.postProcessData.callResult instanceof Object) {
+      if (this.postProcessData.callResult.subText) {
+        body.description = `${this.postProcessData.callResult.name} / ${this.postProcessData.callResult.subText}`
+      } else {
+        body.description = this.postProcessData.callResult.name
+      }
+    }
+
+    body.session_id = this.dlrCallbackUuid;
+
+    user.apiRequest(
+      'put',
+      `/api/v2/dialer/${this.infoProtectedVariables.dlr_id}/members/${this.infoProtectedVariables.dlr_member_id}/status`,
+      body
+    ).then(
+      () => {
+        cb(null, body);
+      },
+      (res) => {
+        return cb(res)
+      }
+    )
+  }
+
+  sendToCdr(user, data, cb) {
+    const body = {};
+
+    for (let key in data) {
+      if (data.hasOwnProperty(key) && data[key]) {
+        body[key] = data[key]
+      }
+    }
+
+    if (Object.keys(body).length === 0) {
+      cb(null);
+      return;
+    }
+
+    user.storageRequest('post', `/api/v2/cdr/${this.dbUuid}/post?createdAt=${this.createdAt}`, body).then(
+      () => {
+        cb(null);
+      },
+      (res) => {
+        return cb(res)
+      }
+    );
+  }
+
+  sendPostProcess(data, cb) {
 
     const user = store.getters.user();
     this.requestPostProcess = true;
 
     if (this.infoProtectedVariables.dlr_id && this.infoProtectedVariables.dlr_member_id) {
-      if (this.postProcessData.success) {
-        body.success = true;
-      } else {
-        body.success = false;
+      this.sendQueueCallResult(user, data, (err, body) => {
+        if (err) {
+          this.requestPostProcess = false;
+          return cb && cb(err)
+        }
 
-        if (this.postProcessData.next_after_date && this.postProcessData.next_after_time) {
-          const date = this.postProcessData.next_after_date.split('-');
-          const time = this.postProcessData.next_after_time.split(':');
-          if (date.length === 3 && time.length === 2) {
-            body.next_after_sec = Math.trunc((new Date(+date[0], +date[1], +date[2], +time[0], +time[1]).getTime()
-              - Date.now()) / 1000);
-
-            if ( !(body.next_after_sec > 0) ) {
-              delete body.next_after_sec;
-            }
+        this.sendToCdr(user, body, err => {
+          if (err) {
+            this.requestPostProcess = false;
+            return cb && cb(err)
           }
-        }
-
-        // if (+this.postProcessData.next_after_sec > 0) {
-        //   body.next_after_sec = +this.postProcessData.next_after_sec;
-        // }
-
-        if (this.postProcessData.next_communication) {
-          body.next_communication = this.postProcessData.next_communication;
-        }
-
-        if (this.postProcessData.stop_communications) {
-          body.stop_communications = this.number;
-        }
-      }
-
-      if (this.postProcessData.callResult instanceof Object) {
-        if (this.postProcessData.callResult.subText) {
-          body.description = `${this.postProcessData.callResult.name} / ${this.postProcessData.callResult.subText}`
-        } else {
-          body.description = this.postProcessData.callResult.name
-        }
-      }
-
-      body.session_id = this.dlrCallbackUuid;
-
-      user.apiRequest(
-        'put',
-        `/api/v2/dialer/${this.infoProtectedVariables.dlr_id}/members/${this.infoProtectedVariables.dlr_member_id}/status`,
-        body
-      ).then(
-        () => {
-          this.requestPostProcess = false;
-          cb(null);
+          cb && cb(null);
           this.destroy();
-        },
-        (res) => {
-          this.requestPostProcess = false;
-          return cb(res)
-        }
-      )
+        })
+      })
     } else {
-      for (let key in data) {
-        if (data.hasOwnProperty(key) && data[key]) {
-          body[key] = data[key]
+      this.sendToCdr(user, data, err => {
+        if (err) {
+          this.requestPostProcess = false;
+          return cb && cb(err)
         }
-      }
-
-      if (Object.keys(body).length === 0) {
-        this.requestPostProcess = false;
-        cb(null);
+        cb && cb(null);
         this.destroy();
-        return;
-      }
-
-      user.storageRequest('post', `/api/v2/cdr/${this.dbUuid}/post?createdAt=${this.createdAt}`, body).then(
-        () => {
-          this.requestPostProcess = false;
-          cb(null);
-          this.destroy();
-        },
-        (res) => {
-          this.requestPostProcess = false;
-          return cb(res)
-        }
-      );
+      })
     }
 
   }
