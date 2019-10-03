@@ -109,7 +109,7 @@
   },
   "dependencies": {
     "@xkeshi/vue-countdown": "^1.0.1",
-    "babel-polyfill": "^6.26.0",
+    "core-js": "^2.6.5",
     "electron-positioner": "^4.1.0",
     "electron-updater": "^3.1.6",
     "plyr": "^3.4.3",
