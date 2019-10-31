@@ -556,11 +556,11 @@ var Webitel = function(parameters) {
   var OnNewWebRTCCall = new WebitelEvent();
 
   var OnVideoWebRTCCall = new WebitelEvent();
-
   var OnVideoChangeWebRTCCall = new WebitelEvent();
 
   var OnRegisterWebRTC = new WebitelEvent();
   var OnUnRegisterWebRTC = new WebitelEvent();
+  var OnWebRTCDoAnswer = new WebitelEvent();
 
   var OnDestroyWebRTCCall = new WebitelEvent();
 
@@ -1249,11 +1249,21 @@ var Webitel = function(parameters) {
     };
 
     var webCall = WebrtcCalls.get(channelId);
-    if (webCall && e[WebitelCallChanelVariables.WJsOriginate]) {
+    if (webCall && webCall['session'].direction === WebitelVerto.enum.direction.inbound) {
       try {
-        webCall['session'].answer();
+        if (webCall['session'].answered) {
+          return;
+        }
+        if (e[WebitelCallChanelVariables.WJsOriginate]) {
+          webCall['session'].answer();
+        } else {
+          OnWebRTCDoAnswer.trigger({
+            channel: e,
+            dialog: webCall['session']
+          });
+        }
       } catch(e) {
-
+        console.error(e)
       }
     }
   };
@@ -1542,11 +1552,21 @@ var Webitel = function(parameters) {
 
             WebrtcCalls.add(newWebCall);
             var channel = ChanelCalls.get(d.callID);
-            if (channel && channel[WebitelCallChanelVariables.WJsOriginate]) {
+            if (channel) {
               try {
-                d.answer();
+                if (channel[WebitelCallChanelVariables.WJsOriginate]) {
+                  d.answer();
+                } else {
+                  if (!d.answered) {
+                    OnWebRTCDoAnswer.trigger({
+                      channel,
+                      dialog: d
+                    });
+                  }
+                }
               } catch (e) {}
             }
+
             console.log('verto.enum.state.ringing');
 
             break;
@@ -3158,6 +3178,7 @@ var Webitel = function(parameters) {
     socketStatus: WebitelConnection.getWebSocketStatus,
 
     onNewWebRTCCall: OnNewWebRTCCall.subscribe,
+    onWebRTCDoAnswer: OnWebRTCDoAnswer.subscribe,
     onDestroyWebRTCCall: OnDestroyWebRTCCall.subscribe,
     onVideoWebRTCCall: OnVideoWebRTCCall.subscribe,
     onVideoChangeWebRTCCall: OnVideoChangeWebRTCCall.subscribe,

@@ -21,6 +21,13 @@
               v-model="useWebPhone"
             ></v-checkbox>
 
+            <v-select
+              v-show="useWebPhone"
+              v-model="webAutoAnswer"
+              :items="webAutoAnswerValues"
+              :label="$t('settings.webAutoAnswer')"
+            ></v-select>
+
             <v-checkbox
               :label="$t('settings.iceServers')"
               v-model="iceServers"
@@ -131,6 +138,7 @@
         return {
           useWebPhone: settings.get("useWebPhone"),
           sipAutoAnswer: settings.get("sipAutoAnswer"),
+          webAutoAnswer: settings.get("webAutoAnswer"),
           autoLoginCallCenter: settings.get("autoLoginCallCenter"),
           agentOnDemand: settings.get("agentOnDemand"),
           usePostProcess: settings.get("usePostProcess"),
@@ -145,6 +153,7 @@
           theme: settings.get("theme"),
           loading: false,
           themes: ["dark", "lite"],
+          webAutoAnswerValues: ['Disabled', 'Enabled', 'Variable'],
           audioInDevices: [],
           audioOutDevices: []
         }
@@ -199,6 +208,9 @@
           } else {
             this.user.unRegisterWebPhone()
           }
+        },
+        webAutoAnswer(val) {
+          settings.set("webAutoAnswer", val);
         },
         autoLoginCallCenter(val) {
           settings.set("autoLoginCallCenter", val);

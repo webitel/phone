@@ -140,6 +140,7 @@
     "autoLoginCallCenter": "Автовхід оператора",
     "agentOnDemand": "Оператор за вимогою",
     "usePostProcess": "Увімкнути обробку дзвінків",
+    "webAutoAnswer": "Web phone auto answer inbound call",
     "ringInboundCall": "Звукове сповіщення",
     "notifyNewCall": "Банер вхідного дзвінка",
     "notifyMissedCall": "Банер пропущеного дзвінка",

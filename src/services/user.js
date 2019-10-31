@@ -8,8 +8,19 @@ import Vue from 'vue'
 import VertoLib from './verto'
 import CONST from "./const";
 import notification from "./notification";
+import executor from './executor'
 
 const WebitelVerto = VertoLib.verto;
+
+const ExecEvents = {
+  NEW_CALL: "new_call",
+  ANSWER: "answer",
+  HOLD: "hold",
+  UNHOLD: "unhold",
+  BRIDGE: "bridge",
+  DTMF: "dtmf",
+  HANGUP: "hangup",
+};
 
 class User extends InternalUser {
   constructor(credentials) {
@@ -19,6 +30,8 @@ class User extends InternalUser {
     this.domain = credentials.domain;
     this.id = credentials.id;
     this.number = credentials.id.split('@')[0];
+
+    this.executor = executor();
 
     this._token = credentials.token;
     this._key = credentials.key;
@@ -113,12 +126,28 @@ class User extends InternalUser {
 
     this.webitel.onNewCall( e => {
       new Call(e);
+      this.exec(ExecEvents.NEW_CALL, e);
+    });
+
+    this.webitel.onWebRTCDoAnswer(({channel, dialog}) => {
+      const webAutoAnswer = settings.get('webAutoAnswer');
+      switch (webAutoAnswer) {
+        case "Enabled":
+          dialog.answer();
+          break;
+        case "Variable":
+          if (channel["variable_w_jsclient_auto_answer"] === "true") {
+            dialog.answer();
+          }
+          break;
+      }
     });
 
     this.webitel.onDtmfCall(dtmf => {
       const call = store.getters.getCallByUuid(dtmf.call.uuid);
       if (call) {
         call.onDtmf(dtmf.digits);
+        this.exec(ExecEvents.DTMF, dtmf);
       }
     });
 
@@ -126,13 +155,15 @@ class User extends InternalUser {
       const call = store.getters.getCallByUuid(webitelCall.uuid);
       if (call) {
         call.OnAnswer(webitelCall);
+        this.exec(ExecEvents.ANSWER, webitelCall);
       }
     });
 
     this.webitel.onBridgeCall(webitelCall => {
       const call = store.getters.getCallByUuid(webitelCall.uuid);
       if (call) {
-        call.onBridge(webitelCall)
+        call.onBridge(webitelCall);
+        this.exec(ExecEvents.BRIDGE, webitelCall);
       }
     });
 
@@ -140,6 +171,7 @@ class User extends InternalUser {
       const call = store.getters.getCallByUuid(webitelCall.uuid);
       if (call) {
         call.onHold();
+        this.exec(ExecEvents.HOLD, webitelCall);
       }
     });
 
@@ -147,6 +179,7 @@ class User extends InternalUser {
       const call = store.getters.getCallByUuid(webitelCall.uuid);
       if (call) {
         call.onActive();
+        this.exec(ExecEvents.UNHOLD, webitelCall);
       }
     });
 
@@ -158,6 +191,7 @@ class User extends InternalUser {
           (call.direction === 'inbound' && !call.bridgedAt)) {
           call.destroy();
         }
+        this.exec(ExecEvents.HANGUP, e);
       }
     });
 
@@ -172,6 +206,29 @@ class User extends InternalUser {
     if (settings.get('useWebPhone') && settings.get('webrtcPassword')) {
       this.registerWebPhone();
     }
+  }
+
+  doExecCallEvent(ev = {}) {
+    try {
+      if (typeof ev.data === 'string') {
+        ev.data = JSON.parse(ev.data);
+      }
+    }  catch (e) {
+      return ev;
+    }
+    return ev;
+  }
+
+  exec(name = "", data) {
+    if (this.executor) {
+      try {
+        return this.executor.exec(name, this.doExecCallEvent(data))
+      } catch (e) {
+        console.error(e);
+        return false;
+      }
+    }
+    return false;
   }
 
   accessToResource(resource, permit) {

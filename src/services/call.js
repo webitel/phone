@@ -92,9 +92,10 @@ class Call {
 
     this.dtmfDigits = [];
 
-    if (this.direction === 'inbound' && settings.get('notifyNewCall')) {
-      this.notificationNewCall = new NotificationInboundCall(this, {direction: settings.get('notifyNewCallDirection')})
-      //notification(`Inbound call`, `Call from ${this.getName()}`, CONST.ICON_CALL)
+    if (this.direction === 'inbound') {
+      if (settings.get('notifyNewCall')) {
+        this.notificationNewCall = new NotificationInboundCall(this, {direction: settings.get('notifyNewCallDirection')})
+      }
     }
 
     store.commit("ON_NEW_CALL", this);
@@ -390,8 +391,9 @@ class Call {
   answer() {
     const webitel = store.getters.webitel();
     if (webitel) {
-      webitel.answer(this.uuid, {})
+      return webitel.answer(this.uuid, {})
     }
+    return false
   }
 
   onDtmf(digit) {

@@ -137,6 +137,7 @@
     "useWebPhone": "Use web phone",
     "iceServers": "Use STUN",
     "sipAutoAnswer": "SIP auto answer",
+    "webAutoAnswer": "Web phone auto answer inbound call",
     "autoLoginCallCenter": "Agent auto login",
     "agentOnDemand": "Agent on demand",
     "usePostProcess": "Use post process",

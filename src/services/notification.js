@@ -33,6 +33,7 @@ class NotificationInboundCallDef {
   }
 
   onHold() {
+
   }
 
   close() {

@@ -9,6 +9,7 @@ const {ipcRenderer} = require('electron');
 const Tray = require('./tray');
 const NotificationNewCall = require('./notificationNewCall');
 const os = require('os');
+const child = require('child_process').execFile;
 
 class FileStorage {
   constructor(defaultData = {}, pathFile) {
@@ -49,6 +50,63 @@ class FileStorage {
   }
 }
 
+function deepFind(obj, path) {
+  let paths = path.split('.')
+    , current = obj
+    , i;
+
+  for (i = 0; i < paths.length; ++i) {
+    if (current[paths[i]] === undefined) {
+      return undefined;
+    } else {
+      current = current[paths[i]];
+    }
+  }
+  return current;
+}
+
+class Executor {
+  constructor(config = {}) {
+    this.handlers = config || {};
+  }
+
+  parseParameters(data = {}, params = []) {
+    const parameters = [];
+    if (params instanceof Array) {
+      params.forEach( val => {
+        const parsed = `${val}`.replace(/\$\{([\s\S]*?)\}/gi, function (a, b) {
+          return deepFind(data, b)
+        });
+
+        if (parsed) {
+          parameters.push(parsed);
+        } else {
+          parameters.push(null)
+        }
+      })
+    }
+    return parameters
+  }
+
+  exec(name = '', data) {
+    if (this.handlers.hasOwnProperty(name)) {
+      const {app, parameters} = this.handlers[name];
+      if (!app) {
+        return false;
+      }
+
+      child(app, this.parseParameters(data, parameters), (err) => {
+        if (err) {
+          console.error(err)
+        }
+      });
+
+      return true
+    }
+    return false
+  }
+}
+
 const userConfig = new FileStorage({}, findUserConfigFilePath(userConfigFileName));
 const phoneSettings = new FileStorage({}, path.join(app.getPath('exe'), '..', systemConfigFileName));
 
@@ -60,6 +118,8 @@ window.isElectron = true;
 
 window.WEBITEL_NOTIFICATION_NEW_CALL = NotificationNewCall;
 window.WEBITEL_CONFIG = userConfig;
+
+
 window.initPhone = (store) => {
   window.WEBITEL_APP = new App(window, userConfig, store)
 };
@@ -293,6 +353,7 @@ class App {
     window.WEBITEL_COPY_TO_CLIPBOARD = this.copyClipboard.bind(this);
     window.WEBITEL_MINIMALIZE = this.minimize.bind(this);
     window.WEBITEL_HIDE = this.setHide.bind(this);
+    window.WEBITEL_EXECUTOR = new Executor(this.config.get('execute'));
     window.addEventListener('keyup', this.keyUp, true)
   }
 
