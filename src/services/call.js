@@ -422,7 +422,8 @@ class Call {
   onBridge(data) {
     this.name = this.isOutbound() ? data.calleeName : data.callerName;
     this.number = this.isOutbound() ? data.calleeNumber : data.callerNumber;
-    if (data['other-leg-unique-id'])
+    this.bridgedAt = Date.now();
+    if (data['other-leg-unique-id'] || data["cc_queue"])
       this.bridgedAt = Date.now();
   }
 
