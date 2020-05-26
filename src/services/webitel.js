@@ -621,6 +621,10 @@ var Webitel = function(parameters) {
       return attrs['cc-login']
     };
 
+    this.getRole = function () {
+      return attrs['role']
+    };
+
     this.getJSONObject = function() {
       return {
         id: that.getId(),
@@ -631,6 +635,7 @@ var Webitel = function(parameters) {
         online: that.getOnline(),
         name: that.getName(),
         scheme: that.getScheme(),
+        roleName: that.getRole(),
         agent: that.getAgent(),
         inCC: that.getOnlineCC()
       };
@@ -1820,6 +1825,7 @@ var Webitel = function(parameters) {
                   'id': users[key]['id'],
                   'domain': users[key]['domain'],
                   'scheme': users[key]['scheme'],
+                  'role': users[key]['role'],
                   'online': users[key]['online'],
                   'state': users[key]['state'],
                   'away': users[key]['status'],

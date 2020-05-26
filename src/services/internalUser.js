@@ -9,6 +9,8 @@ class InternalUser {
     this.status = userData.away;
     this.description = userData.tag;
 
+    this.roleName = userData.roleName;
+
     this.loggedCC = userData.inCC || false;
     // this.bigData = new Array(1e5).join('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n');
   }

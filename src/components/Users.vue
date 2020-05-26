@@ -17,6 +17,17 @@
         </v-card>
       </v-flex>
 
+      <v-card wrap flat>
+        <v-card-title>
+          <v-select
+            :items="groups"
+            v-model="filterGroup"
+            label="Group"
+          ></v-select>
+        </v-card-title>
+      </v-card>
+
+
       <v-list two-line>
         <div v-for="(item, index) in listInternalUsers">
           <v-list-tile avatar @click="" class="users-row">
@@ -58,11 +69,17 @@
       name: "Users",
       data () {
         return {
-          items: []
+          items: [],
+          filterGroup: localStorage.getItem('user_group') || null
         }
       },
       beforeDestroy() {
         this.items = [];
+      },
+      watch: {
+        filterGroup(val) {
+          localStorage.setItem('user_group', val);
+        }
       },
       methods: {
         getStateColor(user) {
@@ -96,12 +113,29 @@
       },
       computed: {
         listInternalUsers () {
+          if (this.filterGroup) {
+            return this.$store.getters.internalUsers().filter(item => {
+              return item.roleName === this.filterGroup
+            })
+          }
+
           if (this.search) {
             return this.$store.getters.internalUsers().filter(item => {
               return item.id.indexOf(this.search) >= 0 || item.name.indexOf(this.search) >= 0|| item.description.indexOf(this.search) >= 0
             })
           }
+
           return this.$store.getters.internalUsers()
+        },
+
+        groups() {
+          return this.$store.getters.internalUsers().reduce(function (ctx, c) {
+            if (~ctx.indexOf(c.roleName)) {
+              return ctx
+            }
+            ctx.push(c.roleName)
+            return ctx
+          }, []);
         },
 
         search() {
