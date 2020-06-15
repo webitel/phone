@@ -102,7 +102,7 @@
       <v-card v-if="viewStatusDialog">
         <v-card-title class="headline">{{$t('changeStatus.title')}}</v-card-title>
         <v-card-text>
-          <v-form >
+          <v-form ref="setStatus">
             <v-select
               :items="listUserStatus"
               :label="$t('changeStatus.status')"
@@ -123,7 +123,20 @@
               :label="$t('changeStatus.state')"
             ></v-select>
 
+            <v-combobox
+              v-if="hotBusyTags"
+              :items="hotBusyTags"
+              v-show="dialogStatus === 'Busy'"
+              v-model="dialogTag"
+              cache-items
+              :menu-props="{closeOnClick: true, closeOnContentClick: true, disableKeys: false}"
+              name="Tag"
+              :return-object="false"
+              :label="$t('changeStatus.tag')"
+            ></v-combobox>
+
             <v-text-field
+              v-else
               v-show="dialogStatus === 'Busy'"
               v-model="dialogTag"
               name="Tag"
@@ -359,6 +372,15 @@
     },
 
     computed: {
+      hotBusyTags() {
+        const tags = settings.get('busyTags');
+        if (tags && tags.length > 0) {
+          return tags
+        }
+
+        return ["A"]
+      },
+
       hotLinks() {
         const links = settings.get('hotLinks') || settings.get('hot_links');
         if (links && links.length > 0) {
@@ -548,6 +570,8 @@
       },
 
       changeStatus(status, state, tag) {
+        this.$refs.setStatus.validate();
+
         switch (status) {
           case "Ready":
             this.user.logoutCallCenter();
