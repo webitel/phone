@@ -14,7 +14,7 @@ function getInstallerConfig () {
   const outPath = path.join(rootPath, 'release-builds')
 
   return Promise.resolve({
-    appDirectory: path.join(outPath, 'webitel-phone-win32-x64/'),
+    appDirectory: path.join(outPath, 'webitel-phone-win32-x64'),
     authors: 'Navrotskyj Igor',
     setupMsi: 'WebitelPhoneInstaller.msi',
     // noMsi: false,

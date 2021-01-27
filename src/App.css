@@ -1,0 +1,59 @@
+@font-face {
+  font-family: 'Montserrat Semi';
+  src: url('./assets/fonts/Montserrat/Montserrat-SemiBold.ttf') format('truetype');
+}
+
+
+@font-face {
+  font-family: 'Montserrat Regular';
+  src: url('./assets/fonts/Montserrat/Montserrat-Regular.ttf') format('truetype');
+}
+
+
+.fab--hot-fix .v-btn__content .v-icon {
+  align-items: center;
+  display: inline-flex;
+  -webkit-font-feature-settings: "liga";
+  font-feature-settings: "liga";
+  font-size: 24px;
+  justify-content: center;
+  line-height: 1;
+  transition: .3s cubic-bezier(.25,.8,.5,1);
+  vertical-align: text-bottom;
+  box-shadow: 0 0 black;
+}
+
+ #app .theme--dark.v-list, #app .theme--dark.v-bottom-nav, #app .theme--dark.v-sheet,
+ #app.theme--dark.application,
+ #app .v-toolbar.theme--dark,
+ #app .v-expansion-panel .theme--dark{
+  background-color: #171a2a;
+}
+
+/*#app.theme--dark.application {*/
+  /*background-color: transparent;*/
+/*}*/
+
+ #app .theme--dark.v-expansion-panel .v-expansion-panel__container {
+   background-color: unset;
+ }
+
+
+ #app .win-sys-top {
+   /*border-top-left-radius: 9px;*/
+   /*border-top-right-radius: 9px;*/
+ }
+
+
+ #app .win-sys-bottom {
+   /*border-bottom-left-radius: 9px;*/
+   /*border-bottom-right-radius: 9px;*/
+ }
+
+ #app .application--wrap {
+   /*background-color: transparent;*/
+ }
+
+ #app .v-btn--floating .v-btn__content {
+   height: unset;
+ }

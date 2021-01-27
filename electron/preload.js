@@ -2,14 +2,16 @@ const fs = require('fs');
 const path = require('path');
 const systemConfigFileName = 'config.json';
 const userConfigFileName = 'user_config.json';
-const remote = require('electron').remote;
-const app = remote.app;
-const clipboard = remote.clipboard;
+const {clipboard, remote} = require('electron');
+const { app } = remote;
 const {ipcRenderer} = require('electron');
 const Tray = require('./tray');
 const NotificationNewCall = require('./notificationNewCall');
 const os = require('os');
 const child = require('child_process').execFile;
+
+window.SIP = require('electron_baresip');
+
 
 class FileStorage {
   constructor(defaultData = {}, pathFile) {
@@ -43,8 +45,10 @@ class FileStorage {
   load() {
     try {
       const data = fs.readFileSync(this._path);
+      console.error(">>>>>>>>>>>>>>", JSON.parse(data.toString('utf8')));
       this._data = JSON.parse(data.toString('utf8'));
     } catch (e) {
+      console.error(e);
       this.save()
     }
   }
@@ -107,11 +111,35 @@ class Executor {
   }
 }
 
-const userConfig = new FileStorage({}, findUserConfigFilePath(userConfigFileName));
+const userConfig = new FileStorage({
+  sipClient: "sip",
+  pauseDescriptions: [
+    "Обучение",
+    "Исходящий обзвон",
+    "Обработка заявок",
+    "Собрание",
+    "Доп. функционал",
+    "Обед",
+    "ИТ-проблемы",
+    "Перерыв"
+  ]
+}, findUserConfigFilePath(userConfigFileName));
 const phoneSettings = new FileStorage({}, path.join(app.getPath('exe'), '..', systemConfigFileName));
 
 if (userConfig.get("useHotdesk") && !userConfig.get("hotdeskId")) {
   userConfig.set("hotdeskId", os.hostname());
+}
+
+try {
+  const cmd = decodeURIComponent(remote.process.argv.slice(1)[0]).replace('wtel\:\/\/', '');
+  const params = cmd.split(' ');
+  if (params.length > 0 && params[1].startsWith('open')) {
+    const {token, server} = JSON.parse(params[0])
+    userConfig.set('server', server);
+    localStorage.setItem('token', token);
+  }
+} catch (e) {
+  console.error(e)
 }
 
 window.isElectron = true;
@@ -173,12 +201,15 @@ class App {
     this.versions = process.versions;
 
     if (~["win32", "win64"].indexOf(process.platform) && phoneSettings.get('disableOAuth') !== true) {
-      localStorage.setItem("oauthName", phoneSettings.get('oauthName') || os.hostname())
+      //localStorage.setItem("oauthName", phoneSettings.get('oauthName') || os.hostname())
     }
 
     this.initWindow(win);
     this.makeTray(store);
     this.subscribeStore(store);
+    this.store = store;
+
+    this.remote = remote;
 
     const translate = store.getters.i18n();
     this.t = (name) => {
@@ -192,26 +223,18 @@ class App {
 
   makeTray(store) {
     const links = this.config.get('hotLinks') || this.config.get('hot_links'); //TODO hot_links deprecated
-    const tray = this.tray = new Tray(store.getters.i18n(), links, {alwaysOnTop: this.alwaysOnTop});
-    tray.on('set-status', (params = {}) => {
-      const user = store.getters.user();
-
-      switch (params.status) {
-        case "Ready":
-          user.logoutCallCenter();
-          user.setReady();
+    const pauseDescriptions = this.config.get('pauseDescriptions') || [];
+    const tray = this.tray = new Tray(store.getters.i18n(), links, pauseDescriptions, {alwaysOnTop: this.alwaysOnTop});
+    tray.on('set-status', ({status, payload}) => {
+      switch (status) {
+        case "offline":
+          store.getters.user().agent.offline();
           break;
-        case "Busy":
-          user.logoutCallCenter();
-          user.setBusy(params.state, '');
+        case "online":
+          store.getters.user().agent.online();
           break;
-        case "Call Center":
-          user.loginCC();
-          if (params.state === 'Waiting') {
-            user.setReady();
-          } else {
-            user.setBusy("ONBREAK", '');
-          }
+        case "pause":
+          store.getters.user().agent.pause(payload);
           break;
       }
     });
@@ -264,6 +287,7 @@ class App {
       store.commit('version/SET_VERSION', remote.getGlobal("currentVersion"));
 
     store.watch(store.getters.status, status => {
+      console.error(status)
       this.setStateTray({status});
     });
 
@@ -276,6 +300,42 @@ class App {
         user.makeCall(payload.number.replace(/\D/g, ''));
       }
     });
+
+    ipcRenderer.on('answer-call', (event, {id}) => {
+      if (!id) {
+        return;
+      }
+
+      const call = store.getters.getCallByUuid(id);
+      if (call) {
+        call.answer({});
+      }
+    });
+
+    ipcRenderer.on('open-session', async (event, {data}) => {
+      const user = store.getters.user();
+
+      const {token, server} = JSON.parse(data)
+      userConfig.set('server', server);
+
+
+
+
+      if (user && user.hasToken(token)) {
+        this.setShow();
+
+        return
+      }
+
+      if (user) {
+        await user.disconnect();
+      }
+      localStorage.setItem('token', token);
+      store.commit('CLEAN_SESSION');
+      ipcRenderer.send('restart');
+    });
+
+
     ipcRenderer.on('http-authentication-request', (e) => {
       store.commit('authentication/SET_REQUEST', credentials => {
         e.sender.send('http-authentication-response', credentials)

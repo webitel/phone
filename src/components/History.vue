@@ -3,6 +3,7 @@
     <Spinner :value="loading"></Spinner>
     <v-flex xs12 sm6 offset-sm3>
 
+
       <v-flex xs12 v-show="!groups.length && search">
         <v-card flat>
           <v-card-title>
@@ -37,9 +38,9 @@
 
 
       <v-list style="margin-bottom: 30px" v-show="groups.length"  two-line subheader expand v-infinite-scroll="loadMore" infinite-scroll-disabled="loading">
-        <v-subheader>
-          {{$t('history.header', {count: totalRecord})}}
-        </v-subheader>
+        <!--<v-subheader>-->
+          <!--{{$t('history.header', {count: totalRecord})}}-->
+        <!--</v-subheader>-->
 
         <div v-for="item in groups">
           <v-subheader inset>{{item.name}}</v-subheader>
@@ -66,13 +67,13 @@
 
               <v-list-tile-action class="history-actions" >
                 <v-icon class="lighten-1" @click="toggleActiveDetail(i)" v-show="showCallData(i)">contact_mail</v-icon>
-                <i class="history-record-session-icon" @click="toggleActiveDetail(i)" v-show="i._uri" ></i>
+                <i class="history-record-session-icon" @click="toggleActiveDetail(i)" v-show="i.file" ></i>
               </v-list-tile-action>
             </v-list-tile>
 
             <v-layout row wrap v-if="i.activeDetail">
               <v-container fluid grid-list-md>
-                <player v-if="i._uri" :file="i._uri"></player>
+                <player v-if="i.file" :file="playbackLink(i.file)"></player>
                 <div class="call-info-row text--accent-1" v-if="i.webitelData.length > 0" v-for="data in i.webitelData">
                   <vue-markdown class="call-info-item" :breaks="false" :anchor-attributes="anchorAttrs">**{{data.name}}**: {{data.value}}</vue-markdown>
                 </div>
@@ -86,8 +87,8 @@
           </div>
         </div>
       </v-list>
-
       <!--Refresh btn-->
+
       <v-layout align-end justify-end>
         <v-btn
           small
@@ -96,6 +97,7 @@
           fab
           :disabled="loading"
           @click="refreshData(true)"
+          class="fab--hot-fix"
           style="bottom: 65px; margin-left: -10px;"
         >
           <v-icon>refresh</v-icon>
@@ -169,6 +171,11 @@
           this.$store.dispatch('cdr/fetch', {reset: true})
         },
 
+        playbackLink(file) {
+          const api = this.apiConfiguration;
+          return `${api.basePath}/storage/recordings/${file.id}/stream?access_token=${api.apiKey}`
+        },
+
         loadMore() {
           if (this.haveMoreData)
             this.$store.dispatch("cdr/fetch");
@@ -200,6 +207,9 @@
         },
         user() {
           return this.$store.getters.user();
+        },
+        apiConfiguration() {
+          return this.$store.getters.apiConfiguration();
         }
       },
       watch: {

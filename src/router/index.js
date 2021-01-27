@@ -1,14 +1,14 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 
-import History from '@/components/History'
-import Users from '@/components/Users'
-import Settings from '@/components/Settings'
-import NotFound from '@/components/404'
-import Login from '@/components/Login'
-import Call from '@/components/Call'
-import Reconnect from '@/components/Reconnect'
-import Callback from '@/components/Callback'
+import History from '../components/History.vue'
+import Users from '../components/Users'
+import Settings from '../components/Settings.vue'
+import NotFound from '../components/404.vue'
+import Login from '../components/Login.vue'
+import Call from '../components/Call.vue'
+import Reconnect from '../components/Reconnect.vue'
+import Callback from '../components/Callback.vue'
 
 Vue.use(Router);
 

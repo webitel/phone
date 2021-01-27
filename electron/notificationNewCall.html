@@ -2,8 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Title</title>
-  <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+  <title>Call</title>
   <style>
     :root {
       --white: #FEFEFE;
@@ -17,16 +16,21 @@
   <style>
 
     @font-face {
-      font-family: Material Icons;
-      font-style: normal;
-      font-weight: 400;
-      src: url(/static/fonts/MaterialIcons-Regular.eot);
-      src: local("Material Icons"),local("MaterialIcons-Regular"),url(/static/fonts/MaterialIcons-Regular.woff2) format("woff2"),url(/static/fonts/MaterialIcons-Regular.woff) format("woff"),url(/static/fonts/MaterialIcons-Regular.ttf) format("truetype")
+      font-family: 'Montserrat Semi';
+      src: url('static/fonts/Montserrat-SemiBold.ttf') format('truetype');
     }
+
+
+    @font-face {
+      font-family: 'Montserrat Regular';
+      src: url('static/fonts/Montserrat-Regular.ttf') format('truetype');
+    }
+
+
 
     body {
       margin: 0;
-      font-family: 'Roboto',sans-serif;
+      font-family: 'Montserrat Semi', monospace;
       font-size: 16px;
       font-weight: 500;
       overflow: hidden;
@@ -39,17 +43,21 @@
 
     .wrapper {
       -webkit-app-region: drag;
-      background-color: #627AAD;
-      color: #FEFEFE;
+      background-color: #e0e0e0;
+      color: rgba(0,0,0,.54);
       /*min-height: 100px;*/
-      border-radius: 5px;
+      border-radius: 12px;
       display: block;
       opacity: .95;
       position: relative;
     }
 
     .wrapper.dark {
-      background-color: #303030;
+      background-color: #171a2a;
+      color: #DCE4E6;
+    }
+    .wrapper.dark .call-btn {
+      color: #DCE4E6;
     }
 
     .header {
@@ -76,7 +84,6 @@
     }
     .call-info .call-number {
       margin-top: 2px;
-      color: #DCE4E6;
       cursor: pointer;
       -webkit-app-region: no-drag;
     }
@@ -101,7 +108,7 @@
       border: 1px solid #ffffff29;
       display: inline-block;
       cursor: pointer;
-      color: #CDCECE;
+      color: rgba(0,0,0,.54);
       font-weight: 800;
       width: 100%;
     }

@@ -15,11 +15,12 @@ const STATES = {
 const PROTECTED_WEBITEL_DATA = ["dlr_member_id", "dlr_id", "domain_name", "dlr_dsc_s", "dlr_wrap", "callResult"];
 
 class Call {
-  constructor(data = {}) {
+  constructor(data) {
     const date = new Date();
-    this.uuid = data.uuid;
+    this.session = data;
+    this.uuid = data.id;
     this.direction = data.direction;
-    this.createdAt = new Date(Math.round(+data['call-created-time'] / 1000)).getTime();
+    this.createdAt = new Date(Math.round(+data['created_at'] / 1000)).getTime();
     this.hangupAt = null;
     this.answeredAt = null;
     this.bridgedAt = null;
@@ -49,12 +50,9 @@ class Call {
 
     this.oldCallInfoText = null;
 
-    this.dbUuid = null;
-    if (this.direction === 'outbound') {
-      this.dbUuid = data['my-uuid']
-    }
+    this.dbUuid = data.id;
 
-    this.updateCallInfo(data.data);
+    this.updateCallInfo(data.variables);
     this.dlrCallbackUuid = null;
     if (data['dlr_session_id']) {
       this.dlrCallbackUuid = data['dlr_session_id'];
@@ -87,8 +85,8 @@ class Call {
 
     this.state = STATES.NEW;
 
-    this.name = this.direction === "inbound" ? data.callerName : data.calleeName;
-    this.number = this.direction === "inbound" ? data.callerNumber : data.calleeNumber;
+    this.name = data.displayName;
+    this.number = data.displayNumber;
 
     this.dtmfDigits = [];
 
@@ -101,11 +99,19 @@ class Call {
     store.commit("ON_NEW_CALL", this);
   }
 
-  updateCallInfo(data) {
+  get queueName() {
+    if (this.session.queue) {
+      return this.session.queue.queue_name;
+    }
+
+    return null;
+  }
+
+  updateCallInfo(variables) {
     try {
-      if (data && data !== 'undefined' && this.oldCallInfoText !== data) {
-        const info = JSON.parse(data.replace(/'/g, ''));
-        this.oldCallInfoText = data;
+      if (variables && this.oldCallInfoText !== variables) {
+        const info = variables;
+        this.oldCallInfoText = variables;
         this.info = [];
         this.infoProtectedVariables = {};
         this.postProcessDescriptionMetadata = null;
@@ -359,41 +365,19 @@ class Call {
   }
 
   dtmf(digit = "") {
-    const webitel = store.getters.webitel();
-    if (webitel) {
-      webitel.dtmf(this.uuid, digit, () => {
-        // this.dtmfDigits.push(digit)
-      })
-    }
+    return this.session.sendDTMF(digit)
   }
 
   attendedTransfer(call) {
-    const webitel = store.getters.webitel();
-    if (webitel) {
-      webitel.bridgeTransfer(this.uuid, call.uuid, () => {
-
-      })
-    }
-
+    return this.session.bridgeTo(call.session);
   }
 
   blindTransfer(number) {
-    if (number) {
-      const webitel = store.getters.webitel();
-      if (webitel) {
-        webitel.transfer(this.uuid, number, () => {
-
-        })
-      }
-    }
+    return this.session.blindTransfer(number);
   }
 
   answer() {
-    const webitel = store.getters.webitel();
-    if (webitel) {
-      return webitel.answer(this.uuid, {})
-    }
-    return false
+    return this.session.answer({})
   }
 
   onDtmf(digit) {
@@ -416,7 +400,7 @@ class Call {
     }
     this.setAnswerTime();
     this.answerNotificationNewCall();
-    this.updateCallInfo(data.data);
+    this.updateCallInfo(data.variables);
   }
 
   onBridge(data) {
@@ -427,25 +411,19 @@ class Call {
   }
 
   hangup(cause = "") {
-    const webitel = store.getters.webitel();
-    if (webitel) {
-      webitel.hangup(this.uuid, this.answeredAt ? "NORMAL_CLEARING" : "CALL_REJECTED")
-    }
+    this.session.hangup(cause);
   }
 
   hold() {
-
+    this.session.hold();
   }
 
   unHold() {
-
+    this.session.unHold();
   }
 
   toggleHold() {
-    const webitel = store.getters.webitel();
-    if (webitel) {
-      webitel.toggleHold(this.uuid)
-    }
+    this.session.toggleHold();
   }
 
 }

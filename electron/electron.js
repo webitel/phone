@@ -1,4 +1,5 @@
 const url = require('url');
+const fs = require('fs');
 const electron = require('electron');
 const WindowState = require('./windowState');
 // Module to control application life.
@@ -8,8 +9,10 @@ const protocol = electron.protocol;
 const path = require('path');
 const shell = electron.shell;
 const Menu = electron.Menu;
+// const SIP = require('electron_baresip');
 
 const Updater = require('./autoUpdate');
+const updater = new Updater();
 
 // Module to create native browser window.
 const BrowserWindow = electron.BrowserWindow;
@@ -18,18 +21,62 @@ const BrowserWindow = electron.BrowserWindow;
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
+let closePhone = false;
+const mainWindowState = new WindowState(app.getPath('userData'), 'main', {});
 
 const gotTheLock = app.requestSingleInstanceLock();
 
-if (!gotTheLock) {
+const lockUpdateFilePath = path.join(app.getPath('userData'), 'update_token.lock')
+
+function checkUpdate() {
+  console.log(lockUpdateFilePath);
+  if (fs.existsSync(lockUpdateFilePath)) {
+    fs.unlinkSync(lockUpdateFilePath);
+    return true
+  }
+
+
+  return false;
+}
+
+function setUpdate() {
+  checkUpdate();
+  fs.writeFileSync(lockUpdateFilePath, 'update');
+}
+// fixme check open option
+if (!checkUpdate() && !gotTheLock ) {
   app.quit();
   return;
 } else {
   app.on('second-instance', (event, argv) => {
     if (process.platform === 'win32' || process.platform === 'linux') {
-      sendMakeCall(argv.slice(1)[0])
+      const cmd = decodeURIComponent(argv.slice(1)[0]).replace('wtel\:\/\/', '');
+      const params = cmd.split(' ');
+      if (params.length === 1) {
+        sendMakeCall(cmd)
+      } else {
+        //TODO
+        if (params[1].startsWith('answer')) {
+          sendAnswerCall(params[0]);
+        } else if (params[1].startsWith('open')) {
+          sendOpen(params[0])
+        } else  {
+          console.error(`no handle action \"${params}\"`)
+        }
+      }
     }
   });
+}
+
+function isRestart() {
+  const args = process.argv.filter(i => i !== '--relaunch');
+  if (args.length !== process.argv.length) {
+    // process.argv = args;
+
+    return false;
+  }
+
+  return false
 }
 
 function sendMakeCall(number = '') {
@@ -38,19 +85,33 @@ function sendMakeCall(number = '') {
   }
 }
 
+function sendAnswerCall(id) {
+  if (mainWindow) {
+    mainWindow.webContents.send('answer-call', {id})
+  }
+}
+
+function sendOpen(data) {
+  if (mainWindow) {
+    mainWindow.webContents.send('open-session', {data})
+  }
+}
+
 app.on('open-url', (event, number) => {
   sendMakeCall(number);
 });
 
 function createWindow () {
-  const updater = new Updater();
+
+  app.on('quit', () => {
+    // SIP.close();
+  });
 
   global.currentVersion = updater.version;
 
   // Create the browser window.
-  const mainWindowState = new WindowState(app.getPath('userData'), 'main', {});
 
-  mainWindow = new BrowserWindow({
+  let options = {
     titleBarStyle: 'default',
     minWidth: 325,
     width: 325,
@@ -64,61 +125,22 @@ function createWindow () {
     show: false,
     transparent: true,
     frame: false,
-   // icon: path.join(__dirname, 'static/img/icons/icon64x64.png'),
+    // icon: path.join(__dirname, 'static/img/icons/icon64x64.png'),
     webPreferences: {
       nodeIntegration: false,
       preload: path.join(__dirname, 'preload.js')
     }
-  });
+  };
 
-  let closePhone = false;
-  ipcMain.on('close-phone', () => {
-    closePhone = true;
-    mainWindowState.saveState(mainWindow);
-    app.quit();
-  });
-
-  ipcMain.on('check-update', (e, config) => {
-    updater.check(config, e.sender);
-  });
-  ipcMain.on('download-new-version', (e) => {
-    updater.download();
-    updater.once('update-downloaded', (info) => {
-      e.sender.send('update-version-downloaded', info);
+  if (process.platform === 'linux') {
+    options = Object.assign({}, options, {
+      icon: path.join(__dirname, 'static/img/icons/icon64x64.png')
     });
-    updater.on('download-progress', (info) => {
-      e.sender.send('update-version-progress', info);
-    });
+  }
 
-  });
+  mainWindow = new BrowserWindow(options);
+  // mainWindow.webContents.openDevTools()
 
-  ipcMain.on('install-new-version', (e) => {
-    mainWindowState.saveState(mainWindow);
-    closePhone = true;
-    app.removeAllListeners('window-all-closed');
-    updater.install();
-  });
-
-  ipcMain.on('show-phone', () => {
-    mainWindow.show();
-    mainWindow.focus();
-  });
-
-  ipcMain.on('hide-phone', () => {
-    mainWindow.hide();
-  });
-
-  ipcMain.on('minimize-phone', () => {
-    mainWindow.minimize();
-  });
-
-  ipcMain.on('always-on-top-phone', (e, val) => {
-    mainWindow.setAlwaysOnTop(!!val);
-  });
-
-  ipcMain.on('open-dev-tool', (e) => {
-    mainWindow.webContents.openDevTools()
-  });
 
   // and load the index.html of the app.
   // mainWindow.loadURL(`file://${__dirname}/index.html`, {slashes: true });
@@ -183,6 +205,65 @@ app.on('ready', () => {
 
   createWindow();
   subscribePowerMonitor();
+
+  ipcMain.on('close-phone', () => {
+    closePhone = true;
+    mainWindowState.saveState(mainWindow);
+    app.quit();
+  });
+
+  ipcMain.on('check-update', (e, config) => {
+    updater.check(config, e.sender);
+  });
+  ipcMain.on('download-new-version', (e) => {
+    updater.download();
+    updater.once('update-downloaded', (info) => {
+      e.sender.send('update-version-downloaded', info);
+    });
+    updater.on('download-progress', (info) => {
+      e.sender.send('update-version-progress', info);
+    });
+
+  });
+
+  ipcMain.on('install-new-version', (e) => {
+    mainWindowState.saveState(mainWindow);
+    closePhone = true;
+    app.removeAllListeners('window-all-closed');
+    updater.install();
+  });
+
+  ipcMain.on('show-phone', () => {
+    mainWindow.show();
+    mainWindow.focus();
+  });
+
+  ipcMain.on('hide-phone', () => {
+    mainWindow.hide();
+  });
+
+  ipcMain.on('minimize-phone', () => {
+    mainWindow.minimize();
+  });
+
+  ipcMain.on('always-on-top-phone', (e, val) => {
+    mainWindow.setAlwaysOnTop(!!val);
+  });
+
+  ipcMain.on('open-dev-tool', (e) => {
+    mainWindow.webContents.openDevTools()
+  });
+
+  ipcMain.on('restart', (event) => {
+    try {
+      setUpdate();
+      closePhone = true;
+      app.relaunch()
+      app.quit(0)
+    } catch (e) {
+      console.error(e.message)
+    }
+  });
 
   Menu.setApplicationMenu(Menu.buildFromTemplate(templateApplicationMenu()));
 });

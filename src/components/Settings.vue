@@ -10,6 +10,17 @@
             </v-btn>
 
             <v-select
+              :items="languages"
+              :label="$t('login.language')"
+              item-value="id"
+              item-text="name"
+              v-model="$i18n.locale"
+              v-on:change="changeLanguage($i18n.locale)"
+              cache-items
+              prepend-icon="language"
+            ></v-select>
+
+            <v-select
               v-model="theme"
               :items="themes"
               :label="$t('settings.theme')"
@@ -17,38 +28,7 @@
             ></v-select>
 
             <v-checkbox
-              :label="$t('settings.useWebPhone')"
-              v-model="useWebPhone"
-            ></v-checkbox>
-
-            <v-select
-              v-show="useWebPhone"
-              v-model="webAutoAnswer"
-              :items="webAutoAnswerValues"
-              :label="$t('settings.webAutoAnswer')"
-            ></v-select>
-
-            <v-checkbox
-              :label="$t('settings.iceServers')"
-              v-model="iceServers"
-            ></v-checkbox>
-
-            <v-checkbox
-              :label="$t('settings.sipAutoAnswer')"
-              v-model="sipAutoAnswer"
-            ></v-checkbox>
-
-            <v-checkbox
-              :label="$t('settings.autoLoginCallCenter')"
-              v-model="autoLoginCallCenter"
-            ></v-checkbox>
-
-            <v-checkbox
-              :label="$t('settings.agentOnDemand')"
-              v-model="agentOnDemand"
-            ></v-checkbox>
-
-            <v-checkbox
+              v-if="false"
               :label="$t('settings.usePostProcess')"
               v-model="usePostProcess"
             ></v-checkbox>
@@ -73,7 +53,26 @@
               v-model="disableAutoUpdate"
             ></v-checkbox>
 
+
             <v-select
+              v-model="sipClient"
+              :items="sipClients"
+              item-text="name"
+              item-value="id"
+              :label="$t('settings.sipClient')"
+              prepend-icon="dialer_sip"
+            ></v-select>
+
+            <v-select
+              v-if="false"
+              v-show="sipClient"
+              v-model="webAutoAnswer"
+              :items="webAutoAnswerValues"
+              :label="$t('settings.webAutoAnswer')"
+            ></v-select>
+
+            <v-select
+              v-if="false"
               :items="audioInDevices"
               v-model="audioInDevice"
               :label="$t('settings.audioInDevice')"
@@ -89,6 +88,7 @@
 
 
             <v-select
+              v-if="false"
               :items="audioOutDevices"
               :label="$t('settings.audioOutDevices')"
               :hint="$t('settings.audioOutDevices')"
@@ -103,6 +103,7 @@
             ></v-select>
 
             <v-select
+              v-if="false"
               :items="audioOutDevices"
               :hint="$t('settings.ringInboundSinkId')"
               :label="$t('settings.ringInboundSinkId')"
@@ -116,10 +117,10 @@
               prepend-icon="hearing"
             ></v-select>
 
-            <v-btn class="btn-refresh-devices" fab small @click="refreshDevices(true)">
+            <v-btn v-if="false" class="btn-refresh-devices fab--hot-fix" fab small @click="refreshDevices(true)">
               <v-icon>refresh</v-icon>
+              {{$t('settings.refreshDevices')}}
             </v-btn>
-            {{$t('settings.refreshDevices')}}
 
           </v-form>
         </v-card-text>
@@ -132,22 +133,46 @@
 <script>
     import settings from '../services/settings'
 
+    //FIXME
+    function getLanguages(obj) {
+      const result = [];
+      for (let id in obj) {
+        result.push({
+          name: obj[id].name || id,
+          id
+        })
+      }
+      return result;
+    }
+
     export default {
       name: "Settings",
       data () {
         return {
-          useWebPhone: settings.get("useWebPhone"),
-          sipAutoAnswer: settings.get("sipAutoAnswer"),
+          sipClients: [
+            {
+              id: "",
+              name: "Disabled"
+            },
+            {
+              id: "sip",
+              name: "SIP"
+            },
+            {
+              id: "webrtc",
+              name: "WebRTC"
+            }
+          ],
+          languages: getLanguages(this.$i18n.messages),
+          sipClient: settings.get("sipClient"),
           webAutoAnswer: settings.get("webAutoAnswer"),
-          autoLoginCallCenter: settings.get("autoLoginCallCenter"),
-          agentOnDemand: settings.get("agentOnDemand"),
+
           usePostProcess: settings.get("usePostProcess"),
           notifyNewCall: settings.get("notifyNewCall"),
           disableAutoUpdate: settings.get("disableAutoUpdate"),
           notifyMissedCall: settings.get("notifyMissedCall"),
           audioInDevice: settings.get("audioInDevice"),
           audioOutDevice: settings.get("audioOutDevice"),
-          iceServers: settings.get("iceServers"),
           ringInboundCall: settings.get("ringInboundCall"),
           ringInboundSinkId: settings.get("ringInboundSinkId"),
           theme: settings.get("theme"),
@@ -174,7 +199,6 @@
           this.$store.dispatch("logout");
           this.$router.push("/login");
           this.$localStorage.set('token', '');
-          this.$localStorage.set('xkey', '');
         },
         refreshDevices(reset) {
           if (this.user) {
@@ -185,7 +209,10 @@
               this.audioOutDevices = data.audioOutDevices;
             })
           }
-        }
+        },
+        changeLanguage(val) {
+          localStorage.setItem("language", val);
+        },
       },
 
       watch: {
@@ -201,34 +228,16 @@
         ringInboundCall(val) {
           settings.set("ringInboundCall", val);
         },
-        useWebPhone(val) {
-          settings.set("useWebPhone", val);
-          if (val) {
-            this.user.registerWebPhone()
-          } else {
-            this.user.unRegisterWebPhone()
-          }
+        //TODO
+        sipClient(val) {
+          settings.set("sipClient", val);
+          this.user.registerSipDevice(val);
         },
         webAutoAnswer(val) {
           settings.set("webAutoAnswer", val);
         },
-        autoLoginCallCenter(val) {
-          settings.set("autoLoginCallCenter", val);
-
-          if (val) {
-            this.user.loginCC(true);
-          } else {
-            this.user.logoutCallCenter();
-          }
-        },
-        agentOnDemand(val) {
-          settings.set("agentOnDemand", val);
-        },
         usePostProcess: (val) => {
           settings.set("usePostProcess", val)
-        },
-        sipAutoAnswer: (val) => {
-          settings.set("sipAutoAnswer", val)
         },
         notifyNewCall: (val) => {
           settings.set("notifyNewCall", val)
@@ -254,12 +263,6 @@
           settings.set("audioOutDevice", val);
           if (this.user) {
             this.user.setWebPhoneSpeak(val);
-          }
-        },
-        iceServers(val) {
-          settings.set("iceServers", val);
-          if (this.user) {
-            this.user.setWebPhoneIceServers(val);
           }
         },
       }

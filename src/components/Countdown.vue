@@ -1,7 +1,8 @@
 <template>
-  <div>
-    <span v-show="hours > 0" class="digit">{{ hours | twoDigits }}:</span><span class="digit">{{ minutes | twoDigits }}</span>:<span class="digit">{{ seconds | twoDigits }}</span>
-  </div>
+  <span>
+    <span v-show="hours > 0" class="digit">{{ hours | twoDigits }}:</span><span
+    class="digit">{{ minutes | twoDigits }}</span>:<span class="digit">{{ seconds | twoDigits }}</span>
+  </span>
 </template>
 
 <script>

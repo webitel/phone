@@ -32,6 +32,7 @@
       downloadEd.onclick = function () {
         var link = document.createElement("a");
         link.download = 'File name';
+        link.target = 'new'
         link.href = this.getAttribute('file-link');
         link.click();
       };
@@ -65,7 +66,7 @@
 
 <style>
   .theme--dark .player .plyr--audio .plyr__controls {
-    background: #474747;
+    background: #171a2a;
     color: #ffffff;
   }
 
@@ -82,6 +83,9 @@
     width: calc(100% - 14px);
   }
 
+  .player  .plyr__controls__item.plyr__time--current.plyr__time {
+    margin-left: 16px;
+  }
 
 
 </style>

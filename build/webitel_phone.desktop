@@ -1,0 +1,13 @@
+[Desktop Entry]
+Encoding=UTF-8
+Version=1.0
+Type=Application
+Name=Webitel phone2
+Icon=webitel-phone.png
+Exec=webitel-phone %u
+StartupNotify=false
+StartupWMClass=webitel-phone2
+OnlyShowIn=Unity;
+X-UnityGenerated=true
+Categories=Application;Network;
+MimeType=x-scheme-handler/wtel;

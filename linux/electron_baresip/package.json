@@ -1,0 +1,31 @@
+{
+  "name": "electro_baresip",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "install-cmake": "cmake-js compile",
+    "install": "node-gyp-build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "private": true,
+  "author": "Navrotskyj Igor",
+  "license": "ISC",
+  "dependencies": {
+    "bindings": "^1.5.0",
+    "napi-thread-safe-callback": "0.0.6",
+    "node-addon-api": "^3.0.0",
+    "node-gyp-build": "^4.2.3"
+  },
+  "devDependencies": {
+    "cmake-js": "^6.1.0"
+  },
+  "cmake-js": {
+    "runtime": "electron",
+    "runtimeVersion": "3.0.10",
+    "arch": "x64"
+  },
+  "engines": {
+    "node": ">= 14.0.0"
+  }
+}

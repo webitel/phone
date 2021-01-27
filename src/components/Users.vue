@@ -1,7 +1,7 @@
 <template>
   <v-layout row>
     <v-flex xs12 sm6 offset-sm3>
-      <v-flex xs12 v-show="!listInternalUsers.length && search">
+      <v-flex xs12 v-if="!items.length && search">
         <v-card flat>
           <v-card-title>
             <v-flex xs4 class="text-md-center">
@@ -17,48 +17,72 @@
         </v-card>
       </v-flex>
 
-      <v-card wrap flat>
-        <v-card-title>
-          <v-select
-            :items="groups"
-            v-model="filterGroup"
-            label="Group"
-          ></v-select>
-        </v-card-title>
-      </v-card>
 
-
-      <v-list two-line>
-        <div v-for="(item, index) in listInternalUsers">
-          <v-list-tile avatar @click="" class="users-row">
-            <v-list-tile-action class="users-action-status">
-              <v-icon :color="getStateColor(item)">fiber_manual_record</v-icon>
-            </v-list-tile-action>
+      <v-list two-line style="margin-bottom: 30px" v-show="items.length"  two-line subheader expand v-infinite-scroll="loadMore" infinite-scroll-disabled="loading">
+        <div v-for="(item, index) in items">
+          <v-list-tile avatar @click="" class="users-row"  >
+            <!--<v-list-tile-action class="users-action-status">-->
+              <!--<v-icon :color="getStateColor(item)">fiber_manual_record</v-icon>-->
+            <!--</v-list-tile-action>-->
 
             <v-list-tile-content>
               <v-list-tile-title >
                 {{item.name}}
               </v-list-tile-title>
               <v-list-tile-sub-title>
-                {{item.id}} {{getStateDescription(item)}}
+                {{item.extension}} {{item.presence && item.presence.status}}
               </v-list-tile-sub-title>
+
             </v-list-tile-content>
 
             <v-list-tile-action>
-              <v-btn :disabled="item.state === 'NONREG'" @click="makeCall(item.id)" icon>
+              <v-btn @click="makeCall(item.extension)" icon>
                 <v-icon color="success">call</v-icon>
               </v-btn>
             </v-list-tile-action>
 
           </v-list-tile>
-
           <v-divider
-            v-if="index + 1 < listInternalUsers.length"
           ></v-divider>
-
         </div>
       </v-list>
+
+      <!--Refresh btn-->
+      <v-layout align-end justify-end>
+        <v-btn
+          small
+          dark
+          fixed
+          fab
+          :disabled="loading"
+          @click="refreshData(true)"
+          class="fab--hot-fix"
+          style="bottom: 65px; margin-left: -10px;"
+        >
+          <v-icon>refresh</v-icon>
+        </v-btn>
+      </v-layout>
+
     </v-flex>
+
+    <v-dialog v-model="showErrorDialog" max-width="390">
+      <v-card>
+        <v-card-title class="headline">Error</v-card-title>
+        <v-card-text>
+          {{error}}
+        </v-card-text>
+        <v-divider></v-divider>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            flat
+            @click="closeErrorDialog()"
+          >
+            OK
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-layout>
 </template>
 
@@ -67,19 +91,20 @@
 
     export default {
       name: "Users",
-      data () {
+      beforeMount: function(){
+        if (!this.items.length)
+          this.$store.dispatch("users/fetch", {reset: true});
+      },
+      created() {
+
+      },
+      data() {
         return {
-          items: [],
-          filterGroup: localStorage.getItem('user_group') || null
+          showErrorDialog: false
         }
       },
       beforeDestroy() {
-        this.items = [];
-      },
-      watch: {
-        filterGroup(val) {
-          localStorage.setItem('user_group', val);
-        }
+
       },
       methods: {
         getStateColor(user) {
@@ -91,60 +116,52 @@
         },
 
         getStateDescription(user) {
-          if (user.state === 'NONREG') {
-            return this.$t('users.statusNotRegister')
-          } else if (user.state === 'ISBUSY') {
-            switch (user.status) {
-              case "NONE":
-                return this.$t('users.statusTalking');
-              case "AGENT":
-                return this.$t('users.statusAgent', {description: user.description ? user.description : 'In queue call'});
-              case "CALLFORWARD":
-                return this.$t('users.statusCallForward', {number: user.description});
-              case "ONBREAK":
-                return this.$t('users.statusOnBreak', {description: user.description});
-              case "DND":
-                return this.$t('users.statusDND', {description: user.description});
-            }
-          } else {
-            return this.$t('users.statusAvailable');
-          }
+          return 'desription'
+        },
+        refreshData() {
+          this.$store.dispatch('users/fetch', {reset: true})
+        },
+
+        loadMore() {
+          if (this.haveMoreData)
+            this.$store.dispatch("users/fetch");
+        },
+
+        closeErrorDialog() {
+          this.$store.dispatch('users/clearError');
         }
       },
       computed: {
-        listInternalUsers () {
-          if (this.filterGroup) {
-            return this.$store.getters.internalUsers().filter(item => {
-              return item.roleName === this.filterGroup
-            })
-          }
-
-          if (this.search) {
-            return this.$store.getters.internalUsers().filter(item => {
-              return item.id.indexOf(this.search) >= 0 || item.name.indexOf(this.search) >= 0|| item.description.indexOf(this.search) >= 0
-            })
-          }
-
-          return this.$store.getters.internalUsers()
+        items () {
+          return this.$store.getters['users/items'];
         },
 
-        groups() {
-          return this.$store.getters.internalUsers().reduce(function (ctx, c) {
-            if (~ctx.indexOf(c.roleName)) {
-              return ctx
-            }
-            ctx.push(c.roleName)
-            return ctx
-          }, []);
+        error() {
+          return this.$store.getters['users/error'];
         },
-
+        totalRecord() {
+          return this.$store.getters['users/total'];
+        },
+        haveMoreData() {
+          return this.$store.getters['users/haveMoreData']
+        },
+        loading () {
+          return this.$store.getters['users/loading'];
+        },
         search() {
           return this.$store.getters.getSearch();
         },
-
         user() {
-          return this.$store.getters.user()
+          return this.$store.getters.user();
         },
+      },
+      watch: {
+        error(val) {
+          this.showErrorDialog = !!val;
+        },
+        search() {
+          this.$store.dispatch('users/fetch')
+        }
       }
     }
 </script>

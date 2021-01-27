@@ -40,7 +40,10 @@
     "statusOnBreak": "On Break",
     "stateCCWaiting": "Waiting",
     "stateDND": "Do not disturb",
-    "stateCallForward": "Call forward"
+    "stateCallForward": "Call forward",
+    "online": "Online",
+    "offline": "Offline",
+    "pause": "Pause"
   },
   "users": {
     "statusNotRegister": "Not register",
@@ -149,6 +152,7 @@
     "ringInboundSinkId": "Ring device",
     "refreshDevices": "Refresh devices",
     "disableAutoUpdate": "Disable auto update",
-    "logout": "Logout"
+    "logout": "Logout",
+    "sipClient": "SIP connection"
   }
 }

@@ -45,7 +45,7 @@
   .spinner-wrap {
     position: fixed;
     z-index: 7;
-    background: #303030;
+    /*background: red;*/
     width: 100%;
     height: calc(100% - 134px);
     transition: .5s cubic-bezier(.25,.8,.5,1);

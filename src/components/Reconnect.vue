@@ -66,6 +66,10 @@
 
         webitel() {
           return this.$store.getters.webitel()
+        },
+
+        user() {
+          return this.$store.getters.user()
         }
       },
       beforeDestroy() {
@@ -81,7 +85,7 @@
       },
       methods: {
         tryReconnect() {
-          this.webitel.connect();
+          this.user.connect();
           this.count++;
         },
         cancelReconnect() {

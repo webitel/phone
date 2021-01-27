@@ -1,16 +1,16 @@
-import Webitel from './webitel'
 import store from '../store'
 import settings from './settings'
 import InternalUser from './internalUser'
 import Call from './call'
 import Vue from 'vue'
 
-import VertoLib from './verto'
 import CONST from "./const";
 import notification from "./notification";
 import executor from './executor'
 
-const WebitelVerto = VertoLib.verto;
+import {Client, CallActions} from 'webitel-sdk'
+
+import {SipPhone} from 'webitel-sdk/esm2015/sip/webrtc'
 
 const ExecEvents = {
   NEW_CALL: "new_call",
@@ -26,186 +26,205 @@ class User extends InternalUser {
   constructor(credentials) {
     super(credentials);
     this.role = credentials.roleName;
-    this.verto = credentials.verto;
     this.domain = credentials.domain;
-    this.id = credentials.id;
-    this.number = credentials.id.split('@')[0];
+    this.id = credentials.user_id;
+    this.number = credentials.extension;
 
     this.executor = executor();
 
     this._token = credentials.token;
-    this._key = credentials.key;
 
     this._acl = credentials.acl;
 
     this.devices = null;
+    this.agent = null;
 
     this.webPhoneRegister = false;
 
-    this.name = '';
-
-    this.isAgent = false;
+    this.name = credentials.name;
 
     this.apiServer = credentials.server;
-    if (credentials.cdr && `${credentials.cdr.useProxy}`=== 'false' && credentials.cdr.host) {
-      this.cdrServer = credentials.cdr.host.replace(/\/$/, '')
-    } else {
-      this.cdrServer = this.apiServer
-    }
 
-    this.webitel = new Webitel({
-      server : serverUriToWs(credentials.server),
-      account: this.id,
-      key: this.getKey(),
-      token: this.getToken(),
-      debug  : true,
-      reconnect: -1,
-      remoteVersion: store.getters['version/current']
+    this.webitel = new Client({
+      endpoint: serverUriToWs(this.apiServer),
+      // endpoint: "ws://192.168.177.199/ws",
+      // endpoint: "wss://cloud.webitel.ua/ws",
+      // endpoint: "ws://10.10.10.25:10025",
+      token: this._token,
+      registerWebDevice: false,
+      debug: true,
     });
 
-    this.webPhone = null;
+    window.cli = this.webitel;
+    window.usr = this;
 
-    this.webitel.onError((e) => {
-      switch (e.errorType) {
-        case "AUTH-ERROR":
-          store.dispatch("logout");
-          break;
-      }
-      console.error(e)
-    });
-
-    var mustLoginCC = settings.get('autoLoginCallCenter');
-
-    this.webitel.onReady( (user) => {
-
-      if (`${settings.get('useHotdesk')}` === 'true' && settings.get('hotdeskId')) {
-        this.signHotdesk(settings.get('hotdeskId'));
-      }
-
-      this.webitel.getAgentsList( list => {
-        const internalList = [];
-
-        for (let user of list) {
-          if (user.id === this.number) {
-            this.name = user.name;
-            this.isAgent = user.agent;
-
-            if (mustLoginCC && user.isAgent && !user.inCC && user.state !== 'NONREG') {
-              mustLoginCC = false;
-              this.loginCC();
-            }
-
-            this.setState(user.state, user.away, user.tag, user.inCC)
-          }
-          internalList.push(new InternalUser(user));
-        }
-        store.commit("INIT_INTERNAL_USERS", internalList);
-      });
-      store.commit("LOGIN");
-    });
-
-    this.webitel.onRegisterWebRTC( vertoSession => {
-      this.webPhone = vertoSession;
-      this.webPhoneRegister = true;
-    });
-    this.webitel.onUnRegisterWebRTC( e => {
-      this.webPhone = null;
-      this.webPhoneRegister = false
-    });
-
-    this.webitel.onUserStatusChange( (e) => {
-      if (mustLoginCC && e.id === this.number && e.state !== 'NONREG') {
-        mustLoginCC = false;
-        if (!e.inCC)
-          this.loginCC();
-      }
-      store.commit("CHANGE_INTERNAL_USER_STATE", e);
-    });
-
-    // this.bigData = new Array(1e7).join('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n');
-
-    this.webitel.onNewCall( e => {
-      new Call(e);
-      this.exec(ExecEvents.NEW_CALL, e);
-    });
-
-    this.webitel.onWebRTCDoAnswer(({channel, dialog}) => {
-      const webAutoAnswer = settings.get('webAutoAnswer');
-      switch (webAutoAnswer) {
-        case "Enabled":
-          dialog.answer();
-          break;
-        case "Variable":
-          if (channel["variable_w_jsclient_auto_answer"] === "true") {
-            dialog.answer();
-          }
-          break;
-      }
-    });
-
-    this.webitel.onDtmfCall(dtmf => {
-      const call = store.getters.getCallByUuid(dtmf.call.uuid);
-      if (call) {
-        call.onDtmf(dtmf.digits);
-        this.exec(ExecEvents.DTMF, dtmf);
-      }
-    });
-
-    this.webitel.onAcceptCall(webitelCall => {
-      const call = store.getters.getCallByUuid(webitelCall.uuid);
-      if (call) {
-        call.OnAnswer(webitelCall);
-        this.exec(ExecEvents.ANSWER, webitelCall);
-      }
-    });
-
-    this.webitel.onBridgeCall(webitelCall => {
-      const call = store.getters.getCallByUuid(webitelCall.uuid);
-      if (call) {
-        call.onBridge(webitelCall);
-        this.exec(ExecEvents.BRIDGE, webitelCall);
-      }
-    });
-
-    this.webitel.onHoldCall(webitelCall => {
-      const call = store.getters.getCallByUuid(webitelCall.uuid);
-      if (call) {
-        call.onHold();
-        this.exec(ExecEvents.HOLD, webitelCall);
-      }
-    });
-
-    this.webitel.onUnholdCall(webitelCall => {
-      const call = store.getters.getCallByUuid(webitelCall.uuid);
-      if (call) {
-        call.onActive();
-        this.exec(ExecEvents.UNHOLD, webitelCall);
-      }
-    });
-
-    this.webitel.onHangupCall(e => {
-      const call = store.getters.getCallByUuid(e.uuid);
-      if (call) {
-        call.setHangupTime(e.hangup_cause);
-        if ((!call.postProcessing || !settings.get('usePostProcess')) ||
-          (call.direction === 'inbound' && !call.bridgedAt)) {
-          call.destroy();
-        }
-        this.exec(ExecEvents.HANGUP, e);
-      }
-    });
-
-    this.webitel.onDisconnect(() => {
+    this.webitel.on('disconnected', async () => {
+      await this.disconnect();
       if (store.getters.isLogged()) {
         store.commit("SET_RECONNECT", true);
       }
-    });
+    })
 
-    this.webitel.connect();
+    this._usrAutoAnswer = localStorage.getItem('usrAutoAnswer') === "true";
 
-    if (settings.get('useWebPhone') && settings.get('webrtcPassword')) {
-      this.registerWebPhone();
+
+    this.connect();
+  }
+
+  get usrAutoAnswer() {
+    return this._usrAutoAnswer;
+  }
+
+  set usrAutoAnswer(val) {
+    localStorage.setItem('usrAutoAnswer', val);
+    this._usrAutoAnswer = val;
+  }
+
+  async connect() {
+    const callHandler =  (action, call) => {
+      switch (action) {
+        case CallActions.Ringing: {
+          new Call(call);
+          if (this.usrAutoAnswer && call.direction === 'inbound') {
+            try {
+              setTimeout(() => call.answer({}), 500);
+            } catch (e) {
+              console.error(e)
+            }
+          }
+
+          this.exec(ExecEvents.NEW_CALL, call);
+          break
+        }
+        case CallActions.Active: {
+          const c = store.getters.getCallByUuid(call.id);
+          if (c) {
+            c.OnAnswer(call);
+            this.exec(ExecEvents.ANSWER, call);
+
+            try {
+              for (let c of this.webitel.allCall()) {
+                if (c !== call && !c.isHold) {
+                  c.hold()
+                }
+              }
+            } catch (e) {
+
+            }
+          }
+          break
+        }
+        case CallActions.Hangup: {
+          const c = store.getters.getCallByUuid(call.id);
+          if (c) {
+            c.setHangupTime(call.cause);
+            c.destroy(); //todo
+            this.exec(ExecEvents.HANGUP, call);
+          }
+          break
+        }
+      }
+    };
+
+
+    const agentStatusHandle = (agent) => {
+      store.commit('CHANGE_USER_STATUS', agent.status);
     }
+
+    await this.webitel.connect();
+    await this.webitel.auth();
+    await this.webitel.subscribeCall( callHandler, {});
+
+    await this.registerSipDevice(settings.get("sipClient"));
+
+
+    store.commit("LOGIN");
+
+    try {
+      const agent = await this.webitel.agentSession();
+      this.agent = agent;
+      store.commit('CHANGE_USER_STATUS', this.agent.status);
+
+      await this.webitel.subscribeAgentsStatus(agentStatusHandle, {agent_id: agent.agentId});
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async disconnect() {
+    if (!this.webitel) {
+      return;
+    }
+
+    if (this.webitel.phone) {
+      await this.webitel.phone.unregister();
+      if (this.webitel.phone.destroy) {
+        await this.webitel.phone.destroy();
+      }
+    }
+    await this.webitel.disconnect();
+    this.webitel.eventHandler.off('*');
+
+  }
+
+  hasToken(token) {
+    return this._token === token;
+  }
+
+  get agentCallState() {
+    if (this.agent) {
+      for (let st of this.agent.channels) {
+        if (st.channel === 'call') {
+          return st.state
+        }
+      }
+    }
+
+    return ""
+  }
+
+  async registerSipDevice(typeName) {
+
+    if (this.webitel.phone) {
+      await this.webitel.phone.unregister();
+      if (this.webitel.phone.destroy) {
+        await this.webitel.phone.destroy();
+      }
+      this.webitel.phone = null;
+    }
+
+    if (!typeName) {
+      return;
+    }
+
+
+
+    switch (typeName) {
+      case "sip": {
+        this.webitel.registerCallClient(new window.SIP.SipClient({})); //TODO add parameters tcp/udp/tls etc
+        break;
+      }
+      case "webrtc": {
+        this.webitel.registerCallClient(new SipPhone('electron', true));
+        break
+      }
+    }
+
+    function registered(deviceId) {
+      console.error("registered ", deviceId);
+      store.commit('SET_SIP_REG', true);
+      store.commit('SET_SIP_DEVICE', deviceId);
+    }
+
+    function unregistered() {
+      console.error("unregistered");
+      store.commit('SET_SIP_REG', false);
+      store.commit('SET_SIP_DEVICE', null);
+    }
+
+    this.webitel.phone.on('registered', registered.bind(this));
+
+    this.webitel.phone.on('unregistered', unregistered.bind(this));
   }
 
   doExecCallEvent(ev = {}) {
@@ -232,6 +251,8 @@ class User extends InternalUser {
   }
 
   accessToResource(resource, permit) {
+    //FIXME !
+    return false;
     if (!this._acl[resource])
       return false;
 
@@ -262,38 +283,22 @@ class User extends InternalUser {
     return false;
   }
 
-  registerWebPhone() {
-    this.webitel.webrtcPhoneStart({
-      login: this.id.toString(),
-      password: settings.get('webrtcPassword'),
-      iceServers: settings.get('iceServers'),
-      deviceParams: {
-        useMic: settings.get('audioInDevice') || "any",
-        useSpeak: settings.get('audioOutDevice') || "any"
-      },
-      videoParams: {},
-      ws_servers: this.verto.toString()
-    })
-  }
 
   unRegisterWebPhone() {
-    this.webPhone = null;
-    this.webitel.webrtcPhoneStop()
+    if (this.webitel.phone) {
+      this.webitel.phone.unregister();
+      //FIXME
+      if (this.webitel.phone.destroy) {
+        this.webitel.phone.destroy();
+      }
+    }
   }
 
   logout() {
-    this.webitel.disconnect();
     this.unRegisterWebPhone();
+    this.webitel.disconnect();
     this.webitel = null;
     this.apiRequest('post', '/logout');
-  }
-
-  getToken() {
-    return this._token;
-  }
-
-  getKey() {
-    return this._key;
   }
 
   storageRequest(method = 'get', resource = '', body) {
@@ -309,14 +314,15 @@ class User extends InternalUser {
       return new Promise(resolve => resolve(this.devices));
     }
     return new Promise((resolve, reject) => {
-      WebitelVerto.init({skipPermCheck: true}, ()=> {
-        this.devices = {
-          audioInDevices: [].slice.call(WebitelVerto.audioInDevices),
-          audioOutDevices: [].slice.call(WebitelVerto.audioOutDevices),
-          videoDevices: [].slice.call(WebitelVerto.videoDevices)
-        };
-        resolve(this.devices)
-      })
+      resolve({});
+      // WebitelVerto.init({skipPermCheck: true}, ()=> {
+      //   this.devices = {
+      //     audioInDevices: [].slice.call(WebitelVerto.audioInDevices),
+      //     audioOutDevices: [].slice.call(WebitelVerto.audioOutDevices),
+      //     videoDevices: [].slice.call(WebitelVerto.videoDevices)
+      //   };
+      //   resolve(this.devices)
+      // })
     });
   }
 
@@ -330,48 +336,17 @@ class User extends InternalUser {
     }
   }
 
-  makeCall(number) {
-    if (!number)
+  makeCall(destination) {
+    if (!destination)
       return;
 
-    this.webitel.call(number, null, settings.get('sipAutoAnswer'))
+    this.webitel.call({destination}, {})
   }
 
   makeCallbackQueueCall(queueId, memberId) {
     return this.apiRequest('POST', `/api/v2/callback/${queueId}/members/${memberId}/call`, {})
   }
 
-  loginCC(reset) {
-    //TODO bug server
-    // if (this.loggedCC && !reset) {
-    //   return;
-    // }
-
-    let param = null;
-    if (settings.get('agentOnDemand')) {
-      param = {'status': "Available (On Demand)"};
-    }
-    this.webitel.loginCallCenter(param, () => {
-
-    })
-  }
-
-  logoutCallCenter() {
-    if (this.loggedCC)
-      this.webitel.logoutCallCenter();
-  }
-
-  setReady() {
-    this.webitel.ready();
-  }
-
-  setBusy(state = "", tag = "") {
-    this.webitel.busy(state, tag);
-  }
-
-  setOnBreak() {
-    this.webitel.busy("ONBREAK", "");
-  }
 
   useHotdesk() {
     return `${settings.get('useHotdesk')}` === 'true' && settings.get('hotdeskId')
@@ -387,7 +362,8 @@ class User extends InternalUser {
 }
 
 function serverUriToWs(uri = "") {
-  return uri.replace(/^http/, 'ws')
+  // fixme link
+  return uri.replace(/^http/, 'ws').replace(/(api\/?)$/, 'ws')
 }
 
 export default User

@@ -1,4 +1,5 @@
 import {getLastElem, intToTimeString, makeGroup, PROTECTED_WEBITEL_DATA} from '../services/helper'
+import {CallServiceApi} from 'webitel-sdk'
 
 const FETCH_COUNT = 40;
 
@@ -7,7 +8,7 @@ export default {
   state: {
     groups: [],
     filter: "",
-    page: 0,
+    page: 1,
     end: false,
     total: 0,
     status: {
@@ -31,7 +32,7 @@ export default {
   mutations: {
     RESET_PAGINATION(state, payload) {
       state.filter = payload;
-      state.page = 0;
+      state.page = 1;
       state.total = 0;
       state.end = false;
       state.groups= [];
@@ -71,10 +72,14 @@ export default {
         error: false
       };
     },
-    SET_DATA(state, {total, hits, user}) {
-      state.total = total;
-      state.end = FETCH_COUNT > hits.length;
-      fillGroups(user, state.groups, hits)
+    SET_DATA(state, {items, next}) {
+      if (!items) {
+        state.end = true;
+        return;
+      }
+      state.total = 1;
+      state.end =  !next; //!next; //FETCH_COUNT > hits.length;
+      fillGroups(state.groups, items)
     }
   },
   actions: {
@@ -103,17 +108,71 @@ export default {
         commit('ADD_PAGE')
       }
       commit('LOADING');
-      fetchCdr(rootGetters.user(), state.filter, state.page).then(result => {
-        commit('SET_DATA', {
-          total: result.body.hits.total,
-          hits: result.body.hits.hits,
-          user: rootGetters.user()
-        });
-        commit('SUCCESS');
-      }).catch(err => {
-        commit('ERROR', err.message);
-      });
 
+      /**
+       *
+       * @summary List of call
+       * @param {number} [page]
+       * @param {number} [size]
+       * @param {string} [created_at_from]
+       * @param {string} [created_at_to]
+       * @param {Array<string>} [user_id]
+       * @param {Array<string>} [agent_id]
+       * @param {Array<string>} [queue_id]
+       * @param {Array<string>} [team_id]
+       * @param {Array<string>} [member_id]
+       * @param {Array<string>} [gateway_id]
+       * @param {string} [q]
+       * @param {string} [duration_from]
+       * @param {string} [duration_to]
+       * @param {boolean} [skip_parent]
+       * @param {string} [parent_id]
+       * @param {string} [cause]
+       * @param {boolean} [has_file]
+       * @param {Array<string>} [fields]
+       * @param {string} [sort]
+       * @param {string} [domain_id]
+       * @param {string} [number]
+       * @param {string} [direction]
+       * @param {string} [answered_at_from]
+       * @param {string} [answered_at_to]
+       * @param {boolean} [missed]
+       * @param {string} [stored_at_from]
+       * @param {string} [stored_at_to]
+       * @param {Array<string>} [id]
+       * @param {Array<string>} [transfer_from]
+       * @param {Array<string>} [transfer_to]
+       * @param {Array<string>} [dependency_id]
+       * @param {*} [options] Override http request option.
+       * @throws {RequiredError}
+       */
+
+      new CallServiceApi(rootGetters.apiConfiguration()).searchHistoryCall(
+        +state.page,
+        FETCH_COUNT,
+        0,
+        Date.now() + (60 *60 * 1000),
+        rootGetters.user().id, //user_id
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        state.filter,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        ["created_at", "id", "files", "cause", "duration", "direction", "destination", "from", "to", "variables"],
+        ['-created_at']
+      ).then((result) => {
+        commit('SUCCESS');
+        commit('SET_DATA', result.data);
+      }).catch(e => {
+        commit('ERROR', e.message);
+      });
     },
 
     clearError({ commit }) {
@@ -123,101 +182,38 @@ export default {
 };
 
 
-function fetchCdr(user, query, page) {
-  return user.storageRequest('POST', '/api/v2/cdr/text?leg=*', JSON.stringify(getRequestBody(user.id, query, page)));
-}
-
-function getRequestBody(userId, query, page) {
-  const body = {
-    "columns": [
-      "uuid",
-      // "direction",
-      "variables.effective_callee_id_name",
-      "variables.last_sent_callee_id_name",
-      "caller_id_name",
-      "caller_id_number",
-      "destination_number",
-      "billsec",
-      "duration",
-      "variables.webitel_data",
-      "created_time",
-      "hangup_cause",
-      "variables.webitel_record_file_name"
-    ],
-    "includes": ["post_data"],
-    "columnsDate": [],
-    "pageNumber": page,
-    "limit": FETCH_COUNT,
-    "query": query,
-    "filter": {
-      "bool": {
-        "must": [
-          {
-            "range": {
-              "created_time": {
-                "gte" : "now-7d/d",
-                "lt" :  "now",
-                "format": "epoch_millis"
-              }
-            }
-          }
-        ]
-      }
-    },
-    "sort": {
-    }
-  };
-
-  body.filter.bool.must.push({
-    "term": {"presence_id": userId}
-  });
-  return body;
-}
-
-
-function responseToRow(user, item) {
+function responseToRow(item) {
   let row = {
     activeDetail: false,
-    post_data: {}
+    post_data: {},
+      ...item
   };
 
-  for (let key in item.fields) {
-    row[key] = item.fields[key].pop();
-  }
-
-  if (item.fields.hasOwnProperty('caller_id_number') && ~item.fields.caller_id_number.toString().indexOf('@')) {
-    row.caller_id_number = item.fields.caller_id_number.toString().substring(0,
-      item.fields.caller_id_number.toString().indexOf('@'));
-  }
-
-  if (row.hasOwnProperty('variables.webitel_record_file_name') && row.billsec > 2) {
-    row._uri = getCdrFileUri(user, row['variables.webitel_record_file_name'].toString())
-  }
-
-  if (item._source && item._source.post_data) {
-    row.post_data = item._source.post_data;
-  }
-
-  if (user.number === row.caller_id_number) {
-    row.direction = "outbound";
-    row.displayNumber = row.destination_number;
-    row.displayName =  row['variables.last_sent_callee_id_name'] || row['variables.effective_callee_id_name']
+  if (item.direction === 'inbound') {
+    row.displayNumber = item.from.number
+    row.displayName = item.from.name
+  } else if (item.to && item.to.number ) { //fixme
+    row.displayNumber = item.to.number
+    row.displayName = item.to.name
   } else {
-    row.direction = "inbound";
-    row.displayNumber = row.caller_id_number;
-    row.displayName = row.caller_id_name
+    row.displayNumber = row.displayName = item.destination;
   }
+
+  if (item.files) {
+    row.file = item.files.pop();
+  }
+
   return row;
 
 }
 
-function fillGroups(user, groups, res) {
+function fillGroups(groups, res) {
   res.forEach(function (item) {
-    const row = responseToRow(user, item);
+    const row = responseToRow(item);
     let lastGroup = getLastElem(groups);
     let by;
 
-    by = new Date(row[['created_time']]);
+    by = new Date(+row[['created_at']]);
     if (!lastGroup) {
       lastGroup = makeGroup(by.toLocaleDateString());
       groups.push(lastGroup)
@@ -228,18 +224,13 @@ function fillGroups(user, groups, res) {
 
     row.startTime = by.toTimeString().split(' ')[0];
     row.durationString = intToTimeString(row['duration']);
-    row.imgClassName = getImgCall(row['direction'], row['hangup_cause'], !!row['queue.name']);
+    row.imgClassName = getImgCall(row['direction'], row['cause']);
     row.webitelData = [];
-    if (row['variables.webitel_data']) {
-      const data = JSON.parse(row['variables.webitel_data']);
+    if (row.variables) {
+      const data = row.variables;
       for (let name in data) {
         if (data[name] && !~PROTECTED_WEBITEL_DATA.indexOf(name))
           row.webitelData.push({name, value: data[name]})
-      }
-    }
-    if (row.post_data) {
-      for (let name in row.post_data) {
-        row.webitelData.push({name, value: row.post_data[name]})
       }
     }
 
@@ -250,21 +241,7 @@ function fillGroups(user, groups, res) {
   return groups;
 }
 
-function getCdrFileUri (user, id) {
-  const idx = id.indexOf('_');
-  if (!~idx) {
-    return null;
-  }
-  const name = id.substring(idx + 1);
-  let uri = user.cdrServer + "/api/v2/files/" +
-    id.substring(0, idx) + "?access_token=" + user.getToken() +
-    "&x_key=" + user.getKey();
-  if (name)
-    uri += "&name=" + name.substring(0, name.indexOf('.')) + "&file_name=" + name;
-  return uri;
-}
-
-function getImgCall(direction, hangupCause, isQueue) {
+function getImgCall(direction, hangupCause) {
 
   if (direction !== 'outbound' && hangupCause === 'ORIGINATOR_CANCEL') {
     return 'call_missed'

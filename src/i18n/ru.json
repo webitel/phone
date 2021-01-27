@@ -40,7 +40,10 @@
     "statusOnBreak": "Перерыв",
     "stateCCWaiting": "На линии",
     "stateDND": "Не беспокоить",
-    "stateCallForward": "Переадресация"
+    "stateCallForward": "Переадресация",
+    "online": "На линии",
+    "offline": "offline",
+    "pause": "Перерыв"
   },
   "users": {
     "statusNotRegister": "Нет регистрации",
@@ -149,6 +152,7 @@
     "ringInboundSinkId": "Устройство для звуковых оповещений",
     "refreshDevices": "Очистить",
     "disableAutoUpdate": "Отключить автообновление",
-    "logout": "Выйти"
+    "logout": "Выйти",
+    "sipClient": "SIP подколючение"
   }
 }

@@ -3,6 +3,9 @@
 
 import 'vuetify/dist/vuetify.min.css'
 import 'material-design-icons-iconfont/dist/material-design-icons.css'
+
+import './App.css'
+
 import Vue from 'vue'
 import App from './App'
 import router from './router'
@@ -25,12 +28,13 @@ Vue.use(Vuetify, {
   theme: {
     primary: '#82B1FF',
     // primary: '#142dbf',
+    dark: 'red',
     secondary: '#424242',
     accent: '#387E75',
     error: '#FF5252',
     info: '#2196F3',
-    success: '#4CAF50',
-    warning: '#FFC107'
+    success: '#4caf50',
+    warning: '#ffc107'
   }
 });
 

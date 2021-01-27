@@ -1,10 +1,9 @@
-export function getStateColor(state, status) {
-
-  if (state === 'NONREG') {
+export function getStateColor(status) {
+  if (status === 'offline') {
     return 'default'
-  } else if (state === 'ONHOOK' && status === 'NONE' ) {
+  } else if (status === 'online') {
     return 'success'
-  } else if (state === 'ISBUSY' && status === 'ONBREAK') {
+  } else if (status === 'pause') {
     return 'warning'
   } else {
     return 'error'
@@ -60,6 +59,11 @@ export function makeGroup(by) {
 export function intToTimeString(seconds) {
   let h, m, s, str = '';
   s = Math.floor(seconds);
+
+  if (!seconds) {
+    return " 0 sec"
+  }
+
   m = Math.floor(s / 60);
   s = s % 60;
   h = Math.floor(m / 60);

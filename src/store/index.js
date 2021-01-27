@@ -2,11 +2,13 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import User from '../services/user'
 import Callback from '../services/callback'
+import {Configuration} from 'webitel-sdk'
 import settings from '../services/settings'
 import {findUserById} from "../services/helper";
 import i18n from '../services/i18n'
 
 import CDRStore from '../store/cdr'
+import UsersStore from '../store/users'
 import VersionStore from '../store/version'
 import AuthenticationStore from '../store/authentication'
 
@@ -16,6 +18,7 @@ const store = new Vuex.Store({
   debug: true,
   modules: {
     cdr: CDRStore,
+    users: UsersStore,
     version: VersionStore,
     authentication: AuthenticationStore
   },
@@ -28,14 +31,21 @@ const store = new Vuex.Store({
     user: null,
     search: "",
     status: null,
+    sipReg: false,
+    deviceId: null,
     theme: settings.get('theme'),
     internalUsers: [],
     calls: [],
     callback: null,
-    reconnecting: false
+    reconnecting: false,
+
+    apiConfiguration: null
   },
   getters: {
     i18n: state => () => state.i18n,
+    sipReg: state => () => state.sipReg,
+    deviceId: state => () => state.deviceId,
+    apiConfiguration: state => () => state.apiConfiguration,
 
     countCalls: state => () => {
       return state.calls.length;
@@ -86,6 +96,7 @@ const store = new Vuex.Store({
     },
 
     search: state => () => state.search,
+
     getSearch: state => () => state.search,
 
     reconnecting: state => () => state.reconnecting === true,
@@ -101,16 +112,28 @@ const store = new Vuex.Store({
   },
 
   mutations: {
+    SET_SIP_REG (state = {}, value) {
+      state.sipReg = value
+    },
+    SET_SIP_DEVICE (state = {}, value) {
+      state.deviceId = value
+    },
+    CHANGE_USER_STATUS (state = {}, value) {
+      state.status = value
+    },
     VIEW_SPINNER (state = {}, value) {
       state.viewSpinner = value
     },
     AUTH (state = {}, credentials) {
+      state.apiConfiguration = new Configuration({
+        apiKey: credentials.token,
+        basePath: credentials.server
+      });
       state.user = new User(credentials);
-      state.callback = new Callback(state.user);
-      state.status = getStatus(state.user.state, state.user.status);
+      // state.callback = new Callback(state.user);
+      state.status = state.user.status;
 
-      Vue.http.headers.common['x-key'] = credentials.key;
-      Vue.http.headers.common['x-access-token'] = credentials.token;
+      Vue.http.headers.common['X-Webitel-Access'] = credentials.token;
     },
 
     SET_RECONNECT (state = {}, value) {
@@ -121,12 +144,14 @@ const store = new Vuex.Store({
     LOGIN (state = {}) {
       state.logged = true;
       state.lastLogged = Date.now();
-      state.status = getStatus(state.user.state, state.user.status);
+      state.status = state.user.status;
     },
 
     LOGOUT (state = {}) {
       state.logged = false;
       state.reconnecting = false;
+      state.apiConfiguration = null;
+
       if (state.user) {
         state.user.logout();
         state.user = null;
@@ -137,9 +162,26 @@ const store = new Vuex.Store({
       state.calls = [];
       state.callback = null;
 
-      Vue.http.headers.common['x-key'] = '';
-      Vue.http.headers.common['x-access-token'] = '';
-      settings.set('webrtcPassword', '');
+      Vue.http.headers.common['X-Webitel-Access'] = '';
+    },
+
+    //FIXME
+    CLEAN_SESSION (state = {}) {
+      state.logged = false;
+      state.reconnecting = false;
+      state.apiConfiguration = null;
+
+      if (state.user) {
+        state.status = getStatus("NONREG");
+      }
+      state.search = "";
+      state.internalUsers = [];
+      state.calls = [];
+      state.callback = null;
+
+      localStorage.removeItem('token');
+
+      Vue.http.headers.common['X-Webitel-Access'] = '';
     },
 
     SET_THEME (state = {}, value) {
@@ -204,6 +246,7 @@ const store = new Vuex.Store({
 export default store
 
 function getStatus(state, status) {
+  return 'break';
   if (state === 'ONHOOK' && status === 'NONE' ) {
     return 'ready'
   } else if (state === 'ISBUSY' && status === 'ONBREAK') {

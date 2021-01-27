@@ -13,7 +13,14 @@ const getTrayIconPath = (state) => {
 };
 
 const getTrayIconFileNameSuffix = (state = {}) => {
-  return state.status || 'nonreg'
+  switch (state.status) {
+    case "online":
+      return "ready";
+    case "pause":
+      return "break";
+    default:
+      return "nonreg"
+  }
 };
 
 const getContextMenu = (state = {}, tray) => {
@@ -25,42 +32,52 @@ const getContextMenu = (state = {}, tray) => {
     {type: 'separator'}
   ];
 
+  // if logged
   if (state.status !== 'nonreg') {
-    template.push({
+    const statusMenu = {
       label: tray.i18n.t('changeStatus.status'),
       submenu: [
-        {
-          label: tray.i18n.t('user.statusReady'),
-          click: () => tray.emit('set-status', {status: "Ready"})
-        },
-        {
-          label: tray.i18n.t('user.statusCallCenter'),
-          submenu: [
-            {
-              label: tray.i18n.t('user.stateCCWaiting'),
-              click: () => tray.emit('set-status', {status: "Call Center", state: "Waiting"})
-            },
-            {
-              label: tray.i18n.t('user.statusOnBreak'),
-              click: () => tray.emit('set-status',  {status: "Call Center", state: "OnBreak"})
-            }
-          ]
-        },
-        {
-          label: tray.i18n.t('user.statusBusy'),
-          submenu: [
-            {
-              label: tray.i18n.t('user.stateDND'),
-              click: () => tray.emit('set-status', {status: "Busy", state: "DND"})
-            },
-            {
-              label: tray.i18n.t('user.statusOnBreak'),
-              click: () => tray.emit('set-status', {status: "Busy", state: "ONBREAK"})
-            }
-          ]
-        }
+        // {
+        //   label: tray.i18n.t('user.statusReady'),
+        //   click: () => tray.emit('set-status', {status: "online"})
+        // },
+        // {
+        //   label: tray.i18n.t('user.statusBusy'),
+        //   submenu: [
+        //     {
+        //       label: tray.i18n.t('user.stateDND'),
+        //       click: () => tray.emit('set-status', {status: "Busy", state: "DND"})
+        //     },
+        //     {
+        //       label: tray.i18n.t('user.statusOnBreak'),
+        //       click: () => tray.emit('set-status', {status: "Busy", state: "ONBREAK"})
+        //     }
+        //   ]
+        // }
       ]
-    });
+    }
+
+    for (let status of tray.statusList) {
+      if (status.items.length) {
+        statusMenu.submenu.push({
+          label: tray.i18n.t('user.' + status.id),
+          submenu: status.items.map( i => {
+            return {
+              label: i,
+              click: () => tray.emit('set-status', {status: status.id, payload: i})
+            }
+          })
+        })
+
+      } else {
+        statusMenu.submenu.push({
+          label: tray.i18n.t('user.' + status.id),
+          click: () => tray.emit('set-status', {status: status.id})
+        })
+      }
+    }
+
+    template.push(statusMenu);
 
     if (tray.links.length) {
       const links = {
@@ -104,7 +121,7 @@ const getContextMenu = (state = {}, tray) => {
 };
 
 class TrayMenu extends EventEmitter {
-  constructor(i18n, links = [], partialState) {
+  constructor(i18n, links = [], pauseDescriptions = [], partialState) {
     super();
     this.tray = null;
     this.state = {
@@ -113,6 +130,12 @@ class TrayMenu extends EventEmitter {
       hide: false
     };
     this.links = [];
+
+    this.statusList = [
+      {id: "pause", title: 'Pause', items: pauseDescriptions},
+      {id: "online", title: 'Online', items: []},
+      {id: "offline", title: 'Offline', items: []}
+    ]
 
     if (links && links.length) {
       for (let link of links) {
@@ -157,7 +180,12 @@ class TrayMenu extends EventEmitter {
 
   update() {
     // this.tray.setToolTip('This is my application.');
-    this.tray.setImage(getTrayIconPath(this.state));
+    const imgFile = getTrayIconPath(this.state);
+    if (this.imgFile === imgFile) {
+      return;
+    }
+    this.imgFile = imgFile;
+    this.tray.setImage(imgFile);
 
     const contextMenu = Menu.buildFromTemplate(getContextMenu(this.state, this));
     this.tray.setContextMenu(contextMenu);

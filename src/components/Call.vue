@@ -3,12 +3,11 @@
   <v-layout row v-if="call">
     <v-flex xs12 sm6 offset-sm3>
       <div>
-
         <v-card >
           <v-card-title >
             <v-layout row>
               <v-flex xs2 class="text-xs-left">
-                <h5>{{call.state ? $t('call.' + call.state.toLowerCase()) : ''}}</h5>
+                <h5>{{call.session.state ? $t('call.' + call.session.state.toLowerCase()) : ''}}</h5>
               </v-flex>
               <v-flex xs8 class="text-xs-center">
                 <v-tooltip v-model="showTooltipCopy" top nudge-top="0">
@@ -31,15 +30,28 @@
           </v-card-title>
 
           <v-responsive >
+
             <v-layout column class="media">
+<!--              <v-flex  v-if="call.queueName">-->
+<!--                {{call.queueName}}-->
+<!--              </v-flex>-->
               <v-card-title>
+
+<!--                <video v-show="call && call.peerStreams && call.peerStreams.length" srcObject.prop="call.peerStreams[0]">-->
+<!---->
+<!--                </video>-->
+
+              </v-card-title>
+
+              <v-card-title>
+
                 <v-menu
                   :open-on-click="false"
                   v-model="dtmfPanel"
                   offset-x
                   :close-on-content-click="false"
                 >
-                  <v-btn :disabled="!call.isActive()" small icon class="mr-3" @click="dtmfPanel = call.isActive()" slot="activator">
+                  <v-btn :disabled="!call.isActive()" icon small @click="dtmfPanel = call.isActive()" slot="activator">
                     <v-icon>dialpad</v-icon>
                   </v-btn>
 
@@ -89,7 +101,7 @@
                   offset-x
                   :close-on-content-click="false"
                 >
-                  <v-btn :disabled="!call.isActive()" small icon class="mr-3" @click="transferPanel = call.isActive()" slot="activator">
+                  <v-btn :disabled="!call.isActive()" icon small @click="transferPanel = call.isActive()" slot="activator">
                     <v-icon>call_missed_outgoing</v-icon>
                   </v-btn>
                   <v-card>
@@ -128,15 +140,18 @@
                   </v-card>
                 </v-menu>
 
-                <v-btn @click="call.answer()" icon class="mr-3" v-if="call.direction === 'inbound' && call.state === 'RINGING' && user.webPhoneRegister">
-                  <v-icon color="success">call</v-icon>
+                <v-btn @click="call.answer()" fab small color="success" v-if="call.session.allowAnswer">
+                  <v-icon >call</v-icon>
                 </v-btn>
 
-                <v-btn @click="call.toggleHold()" icon class="mr-3" v-else-if="call.state === 'ACTIVE' || call.state === 'HOLD'">
-                  <v-icon :color="call.state === 'HOLD' ? 'warning': ''">phone_paused</v-icon>
+                <v-btn @click="call.hold()" icon small v-if="call.session.allowHold">
+                  <v-icon color="">phone_paused</v-icon>
+                </v-btn>
+                <v-btn @click="call.unHold()" icon small v-if="call.session.allowUnHold">
+                  <v-icon color="warning">phone_paused</v-icon>
                 </v-btn>
 
-                <v-btn :loading="call.requestPostProcess"  :disabled="call.requestPostProcess" id="btn-postprocess" @click="sendPostProcess()" icon class="mr-3" v-else-if="call.state === 'DOWN'">
+                <v-btn :loading="call.requestPostProcess"  :disabled="call.requestPostProcess" id="btn-postprocess" @click="sendPostProcess()" icon small v-else-if="call.state === 'DOWN'">
                   <v-icon color="success">check</v-icon>
                   <span slot="loader" class="custom-loader">
                     <v-icon light>cached</v-icon>
@@ -145,9 +160,13 @@
 
                 <v-spacer></v-spacer>
 
-                <v-btn :disabled="!call.isActive()" @click="call.hangup()" icon class="mr-3">
-                  <v-icon  color="error">call_end</v-icon>
-                </v-btn>
+                <div class="text-xs-center">
+                  <v-btn :disabled="!call.isActive()" @click="call.hangup()" color="error" fab small>
+                    <v-icon>call_end</v-icon>
+                  </v-btn>
+                </div>
+
+
 
               </v-card-title>
 
