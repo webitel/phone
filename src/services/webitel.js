@@ -1675,6 +1675,8 @@ var Webitel = function(parameters) {
     return webrtcPhone;
   };
 
+  var pingTimeoutInterval = null;
+
   //Functions related to connection
   var WebitelConnection = {
     _status: ConnectionStatus.Disconnected,
@@ -1743,6 +1745,8 @@ var Webitel = function(parameters) {
       };
       that._webSocket.onclose = function() {
         webSocketStatus(that._webSocket);
+        clearInterval(pingTimeoutInterval);
+
         that._ready = false;
         console.log('WebSocket conection closed');
         that._status = ConnectionStatus.Disconnected;
@@ -1784,6 +1788,22 @@ var Webitel = function(parameters) {
                   agent: Boolean(res.response['cc-agent'])
                 }
               };
+
+              pingTimeoutInterval = setInterval(()=> {
+                var ping = new WebitelCommand("ping",
+                  null,
+                  function() {
+                    try {
+                      if (webrtcPhone) {
+                        webrtcPhone.rpcClient.call('');
+                      }
+                    } catch (e) {
+                      console.error(e)
+                    }
+                  });
+                ping.execute();
+              }, 50000);
+
               that.onConnect.trigger(user);
               that.getAgents(user);
             } else {

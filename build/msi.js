@@ -3,7 +3,7 @@ var createMsi = require('msi-packager')
 var options = {
 
   // required
-  source: '/home/igor/work/webitel-phone/desktop/webitel-phone/win64',
+  source: '/home/igor/work/webitel-phone/release-builds/webitel-phone-win32-x64',
   output: './webitel-phone.msi',
   name: 'Webitel phone',
   upgradeCode: 'YOUR-GUID-HERE',

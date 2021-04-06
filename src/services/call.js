@@ -78,7 +78,7 @@ class Call {
         }
 
         if (postDataFields.length > 0) {
-          this.postDataFields = postDataFields;
+          this.postDataFields = JSON.parse(JSON.stringify(postDataFields));
         } else {
           this.postProcessing = false;
         }
