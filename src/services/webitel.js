@@ -1260,7 +1260,10 @@ var Webitel = function(parameters) {
           return;
         }
         if (e[WebitelCallChanelVariables.WJsOriginate]) {
-          webCall['session'].answer();
+          webCall['session'].answer({
+            callee_id_name: WebitelConnection.getCurrentStatus().name,
+            callee_id_number: WebitelConnection.getCurrentStatus().id
+          });
         } else {
           OnWebRTCDoAnswer.trigger({
             channel: e,
@@ -1560,7 +1563,10 @@ var Webitel = function(parameters) {
             if (channel) {
               try {
                 if (channel[WebitelCallChanelVariables.WJsOriginate]) {
-                  d.answer();
+                  d.answer({
+                    callee_id_name: WebitelConnection.getCurrentStatus().name,
+                    callee_id_number: WebitelConnection.getCurrentStatus().id
+                  });
                 } else {
                   if (!d.answered) {
                     OnWebRTCDoAnswer.trigger({
@@ -1909,7 +1915,9 @@ var Webitel = function(parameters) {
 
       if (webCall && !webCall['answered']) {
         webCall['session'].answer({
-          useVideo: useVideo
+          useVideo: useVideo,
+          callee_id_name: this.account().name,
+          callee_id_number: this.account().id
         });
         webCall['answered'] = true;
         return true;
