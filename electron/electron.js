@@ -139,7 +139,7 @@ function createWindow () {
   }
 
   mainWindow = new BrowserWindow(options);
-  // mainWindow.webContents.openDevTools()
+  mainWindow.webContents.openDevTools()
 
 
   // and load the index.html of the app.

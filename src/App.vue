@@ -98,7 +98,7 @@
     <Upgrade></Upgrade>
 
     <v-navigation-drawer
-      v-if="!mini"
+      v-if="!mini && false"
       v-model="drawer"
       app
     >

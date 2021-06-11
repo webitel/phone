@@ -85,9 +85,9 @@ class User extends InternalUser {
       switch (action) {
         case CallActions.Ringing: {
           new Call(call);
-          if (this.usrAutoAnswer && call.direction === 'inbound') {
+          if (call.autoAnswer || (this.usrAutoAnswer && call.direction === 'inbound')) {
             try {
-              setTimeout(() => call.answer({}), 500);
+              setTimeout(() => call.answer({}), 750);
             } catch (e) {
               console.error(e)
             }
