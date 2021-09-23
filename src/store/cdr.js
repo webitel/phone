@@ -150,23 +150,24 @@ export default {
       new CallServiceApi(rootGetters.apiConfiguration()).searchHistoryCall(
         +state.page,
         FETCH_COUNT,
-        0,
-        Date.now() + (60 *60 * 1000),
-        rootGetters.user().id, //user_id
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
         state.filter,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
+        ['-created_at'],
         ["created_at", "id", "files", "cause", "duration", "direction", "destination", "from", "to", "variables"],
-        ['-created_at']
+        (new Date(Date.now() - (7 * 24 * 60 * 60 * 1000))).getTime(), // last 7 day
+        Date.now() + (60 * 1000),
+        rootGetters.user().id,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
       ).then((result) => {
         commit('SUCCESS');
         commit('SET_DATA', result.data);

@@ -10,7 +10,7 @@ import executor from './executor'
 
 import {Client, CallActions} from 'webitel-sdk'
 
-import {SipPhone} from 'webitel-sdk/esm2015/sip/webrtc'
+import {SipPhone} from 'webitel-sdk/esm5/sip/webrtc'
 
 const ExecEvents = {
   NEW_CALL: "new_call",

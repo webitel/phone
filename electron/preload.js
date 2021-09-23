@@ -70,8 +70,9 @@ function deepFind(obj, path) {
 }
 
 class Executor {
-  constructor(config = {}) {
+  constructor(config = {}, openUrlOnAnswer) {
     this.handlers = config || {};
+    this.openUrlOnAnswer = openUrlOnAnswer;
   }
 
   parseParameters(data = {}, params = []) {
@@ -93,6 +94,10 @@ class Executor {
   }
 
   exec(name = '', data) {
+    if (name === 'answer' && this.openUrlOnAnswer && data && data.variables && data.variables[this.openUrlOnAnswer]) {
+      console.info('open', data.variables[this.openUrlOnAnswer])
+      remote.shell.openExternal(data.variables[this.openUrlOnAnswer])
+    }
     if (this.handlers.hasOwnProperty(name)) {
       const {app, parameters} = this.handlers[name];
       if (!app) {
@@ -413,7 +418,7 @@ class App {
     window.WEBITEL_COPY_TO_CLIPBOARD = this.copyClipboard.bind(this);
     window.WEBITEL_MINIMALIZE = this.minimize.bind(this);
     window.WEBITEL_HIDE = this.setHide.bind(this);
-    window.WEBITEL_EXECUTOR = new Executor(this.config.get('execute'));
+    window.WEBITEL_EXECUTOR = new Executor(this.config.get('execute'), this.config.get('openUrlOnAnswer'));
     window.addEventListener('keyup', this.keyUp, true)
   }
 

@@ -90,7 +90,7 @@ class Call {
 
     this.dtmfDigits = [];
 
-    if (this.direction === 'inbound') {
+    if (this.direction === 'inbound' || (data.queue && data.queue.queue_type === 'preview')  ) {
       if (settings.get('notifyNewCall')) {
         this.notificationNewCall = new NotificationInboundCall(this, {direction: settings.get('notifyNewCallDirection')})
       }

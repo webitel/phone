@@ -151,6 +151,13 @@
                   <v-icon color="warning">phone_paused</v-icon>
                 </v-btn>
 
+                <v-btn @click="call.session.mute(true)" icon small v-if="call.session.answeredAt && !call.session.muted">
+                  <v-icon color="">mic</v-icon>
+                </v-btn>
+                <v-btn @click="call.session.mute(false)" icon small v-if="call.session.answeredAt && call.session.muted">
+                  <v-icon color="warning">mic_off</v-icon>
+                </v-btn>
+
                 <v-btn :loading="call.requestPostProcess"  :disabled="call.requestPostProcess" id="btn-postprocess" @click="sendPostProcess()" icon small v-else-if="call.state === 'DOWN'">
                   <v-icon color="success">check</v-icon>
                   <span slot="loader" class="custom-loader">
