@@ -94,9 +94,11 @@ class Executor {
   }
 
   exec(name = '', data) {
-    if (name === 'answer' && this.openUrlOnAnswer && data && data.variables && data.variables[this.openUrlOnAnswer]) {
+    if (!data._executedOpenUrlOnAnswer &&
+      name === 'answer' && this.openUrlOnAnswer && data && data.variables && data.variables[this.openUrlOnAnswer]) {
       console.info('open', data.variables[this.openUrlOnAnswer])
       remote.shell.openExternal(data.variables[this.openUrlOnAnswer])
+      data._executedOpenUrlOnAnswer = true;
     }
     if (this.handlers.hasOwnProperty(name)) {
       const {app, parameters} = this.handlers[name];
