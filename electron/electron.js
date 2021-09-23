@@ -190,6 +190,14 @@ app.on('login', (event, webContents, request, authInfo, callback) => {
   })
 });
 
+// SSL/TSL: this is the self signed certificate support
+app.on('certificate-error', (event, webContents, url, error, certificate, callback) => {
+  // On certificate error we disable default behaviour (stop loading the page)
+  // and we then say "it is all fine - true" to the callback
+  event.preventDefault();
+  callback(true);
+});
+
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
